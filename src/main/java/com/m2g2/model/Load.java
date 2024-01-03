@@ -47,4 +47,14 @@ public class Load {
     public void setWeight(Float weight) {
         this.weight = weight;
     }
+
+    @Override
+    public String toString() {
+        return "Load{" +
+                "id=" + id +
+                ", unity=" + unity +
+                ", quantity=" + quantity +
+                ", weight=" + weight +
+                '}';
+    }
 }

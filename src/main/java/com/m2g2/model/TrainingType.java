@@ -46,4 +46,13 @@ public class TrainingType {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "TrainingType{" +
+                "id=" + id +
+                ", trainings=" + trainings +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

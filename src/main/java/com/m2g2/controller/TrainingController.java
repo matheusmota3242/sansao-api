@@ -1,7 +1,8 @@
 package com.m2g2.controller;
 
+import com.m2g2.constants.EndpointConstant;
 import com.m2g2.dto.request.TrainingRequest;
-import com.m2g2.model.Training;
+import com.m2g2.dto.response.TrainingResponse;
 import com.m2g2.model.error.ErrorResponse;
 import com.m2g2.service.TrainingService;
 import jakarta.validation.Valid;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("api/training")
@@ -28,14 +28,17 @@ public class TrainingController {
 	
 	@PostMapping
 	public void save(@RequestBody @Valid TrainingRequest request) {
-		logger.info("[ENTRADA] Endpoint 'save'. Objeto: {}", request);
+		logger.info(EndpointConstant.ENTRADA_COM_ARGUMENTO, "save", request);
 		service.save(request);
-		logger.info("[SAIDA] Endpoint 'save'. Objeto: {}", request);
+		logger.info(EndpointConstant.SAIDA_COM_ARGUMENTO, "save", request);
 	}
 	
 	@GetMapping
-	public List<Training> getAll() {
-		return service.getAll();
+	public List<TrainingResponse> getAll() {
+		logger.info(EndpointConstant.ENTRADA_SEM_ARGUMENTO, "getAll");
+		List<TrainingResponse> trainingResponses = service.getAll();
+		logger.info(EndpointConstant.SAIDA_COM_ARGUMENTO, "getAll", trainingResponses);
+		return trainingResponses;
 	}
 
 	@ExceptionHandler({MethodArgumentNotValidException.class})

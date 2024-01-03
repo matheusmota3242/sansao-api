@@ -54,4 +54,14 @@ public class Training {
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
+
+    @Override
+    public String toString() {
+        return "Training{" +
+                "id=" + id +
+                ", trainingItens=" + trainingItens +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                '}';
+    }
 }
