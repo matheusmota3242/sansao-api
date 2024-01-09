@@ -1,5 +1,7 @@
 package com.m2g2.service;
 
+import com.m2g2.dto.response.TrainingReferenceResponse;
+import com.m2g2.dto.response.TrainingResponse;
 import com.m2g2.dto.response.TrainingTypeResponse;
 import com.m2g2.model.TrainingType;
 import com.m2g2.repository.TrainingTypeRepository;
@@ -22,12 +24,19 @@ public class TrainingTypeService {
     }
 
     public List<TrainingTypeResponse> getAllNames() {
-        //return repository.findAll().stream().map(trainingType -> new TrainingTypeResponse(trainingType.getId(), trainingType.getName())).toList();
         return repository.findAllTrainingTypeName();
+    }
+
+    public List<TrainingReferenceResponse> getAllTrainingReferenceResponses() {
+        return repository.findAllTrainingReferences();
     }
 
     public Optional<TrainingType> getByName(String name) {
         return repository.findByName(name);
+    }
+
+    public Optional<TrainingResponse> getTrainingResponseById(Long id) {
+        return repository.findTrainingResponseById(id);
     }
 
     public void save(TrainingType trainingType) {

@@ -1,6 +1,7 @@
 package com.m2g2.service;
 
 import com.m2g2.dto.request.TrainingRequest;
+import com.m2g2.dto.response.TrainingReferenceResponse;
 import com.m2g2.dto.response.TrainingResponse;
 import com.m2g2.dto.response.TrainingTypeResponse;
 import com.m2g2.model.Load;
@@ -60,5 +61,13 @@ public class TrainingService {
 				.collect(Collectors.toList());
 		Collections.sort(trainingResponses, Comparator.comparing((trainingResponse) -> trainingResponse.training().getStartTime()));
 		return trainingResponses;
+	}
+
+	public List<TrainingReferenceResponse> getAllTrainingReferenceResponses() {
+		return trainingTypeService.getAllTrainingReferenceResponses();
+	}
+
+	public TrainingResponse getTrainingResponseById(Long id) {
+		return trainingTypeService.getTrainingResponseById(id).orElseThrow(() -> new IllegalArgumentException("Treino não encontrado."));
 	}
 }
