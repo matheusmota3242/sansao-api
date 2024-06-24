@@ -9,8 +9,5 @@
         <module name="sansao-api" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="sansao-api" target="17" />
-    </bytecodeTargetLevel>
   </component>
 </project>

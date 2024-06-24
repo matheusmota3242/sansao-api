@@ -1,59 +1,38 @@
 package com.m2g2.model;
 
-import com.m2g2.enums.MassUnity;
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
-@Entity
+import java.math.BigDecimal;
+
 public class Load {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    @NotNull
+    private Integer repetitions;
 
-    private MassUnity unity;
+    @NotNull
+    private BigDecimal weight;
 
-    private Integer quantity;
-
-    private Float weight;
-
-    public Long getId() {
-        return id;
+    public Integer getRepetitions() {
+        return repetitions;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setRepetions(Integer repetitions) {
+        this.repetitions = repetitions;
     }
 
-    public MassUnity getUnity() {
-        return unity;
-    }
-
-    public void setUnity(MassUnity unity) {
-        this.unity = unity;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Float getWeight() {
+    public BigDecimal getWeight() {
         return weight;
     }
 
-    public void setWeight(Float weight) {
+    public void setWeight(BigDecimal weight) {
         this.weight = weight;
     }
+
 
     @Override
     public String toString() {
         return "Load{" +
-                "id=" + id +
-                ", unity=" + unity +
-                ", quantity=" + quantity +
+                "repetitions=" + repetitions +
                 ", weight=" + weight +
                 '}';
     }

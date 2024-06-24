@@ -1,0 +1,12 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: sansaodb
+      username: admin
+      password: admin
+
+secret: 40e7bda903ae72a7e5dd1dcb98816f67b653579ba61a422fc694a8b9075fc9eb
+
+

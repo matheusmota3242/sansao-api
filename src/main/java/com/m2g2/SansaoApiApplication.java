@@ -1,7 +1,7 @@
 package com.m2g2;
 
-import com.m2g2.repository.TrainingRepository;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
