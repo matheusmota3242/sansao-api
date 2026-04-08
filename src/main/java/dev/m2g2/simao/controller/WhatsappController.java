@@ -1,4 +1,4 @@
-package dev.m2g2.simao;
+package dev.m2g2.simao.controller;
 
 import dev.m2g2.simao.dto.WahaRequestDto;
 import dev.m2g2.simao.service.WhatsappBotService;

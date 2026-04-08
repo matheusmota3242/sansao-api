@@ -3,8 +3,7 @@ package dev.m2g2.simao.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record WahaRequestDto(Payload payload) {
-
+public record WahaSendMessageResponseDto(Key key) {
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Payload(String body, Boolean fromMe, String to, String source) {}
+    public record Key(String id) {}
 }

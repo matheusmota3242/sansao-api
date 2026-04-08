@@ -1,15 +1,16 @@
-package dev.m2g2.simao.model;
+package dev.m2g2.simao.model.chat;
 
-import jakarta.persistence.Entity;
+import java.util.Optional;
 
-import java.time.LocalDateTime;
-
-@Entity
-public class Task extends BaseModel {
-
+public abstract class Step {
     private String description;
-    private LocalDateTime scheduledAt;
     private boolean completed = false;
+
+    public Step(String description) {
+        this.description = description;
+    }
+
+    public Step() {}
 
     public String getDescription() {
         return description;
@@ -19,14 +20,6 @@ public class Task extends BaseModel {
         this.description = description;
     }
 
-    public LocalDateTime getScheduledAt() {
-        return scheduledAt;
-    }
-
-    public void setScheduledAt(LocalDateTime scheduledAt) {
-        this.scheduledAt = scheduledAt;
-    }
-
     public boolean isCompleted() {
         return completed;
     }
@@ -34,4 +27,6 @@ public class Task extends BaseModel {
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
+
+    public abstract Optional<Object> execute(String value);
 }

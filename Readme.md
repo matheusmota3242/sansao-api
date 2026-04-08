@@ -31,6 +31,7 @@ CREATE USER <user> WITH PASSWORD '<password>';
 Grant privileges to user
 ````
 GRANT ALL PRIVILEGES ON DATABASE simaodb TO <user>;
+GRANT SELECT ON TABLE public.chat_record TO <user>;
 ````
 
 ## Features
