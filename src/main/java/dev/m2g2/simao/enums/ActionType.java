@@ -27,8 +27,10 @@ public enum ActionType {
 
     public static String showAutomationActionTypes() {
         StringBuilder sb = new StringBuilder();
-        for (ActionType actionType : ActionType.values()) {
-            sb.append(actionType.ordinal()).append(" - ").append(actionType.getDescription()).append("\n");
+        for (int i = 0; i < ActionType.values().length; i++) {
+            sb.append("%d - %s".formatted(values()[i].ordinal(), values()[i].getDescription()));
+            if (i < ActionType.values().length - 1)
+                sb.append("\n");
         }
         return sb.toString();
     }

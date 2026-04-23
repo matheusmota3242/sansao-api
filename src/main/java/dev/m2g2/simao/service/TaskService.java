@@ -1,11 +1,11 @@
 package dev.m2g2.simao.service;
 
+import dev.m2g2.simao.dto.TaskDTO;
 import dev.m2g2.simao.enums.ChatType;
-import dev.m2g2.simao.model.Task;
+import dev.m2g2.simao.model.task.Task;
 import dev.m2g2.simao.model.chat.ChatRecord;
 import dev.m2g2.simao.model.chat.task.CreateTaskInteraction;
 import dev.m2g2.simao.repository.TaskRepository;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,11 +23,16 @@ public class TaskService implements InteractionBaseService {
         this.chatRecordService = chatRecordService;
     }
 
-    public Task create(Task task) {
+    public Task create(TaskDTO taskDTO) {
+        Task task = new Task();
+        task.setDescription(taskDTO.getDescription());
+        task.setScheduledAt(taskDTO.getScheduledAt());
         LocalDateTime now = LocalDateTime.now();
         task.setCreatedAt(now);
         task.setUpdatedAt(now);
-        return repository.save(task);
+        task.setActive(true);
+        task = repository.save(task);
+        return task;
     }
 
     public Optional<Task> getById(Long id) {
@@ -40,7 +45,7 @@ public class TaskService implements InteractionBaseService {
             ChatRecord record = new ChatRecord();
             record.setInteraction(createTaskInteraction);
             chatRecordService.create(record);
-            return createTaskInteraction.processInput(message).toString();
+            return createTaskInteraction.processInput(message).text();
         }
         return null;
     }
@@ -50,18 +55,26 @@ public class TaskService implements InteractionBaseService {
         if (message.equalsIgnoreCase(ChatType.LIST_TASKS.getValue())) {
             List<Task> tasks = repository.findAllByActiveTrue();
             if (tasks.isEmpty()) {
-                reply = "You don't have any tasks yet!";
+                reply = "Você ainda não possui tarefas!";
             } else {
-                StringBuilder builder = new StringBuilder("Here are your tasks:\n\n");
+                StringBuilder builder = new StringBuilder("""
+                        Aqui estão suas tarefas:
+                        
+                        """);
                 for (Task task : tasks) {
-                    builder.append(task.getId())
-                            .append(" - ")
-                            .append(task.getDescription())
-                            .append(" (")
-                            .append(task.getScheduledAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
-                            .append(")")
-                            .append("\n");
+                    builder.append("""
+                            %d - %s (%s)
+                            
+                            """.formatted(task.getId(),
+                            task.getDescription(),
+                            task.getScheduledAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
                 }
+                builder.append("""
+                        *Ações*
+                        
+                        ✅ Para concluir uma tarefa digite: *@etask <task_id>*
+                        ❌ Para remover uma terefa digite: *@dtask <task_id>*
+                        """);
                 reply = builder.toString();
             }
         }
@@ -74,23 +87,7 @@ public class TaskService implements InteractionBaseService {
             String[] parts = message.split(" ");
             Long taskId = Long.parseLong(parts[1]);
             repository.deleteById(taskId);
-            reply = String.format("Task with id %d deleted!", taskId);
-        }
-        return reply;
-    }
-
-    public String createIf(Object pairCandidate, ChatRecord record) {
-        String reply = null;
-        if (pairCandidate instanceof Pair<?,?> replyAndTask) {
-            record.setCompleted(true);
-            reply = (String) replyAndTask.getFirst();
-            if (replyAndTask.getSecond() instanceof Task task) {
-                LocalDateTime now = LocalDateTime.now();
-                task.setCreatedAt(now);
-                task.setUpdatedAt(now);
-                task.setActive(true);
-                repository.save(task);
-            }
+            reply = "Tarefa com id %d removida!".formatted(taskId);
         }
         return reply;
     }
@@ -105,10 +102,9 @@ public class TaskService implements InteractionBaseService {
                 task.setCompleted(true);
                 task.setUpdatedAt(LocalDateTime.now());
                 repository.save(task);
-                reply = String.format("Task with id %d marked as complete!", taskId);
+                reply = "Tarefa com id %d concluída!".formatted(taskId);
             }
         }
         return reply;
     }
-
 }

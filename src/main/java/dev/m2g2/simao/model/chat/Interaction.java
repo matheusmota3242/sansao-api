@@ -3,18 +3,20 @@ package dev.m2g2.simao.model.chat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import dev.m2g2.simao.dto.chat.ChatResponse;
 import dev.m2g2.simao.model.chat.task.CreateTaskInteraction;
+import dev.m2g2.simao.model.chat.automation.CreateAutomationInteraction;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = CreateTaskInteraction.class, name = "create_task")
+        @JsonSubTypes.Type(value = CreateTaskInteraction.class),
+        @JsonSubTypes.Type(value = CreateAutomationInteraction.class)
 })
 public abstract class Interaction<T>  {
 
@@ -44,9 +46,5 @@ public abstract class Interaction<T>  {
     }
 
     @JsonIgnore
-    public Object processInput(String value) {
-        Optional<Object> output = getCurrentStep().execute(value);
-        return output.orElseGet(() -> getCurrentStep().getDescription());
-    }
-
+    public abstract ChatResponse processInput(String value);
 }

@@ -1,6 +1,6 @@
 package dev.m2g2.simao.controller;
 
-import dev.m2g2.simao.dto.WahaRequestDto;
+import dev.m2g2.simao.dto.waha.WahaRequest;
 import dev.m2g2.simao.service.WhatsappBotService;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +15,7 @@ public class WhatsappController {
     }
 
     @PostMapping("/message")
-    public void receiveMessage(@RequestBody WahaRequestDto requestDto) {
+    public void receiveMessage(@RequestBody WahaRequest requestDto) {
         whatsappBotService.receiveMessage(requestDto);
     }
 }

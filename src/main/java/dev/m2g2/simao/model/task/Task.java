@@ -1,5 +1,6 @@
-package dev.m2g2.simao.model;
+package dev.m2g2.simao.model.task;
 
+import dev.m2g2.simao.model.BaseModel;
 import jakarta.persistence.Entity;
 
 import java.time.LocalDateTime;

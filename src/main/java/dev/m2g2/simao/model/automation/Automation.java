@@ -3,34 +3,35 @@ package dev.m2g2.simao.model.automation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.m2g2.simao.enums.ActionType;
 import dev.m2g2.simao.model.BaseModel;
+import dev.m2g2.simao.model.automation.schedule.ScheduleConfig;
+import dev.m2g2.simao.model.automation.schedule.SpecificDateSchedule;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 @Entity
 public class Automation extends BaseModel {
 
-    public String  name;
+    private String  name;
 
-    public ActionType actionType;
+    private ActionType actionType;
 
     @JdbcTypeCode(SqlTypes.JSON)
     public Map<String, Object> metadata = new HashMap<>();
 
-    @Enumerated(EnumType.STRING)
-    public Periodicity periodicity;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private ScheduleConfig scheduleConfig;
 
-    public LocalTime executionTime;
+    private LocalDateTime nextExecutionAt;
 
     public enum Periodicity {
         DAILY,
-        CUSTOM;
+        WEEKLY_CUSTOM,
+        DATETIME;
 
         @JsonIgnore
         public String fromString(String value) {
@@ -67,19 +68,30 @@ public class Automation extends BaseModel {
         this.metadata = metadata;
     }
 
-    public Periodicity getPeriodicity() {
-        return periodicity;
+    public ScheduleConfig getScheduleConfig() {
+        return scheduleConfig;
     }
 
-    public void setPeriodicity(Periodicity periodicity) {
-        this.periodicity = periodicity;
+    public void setScheduleConfig(ScheduleConfig scheduleConfig) {
+        this.scheduleConfig = scheduleConfig;
     }
 
-    public LocalTime getExecutionTime() {
-        return executionTime;
+    public LocalDateTime getNextExecutionAt() {
+        return nextExecutionAt;
     }
 
-    public void setExecutionTime(LocalTime executionTime) {
-        this.executionTime = executionTime;
+    public void setNextExecutionAt(LocalDateTime nextExecutionAt) {
+        this.nextExecutionAt = nextExecutionAt;
+    }
+
+    public void updateNextExecutionAtOrInactivate() {
+        if (this.scheduleConfig != null) {
+            if (this.scheduleConfig instanceof SpecificDateSchedule) {
+                if (((SpecificDateSchedule) this.scheduleConfig).getDate().isBefore(LocalDateTime.now())) {
+                    this.active = false;
+                }
+            }
+            this.nextExecutionAt = this.scheduleConfig.getNextExecutionAt();
+        }
     }
 }

@@ -1,98 +1,193 @@
 package dev.m2g2.simao.model.chat.automation;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import dev.m2g2.simao.dto.AutomationDTO;
+import dev.m2g2.simao.dto.chat.AutomationChatResponse;
 import dev.m2g2.simao.enums.ActionType;
 import dev.m2g2.simao.enums.ChatType;
-import dev.m2g2.simao.model.automation.Automation;
+import dev.m2g2.simao.model.automation.schedule.DailySchedule;
+import dev.m2g2.simao.model.automation.schedule.SpecificDateSchedule;
+import dev.m2g2.simao.model.automation.schedule.WeeklyCustomSchedule;
 import dev.m2g2.simao.model.chat.Interaction;
 import dev.m2g2.simao.model.chat.Step;
-import org.springframework.data.util.Pair;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
-public class CreateAutomationInteraction extends Interaction<Automation> {
+import static dev.m2g2.simao.dto.chat.AutomationChatResponse.*;
+
+@JsonTypeName("create_automation")
+public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
+
+    private static final String INVALID_FORMAT_ERROR_MESSAGE = """
+                    Formato inválido. Tente novamente.
+                    
+                    Diário
+                    _Ex: 12:00_
+                    
+                    Data específica
+                    _Ex: 01/01/2000_
+                    
+                    Semanal customizado
+                    _Ex: 2 12:00,4 14:00 (segunda às 12h e quarta às 14h)_
+                    """;
+    public static final String AUTOMATION_CREATED_SUCCESSFULLY = "Automação criada com sucesso!";
 
     public CreateAutomationInteraction() {
         super();
         this.steps.addAll(List.of(
-                new Step("Automation name:") {
-                    @Override
-                    public Optional<Object> execute(String value) {
-                        if (value == null || value.isBlank())
-                            value = "Undefined";
-                        data.setName(value);
-                        steps.getFirst().setCompleted(true);
-                        return Optional.empty();
-                    }
-                },
-                new Step("Select an automation type:\n\n"+ ActionType.showAutomationActionTypes()) {
-                    @Override
-                    public Optional<Object> execute(String value) {
-                        try {
-                            Optional<ActionType> actionType = ActionType.fromIndex(value == null ? 0 : Integer.parseInt(value));
-                            if (actionType.isPresent()) {
-                                data.setActionType(actionType.get());
-                                steps.get(1).setCompleted(true);
-                                if (ActionType.SEND_TASK_REMEMBERING.equals(actionType.get())) {
-                                    steps.add(2, new Step("Task ID:") {
-                                        @Override
-                                        public Optional<Object> execute(String value) {
-                                            try {
-                                                Long taskId = Long.parseLong(value);
-                                                data.setMetadata(Map.of("taskId", taskId));
-                                            } catch (NumberFormatException e) {
-                                                return Optional.of("Invalid task ID. Must be a number. Type again.");
-                                            }
-                                            return Optional.empty();
-                                        }
-                                    });
-                                    steps.removeLast();
-                                }
-                            }
-                        } catch (NumberFormatException e) {
-                            return Optional.of("Invalid action type. Type again.");
-                        }
-                        return Optional.empty();
-                    }
-                },
-                new Step("Periodicity") {
-                    @Override
-                    public Optional<Object> execute(String value) {
-                        Automation.Periodicity periodicity = Automation.Periodicity.DAILY;
-                        data.setPeriodicity(Automation.Periodicity.DAILY);
-                        steps.get(2).setCompleted(true);
-                        return Optional.empty();
-                    }
-                },
-                new Step("To:") {
-                    @Override
-                    public Optional<Object> execute(String value) {
-                        data.setMetadata(Map.of("to", value));
-                        steps.get(3).setCompleted(true);
-                        if (ActionType.SEND_TASK_REMEMBERING.equals(data.getActionType())) {
-                            return Optional.of(Pair.of("Automation created!", data));
-                        }
-                        return Optional.empty();
-                    }
-                },
-                new Step("Message:") {
-                    @Override
-                    public Optional<Object> execute(String value) {
-                        data.setMetadata(Map.of("message", value));
-                        steps.get(4).setCompleted(true);
-                        return Optional.of(Pair.of("Automation created!", data));
-                    }
-                }
-        ));
-        this.data = new Automation();
+                new Step("Nome da automação:"),
+                new Step("""
+                        Tipo da automação:
+                        
+                        %s
+                        """.formatted(ActionType.showAutomationActionTypes())),
+                new Step("Destinatário:"),
+                new Step("""
+                        Data e hora:
+                        
+                        Diário
+                        _Ex: 12:00_
+                        
+                        Data específica
+                        _Ex: 01/01/2000 12:00_
+                        
+                        Semanal customizado
+                        _Ex: 2 12:00,4 14:00 (segunda às 12h e quarta às 14h)_
+                        """)
+                ));
+        this.data = new AutomationDTO();
     }
 
     @Override
-    public Object processInput(String value) {
-        if (value.equalsIgnoreCase(ChatType.CREATE_AUTOMATION.getValue())) {
-            return this.steps.getFirst().getDescription();
+    public AutomationChatResponse processInput(String value) {
+        if (value.equalsIgnoreCase(ChatType.CREATE_AUTOMATION.getValue()))
+            return proceed(this.steps.getFirst().getDescription());
+
+        if (this.steps.getFirst().equals(getCurrentStep()))
+            return executeNameStep(value);
+
+        if (this.steps.get(1).equals(getCurrentStep()))
+            return executeAutomationTypeStep(value);
+
+
+        if (this.steps.get(2).equals(getCurrentStep())) {
+            if (ActionType.SEND_TASK_REMEMBERING.equals(this.data.getActionType()))
+                return executeTaskAssociationStep(value);
+
+            if (ActionType.SEND_SIMPLE_TEXT.equals(this.data.getActionType()))
+                return executeMessageStep(value);
         }
-        return super.processInput(value);
+
+        if (this.steps.get(3).equals(getCurrentStep()))
+            return executeToStep(value);
+
+        return executeScheduleConfigStep(value);
+    }
+
+    private AutomationChatResponse executeNameStep(String value) {
+        if (value == null || value.isBlank())
+            value = "Undefined";
+        this.data.setName(value);
+        this.steps.getFirst().setCompleted(true);
+        return proceed(getCurrentStep().getDescription());
+    }
+
+    private AutomationChatResponse executeAutomationTypeStep(String value) {
+        try {
+            Optional<ActionType> actionType = ActionType.fromIndex(value == null ? 0 : Integer.parseInt(value));
+            if (actionType.isPresent()) {
+                this.data.setActionType(actionType.get());
+                this.steps.get(1).setCompleted(true);
+                if (ActionType.SEND_TASK_REMEMBERING.equals(actionType.get())) {
+                    this.steps.add(2, new Step("Id da tarefa:"));
+                }
+
+                if (ActionType.SEND_SIMPLE_TEXT.equals(actionType.get())) {
+                    this.steps.add(2, new Step("Mensagem:"));
+                }
+            }
+        } catch (NumberFormatException e) {
+            return error("Tipo de ação inválida. Tente de novo.");
+        }
+        return proceed(getCurrentStep().getDescription());
+    }
+
+    private AutomationChatResponse executeTaskAssociationStep(String value) {
+        try {
+            Long taskId = Long.parseLong(value);
+            this.data.getMetadata().put("taskId", taskId);
+            this.steps.get(2).setCompleted(true);
+        } catch (NumberFormatException e) {
+            return error("Valor do id inválido. Precisa ser um número. Tente de novo.");
+        }
+        return proceed(getCurrentStep().getDescription());
+    }
+
+    private AutomationChatResponse executeMessageStep(String value) {
+        this.data.getMetadata().put("message", value);
+        this.steps.get(2).setCompleted(true);
+        return proceed(getCurrentStep().getDescription());
+    }
+
+    private AutomationChatResponse executeToStep(String value) {
+        this.data.getMetadata().put("to", value);
+        this.steps.get(3).setCompleted(true);
+        return proceed(getCurrentStep().getDescription());
+    }
+
+    private AutomationChatResponse executeScheduleConfigStep(String value) {
+        if (value == null || value.isBlank())
+            return error(INVALID_FORMAT_ERROR_MESSAGE);
+        LocalTime time = null;
+        try {
+            time = LocalTime.parse(value);
+            DailySchedule dailySchedule = new DailySchedule();
+            dailySchedule.setTime(time);
+            this.data.setScheduleConfig(dailySchedule);
+        } catch (Exception _) {}
+
+        LocalDateTime dateTime = null;
+        if (time == null) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+                dateTime = LocalDateTime.parse(value, formatter);
+                SpecificDateSchedule specificDateSchedule = new SpecificDateSchedule();
+                specificDateSchedule.setDate(dateTime);
+                this.data.setScheduleConfig(specificDateSchedule);
+            } catch (Exception _) {}
+        }
+
+        List<WeeklyCustomSchedule.DayTime> dayTimes;
+        if (time == null && dateTime == null) {
+            try {
+                dayTimes = Arrays.stream(value.split(","))
+                        .map(part -> {
+                            String[] pieces = part.trim().split(" ");
+                            int day;
+                            LocalTime dayTime;
+                            try {
+                                day = Integer.parseInt(pieces[0]);
+                                dayTime = LocalTime.parse(pieces[1]);
+                            } catch (Exception e) {
+                                throw new IllegalArgumentException(INVALID_FORMAT_ERROR_MESSAGE, e);
+                            }
+
+                            if (day < 1 || day > 7) {
+                                throw new IllegalArgumentException("Dia precisa estar no intervalo 1-7");
+                            }
+
+                            return new WeeklyCustomSchedule.DayTime(day, dayTime);
+                        }).toList();
+                WeeklyCustomSchedule weeklyCustomSchedule = new WeeklyCustomSchedule();
+                weeklyCustomSchedule.setDays(dayTimes);
+                this.data.setScheduleConfig(weeklyCustomSchedule);
+            } catch (Exception e) {
+                return error(e.getMessage());
+            }
+        }
+        return success(AUTOMATION_CREATED_SUCCESSFULLY, data);
     }
 }

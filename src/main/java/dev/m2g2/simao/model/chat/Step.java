@@ -1,8 +1,6 @@
 package dev.m2g2.simao.model.chat;
 
-import java.util.Optional;
-
-public abstract class Step {
+public class Step {
     private String description;
     private boolean completed = false;
 
@@ -28,5 +26,4 @@ public abstract class Step {
         this.completed = completed;
     }
 
-    public abstract Optional<Object> execute(String value);
 }

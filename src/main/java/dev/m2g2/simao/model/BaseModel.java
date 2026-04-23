@@ -8,12 +8,12 @@ import java.time.LocalDateTime;
 public abstract class BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    protected Long id;
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
     @Column(name = "updated_at", nullable = false, updatable = false)
-    private LocalDateTime updatedAt;
-    private boolean active = true;
+    protected LocalDateTime updatedAt;
+    protected boolean active = true;
 
     public Long getId() {
         return id;
