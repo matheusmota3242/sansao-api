@@ -10,6 +10,7 @@ import dev.m2g2.simao.model.automation.schedule.SpecificDateSchedule;
 import dev.m2g2.simao.model.automation.schedule.WeeklyCustomSchedule;
 import dev.m2g2.simao.model.chat.Interaction;
 import dev.m2g2.simao.model.chat.Step;
+import dev.m2g2.simao.util.DateTimeUtil;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,7 +34,7 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
                     Semanal customizado
                     _Ex: 2 12:00,4 14:00 (segunda às 12h e quarta às 14h)_
                     """;
-    public static final String AUTOMATION_CREATED_SUCCESSFULLY = "Automação criada com sucesso!";
+    public static final String AUTOMATION_CREATED_SUCCESSFULLY = "Automação cadastrada com sucesso!";
 
     public CreateAutomationInteraction() {
         super();
@@ -55,7 +56,7 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
                         _Ex: 01/01/2000 12:00_
                         
                         Semanal customizado
-                        _Ex: 2 12:00,4 14:00 (segunda às 12h e quarta às 14h)_
+                        _Ex: SEG 12:00, QUA 14:00 (segunda às 12h e quarta às 14h)_
                         """)
                 ));
         this.data = new AutomationDTO();
@@ -87,6 +88,11 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
         return executeScheduleConfigStep(value);
     }
 
+    @Override
+    public String cancelMessage() {
+        return "Criação de automação cancelada.";
+    }
+
     private AutomationChatResponse executeNameStep(String value) {
         if (value == null || value.isBlank())
             value = "Undefined";
@@ -110,7 +116,7 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
                 }
             }
         } catch (NumberFormatException e) {
-            return error("Tipo de ação inválida. Tente de novo.");
+            return error("Tipo de ação inválida. Tente novamente.");
         }
         return proceed(getCurrentStep().getDescription());
     }
@@ -121,7 +127,7 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
             this.data.getMetadata().put("taskId", taskId);
             this.steps.get(2).setCompleted(true);
         } catch (NumberFormatException e) {
-            return error("Valor do id inválido. Precisa ser um número. Tente de novo.");
+            return error("Valor do id inválido. Precisa ser um número. Tente novamente.");
         }
         return proceed(getCurrentStep().getDescription());
     }
@@ -169,14 +175,14 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
                             int day;
                             LocalTime dayTime;
                             try {
-                                day = Integer.parseInt(pieces[0]);
+                                day = DateTimeUtil.getDayOfWeekIndex(pieces[0]);
                                 dayTime = LocalTime.parse(pieces[1]);
                             } catch (Exception e) {
                                 throw new IllegalArgumentException(INVALID_FORMAT_ERROR_MESSAGE, e);
                             }
 
                             if (day < 1 || day > 7) {
-                                throw new IllegalArgumentException("Dia precisa estar no intervalo 1-7");
+                                throw new IllegalArgumentException("Dia precisa estar no intervalo 1-7. Tente novamente.");
                             }
 
                             return new WeeklyCustomSchedule.DayTime(day, dayTime);

@@ -38,7 +38,10 @@ public enum ChatType {
 
     public static String showMenuIf(String message) {
         if (message.equalsIgnoreCase(ChatType.MENU.getValue())) {
-            StringBuilder menu = new StringBuilder("Here is the menu:\n\n");
+            StringBuilder menu = new StringBuilder("""
+                    Aqui está o menu:
+                    
+                    """);
             for (ChatType chatType : ChatType.values()) {
                 menu.append("*").append(chatType.getValue()).append("*").append(" - ").append(chatType.getDescription()).append("\n");
             }

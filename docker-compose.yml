@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  postgres-app:
+    image: postgres:alpine
+    container_name: ximaoxinho
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: simao_db
+      POSTGRES_USER: matheus
+      POSTGRES_PASSWORD: REDACTED
+    volumes:
+      - postgres-app-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  postgres-waha:
+    image: postgres:alpine
+    container_name: postgres-waha
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: waha_db
+      POSTGRES_USER: simao
+      POSTGRES_PASSWORD: REDACTED
+    volumes:
+      - postgres-waha-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  waha:
+    image: devlikeapro/waha
+    container_name: waha
+    restart: unless-stopped
+    depends_on:
+      - postgres-waha
+    env_file:
+      - .waha_env
+    environment:
+      WHATSAPP_SESSIONS_POSTGRESQL_URL: postgres://simao:REDACTED@postgres-waha:5432/waha_db?sslmode=disable
+    volumes:
+      - ./sessions:/app/.sessions
+    ports:
+      - "3000:3000"
+
+  app:
+    image: maven:3.9-eclipse-temurin-25
+    container_name: simao-app
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ~/.m2:/root/.m2
+    env_file:
+      - .app_env
+    command: >
+      mvn spring-boot:run
+      -Dspring-boot.run.jvmArguments="
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    depends_on:
+      - postgres-app
+volumes:
+  postgres-app-data:
+  postgres-waha-data:

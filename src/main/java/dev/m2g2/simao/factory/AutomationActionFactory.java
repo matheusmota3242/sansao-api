@@ -1,4 +1,4 @@
-package dev.m2g2.simao;
+package dev.m2g2.simao.factory;
 
 import dev.m2g2.simao.annotation.AutomationAction;
 import dev.m2g2.simao.enums.ActionType;

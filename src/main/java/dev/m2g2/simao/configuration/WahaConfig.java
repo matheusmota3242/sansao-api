@@ -68,7 +68,7 @@ public class WahaConfig {
     }
 
     private WahaSessionConfig getWahaSessionConfigRequestDto() {
-        List<WahaSessionConfig.Webhook> webhooks = List.of(new dev.m2g2.simao.dto.waha.WahaSessionConfig.Webhook(host+":8080/whatsapp/message", List.of("message", "message.any")));
+        List<WahaSessionConfig.Webhook> webhooks = List.of(new dev.m2g2.simao.dto.waha.WahaSessionConfig.Webhook(host+"/whatsapp/message", List.of("message", "message.any")));
         WahaSessionConfig.Noweb noweb = new dev.m2g2.simao.dto.waha.WahaSessionConfig.Noweb(new dev.m2g2.simao.dto.waha.WahaSessionConfig.Store(false, false));
         WahaSessionConfig.Config config = new dev.m2g2.simao.dto.waha.WahaSessionConfig.Config(noweb, 2, webhooks, false);
         return new WahaSessionConfig(config);

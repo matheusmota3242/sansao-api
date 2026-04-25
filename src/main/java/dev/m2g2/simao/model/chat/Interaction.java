@@ -47,4 +47,6 @@ public abstract class Interaction<T>  {
 
     @JsonIgnore
     public abstract ChatResponse processInput(String value);
+
+    public abstract String cancelMessage();
 }

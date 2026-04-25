@@ -1,5 +1,6 @@
-package dev.m2g2.simao.service.automation;
+package dev.m2g2.simao.cron;
 
+import dev.m2g2.simao.service.automation.AutomationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;

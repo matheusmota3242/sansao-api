@@ -18,7 +18,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static dev.m2g2.simao.enums.ChatType.CANCEL;
 import static dev.m2g2.simao.enums.ChatType.showMenuIf;
+import static dev.m2g2.simao.util.ChatbotUtil.*;
 
 @Service
 public class WhatsappBotService {
@@ -41,8 +43,8 @@ public class WhatsappBotService {
         }
         String incomingMessage = requestDto.payload().body().replace("#", "").trim();
         String reply = null;
-        if (!incomingMessage.startsWith("@")) {
-            reply = retrieveReplyFromNotCompletedChatRecord(incomingMessage).orElse(null);
+        if (isRelatedToChatRecord(incomingMessage)) {
+            reply = retrieveReplyFromChatRecord(incomingMessage).orElse(null);
         }
 
         if (reply == null) {
@@ -63,12 +65,12 @@ public class WhatsappBotService {
         if (reply == null) {
             return;
         }
-        reply = ChatbotUtil.format(reply);
+        reply = format(reply);
         WahaSendMessageResponse responseDto = wahaClientService.sendText(new WahaSendMessageRequest("558499607700@c.us", reply));
     }
 
     @Transactional
-    private Optional<String> retrieveReplyFromNotCompletedChatRecord(String message) {
+    private Optional<String> retrieveReplyFromChatRecord(String message) {
         String reply = null;
         ChatRecord record = chatRecordService.getLastNotCompletedChatRecord().orElse(null);
         if (record == null) {
@@ -81,32 +83,25 @@ public class WhatsappBotService {
 
         if (message.equalsIgnoreCase(ChatType.CANCEL.getValue())) {
             record.setActive(false);
-            return Optional.empty();
-        }
+            reply = record.getInteraction().cancelMessage();
+        } else {
+            ChatResponse chatResponse = record.getInteraction().processInput(message);
+            LocalDateTime now = LocalDateTime.now();
+            record.setUpdatedAt(now);
+            if (chatResponse != null) {
+                reply = chatResponse.text();
+                if (chatResponse.completed()) {
+                    record.setActive(false);
+                    if (chatResponse instanceof TaskChatResponse taskChatResponse)
+                        taskService.create(taskChatResponse.task());
 
-        ChatResponse chatResponse = record.getInteraction().processInput(message);
-        LocalDateTime now = LocalDateTime.now();
-        record.setUpdatedAt(now);
-        if (chatResponse != null) {
-            reply = chatResponse.text();
-            if (chatResponse.completed()) {
-                record.setActive(false);
-                if (chatResponse instanceof TaskChatResponse taskChatResponse)
-                    taskService.create(taskChatResponse.task());
-
-                if (chatResponse instanceof AutomationChatResponse automationChatResponse)
-                    automationService.create(automationChatResponse.automation());
+                    if (chatResponse instanceof AutomationChatResponse automationChatResponse)
+                        automationService.create(automationChatResponse.automation());
+                }
             }
         }
         chatRecordService.update(record);
         return Optional.ofNullable(reply);
     }
 
-    private boolean isValid(WahaRequest requestDto) {
-        return requestDto.payload() != null &&
-                requestDto.payload().body() != null &&
-                (requestDto.payload().body().startsWith("#") || requestDto.payload().body().startsWith("@")) &&
-                Boolean.TRUE.equals(requestDto.payload().fromMe()) &&
-                !"api".equals(requestDto.payload().source());
-    }
 }

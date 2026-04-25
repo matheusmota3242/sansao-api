@@ -19,10 +19,10 @@ public class HttpClientConfig {
     @Bean
     public WahaClientService wahaClientService() {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-
+        System.out.println("apiKey: " + apiKey);
         RestClient restClient = RestClient.builder()
                 .requestFactory(new org.springframework.http.client.HttpComponentsClientHttpRequestFactory(httpClient))
-                .baseUrl("http://localhost:3000/api")
+                .baseUrl("http://waha:3000/api")
                 .defaultHeader("X-Api-Key", apiKey)
                 .build();
 

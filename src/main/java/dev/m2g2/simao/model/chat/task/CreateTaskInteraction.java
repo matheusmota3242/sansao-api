@@ -7,12 +7,17 @@ import dev.m2g2.simao.enums.ChatType;
 import dev.m2g2.simao.model.chat.Interaction;
 import dev.m2g2.simao.model.chat.Step;
 import dev.m2g2.simao.model.task.TaskScheduler;
+import dev.m2g2.simao.util.DateTimeUtil;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static dev.m2g2.simao.util.DateTimeUtil.*;
 
 @JsonTypeName("create_task")
 public class CreateTaskInteraction extends Interaction<TaskDTO> {
@@ -23,17 +28,17 @@ public class CreateTaskInteraction extends Interaction<TaskDTO> {
                 new Step("Descrição da tarefa:"),
                 new Step("""
                         Data e hora da tarefa:
-                        Ex: 01/01/1900 12:00
+                        _Ex: 01/01/1900 12:00_
                         """),
                 new Step("""
                         Periodicidade da tarefa (opcional):
                         
                         0 - Todos os dias
                         
-                        1 0...6 - Semana customizada
-                        Ex: 1 0,2,4
-                        """)
-        ));
+                        1 <%s> - Semana customizada
+                        _Ex: 1 SEG,QUA,SEX_
+                        """.formatted(getFormattedDaysOfWeekAbreviations())))
+        );
         this.data = new TaskDTO();
     }
 
@@ -52,6 +57,11 @@ public class CreateTaskInteraction extends Interaction<TaskDTO> {
         }
 
         return executeTaskPeriodicity(value);
+    }
+
+    @Override
+    public String cancelMessage() {
+        return "Criação de tarefa cancelada!";
     }
 
     private TaskChatResponse executeDescriptionStep(String value) {
@@ -91,15 +101,8 @@ public class CreateTaskInteraction extends Interaction<TaskDTO> {
             return new TaskChatResponse("Dias da semana inválidos. Tente novamente.", false, null);
         }
 
-        for (String day : daysOfweek) {
-            try {
-                int number = Integer.parseInt(day);
-                if (number < 0 || number > 6) {
-                    return new TaskChatResponse("Dia da semana inválido. Tente novamente.", false, null);
-                }
-            } catch (NumberFormatException e) {
-                return new TaskChatResponse("Dia da semana inválido. Tente novamente.", false, null);
-            }
+        if (Arrays.stream(daysOfweek).anyMatch(candidate -> !getDaysOfWeekAbreviations().contains(candidate.toUpperCase()))) {
+            return new TaskChatResponse("Dia da semana inválido. Tente novamente.", false, null);
         }
 
         if ("1".equals(chunks[0])) {

@@ -3,8 +3,8 @@ package dev.m2g2.simao.enums;
 import java.util.Optional;
 
 public enum ActionType {
-    SEND_SIMPLE_TEXT("Send simple text message"),
-    SEND_TASK_REMEMBERING("Remember a task");
+    SEND_SIMPLE_TEXT("Enviar mensagem de texto"),
+    SEND_TASK_REMEMBERING("Lembrar de tarefa");
 
     private final String description;
 

@@ -9,7 +9,7 @@ import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 import org.springframework.web.service.annotation.PutExchange;
 
-@HttpExchange(url = "http://localhost:3000/api", accept = "application/json", contentType = "application/json")
+@HttpExchange(url = "http://waha:3000/api", accept = "application/json", contentType = "application/json")
 public interface WahaClientService {
 
     @PostExchange("/sendText")

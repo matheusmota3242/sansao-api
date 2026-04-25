@@ -1,6 +1,6 @@
 package dev.m2g2.simao.service.automation;
 
-import dev.m2g2.simao.AutomationActionFactory;
+import dev.m2g2.simao.factory.AutomationActionFactory;
 import dev.m2g2.simao.dto.AutomationDTO;
 import dev.m2g2.simao.enums.ChatType;
 import dev.m2g2.simao.model.automation.Automation;
