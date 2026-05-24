@@ -17,8 +17,8 @@ public class TaskJobService {
     }
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void recreateDailyTasks() {
-        
+    public void recreateRecurrentTasks() {
+
     }
 
 }

@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findAllByActiveTrue();
-    List<Task> findAllByActiveTrueAndNextExecutionAtBefore(java.time.LocalDateTime now);
+    //List<Task> findAllByActiveTrueAndNextExecutionAtBefore(java.time.LocalDateTime now);
 }
