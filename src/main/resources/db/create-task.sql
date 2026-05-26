@@ -1,9 +1,0 @@
-CREATE TABLE task (
-	id BIGSERIAL PRIMARY KEY,
-	description VARCHAR(255),
-	scheduled_at TIMESTAMP,
-	completed BOOLEAN NOT NULL DEFAULT FALSE,
-	active BOOLEAN NOT NULL DEFAULT TRUE,
-	created_at TIMESTAMP NOT NULL,
-	updated_at TIMESTAMP NOT NULL
-);

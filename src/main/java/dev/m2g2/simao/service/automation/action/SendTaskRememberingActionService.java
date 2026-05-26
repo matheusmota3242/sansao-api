@@ -35,7 +35,7 @@ public class SendTaskRememberingActionService implements ActionBaseService {
 
     @Override
     public ExecutionResult execute(Automation automation) {
-        Long taskId = (Long) automation.getMetadata().get("taskId");
+        Long taskId = ((Number) automation.getMetadata().get("taskId")).longValue();
         Optional<Task> task = taskService.getById(taskId);
         if (task.isEmpty()) {
             String error = "Could not execute automation %d. Task with id %d not found".formatted(automation.getId(), taskId);
