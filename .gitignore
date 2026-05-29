@@ -38,3 +38,6 @@ build/
 .waha_env
 .postgres_app.env
 .postgres_waha.env
+
+### Others ###
+.commands.md
