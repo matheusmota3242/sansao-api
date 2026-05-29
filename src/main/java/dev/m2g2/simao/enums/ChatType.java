@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum ChatType {
-    MENU("@menu", "Show the menu", false),
-    CANCEL("@cancel", "Inactivate last not completed chat", false),
-    CREATE_TASK("@ctask", "Create new task", true),
-    LIST_TASKS("@ltask", "List all tasks", false),
-    DELETE_TASK("@dtask", "Delete task from ID", false),
-    EXECUTE_TASK("@etask", "Mark task as completed", false),
-    CREATE_AUTOMATION("@cauto", "Create new automation", true),
-    LIST_AUTOMATIONS("@lauto", "List all automations", false),
-    DELETE_AUTOMATION("@dauto", "Delete automation from ID", false),
-    CREATE_NOTE("@cnote", "Create new note", true),
-    LIST_NOTES("@lnote", "List all notes", false),
-    DELETE_NOTE("@dnote", "Delete note from ID", false);
+    MENU("@menu", "Exibir este menu", false),
+    CANCEL("@cancel", "Cancelar interação em andamento", false),
+    CREATE_TASK("@ctask", "Criar nova tarefa", true),
+    LIST_TASKS("@ltask", "Listar tarefas", false),
+    DELETE_TASK("@dtask", "Remover tarefa pelo ID", false),
+    EXECUTE_TASK("@etask", "Marcar tarefa como concluída", false),
+    CREATE_AUTOMATION("@cauto", "Criar nova automação", true),
+    LIST_AUTOMATIONS("@lauto", "Listar automações", false),
+    DELETE_AUTOMATION("@dauto", "Remover automação pelo ID", false),
+    CREATE_NOTE("@cnote", "Criar nova nota", true),
+    LIST_NOTES("@lnote", "Listar notas", false),
+    DELETE_NOTE("@dnote", "Remover nota pelo ID", false);
 
     private final String value;
     private final String description;
@@ -40,17 +40,32 @@ public enum ChatType {
     }
 
     public static String showMenuIf(String message) {
-        if (message.equalsIgnoreCase(ChatType.MENU.getValue())) {
-            StringBuilder menu = new StringBuilder("""
-                    Aqui está o menu:
-                    
-                    """);
-            for (ChatType chatType : ChatType.values()) {
-                menu.append("*").append(chatType.getValue()).append("*").append(" - ").append(chatType.getDescription()).append("\n");
-            }
-            return menu.toString();
-        }
-        return null;
+        if (!message.equalsIgnoreCase(ChatType.MENU.getValue()))
+            return null;
+
+        return """
+                🤖 *Simão Bot*
+
+                📋 *Tarefas*
+                *@ctask* — Criar nova tarefa
+                *@ltask* — Listar tarefas
+                *@etask <id>* — Concluir tarefa
+                *@dtask <id>* — Remover tarefa
+
+                ⚙️ *Automações*
+                *@cauto* — Criar nova automação
+                *@lauto* — Listar automações
+                *@dauto <id>* — Remover automação
+
+                📝 *Notas*
+                *@cnote* — Criar nova nota
+                *@lnote* — Listar notas
+                *@dnote <id>* — Remover nota
+
+                🔧 *Geral*
+                *@menu* — Exibir este menu
+                *@cancel* — Cancelar interação em andamento
+                """;
     }
 
     public static List<ChatType> allByInteractionRequirement(boolean requireInteraction) {
