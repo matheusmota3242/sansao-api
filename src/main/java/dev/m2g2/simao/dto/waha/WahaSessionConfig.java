@@ -27,5 +27,8 @@ public record WahaSessionConfig(Config config) {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Webhook(
             String url,
-            List<String> events) {}
+            List<String> events,
+            List<CustomHeader> customHeaders) {}
+
+    public record CustomHeader(String name, String value) {}
 }

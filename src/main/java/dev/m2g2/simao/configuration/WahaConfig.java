@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -24,6 +25,12 @@ public class WahaConfig {
 
     @Value("${application.host}")
     private String host;
+
+    @Value("${application.owner-phone}")
+    private String ownerPhone;
+
+    @Value("${waha.webhook-secret}")
+    private String webhookSecret;
 
     private final WahaClientService wahaClientService;
     private final ChatRecordService chatRecordService;
@@ -48,11 +55,11 @@ public class WahaConfig {
                     } catch (InterruptedException e) {
                         log.error("Interrupted while waiting to send Waha health message", e);
                     }
-                    wahaClientService.sendText(new WahaSendMessageRequest("558499607700", ChatbotUtil.format("Simão Bot is now online!")));
+                    wahaClientService.sendText(new WahaSendMessageRequest(ownerPhone, ChatbotUtil.format("Simão Bot is now online!")));
                     ChatRecord record = chatRecordService.getLastNotCompletedChatRecord().orElse(null);
                     if (record != null) {
                         String stepDescription = record.getInteraction().getCurrentStep().getDescription();
-                        wahaClientService.sendText(new WahaSendMessageRequest("558499607700", ChatbotUtil.format(stepDescription)));
+                        wahaClientService.sendText(new WahaSendMessageRequest(ownerPhone, ChatbotUtil.format(stepDescription)));
                     }
                 });
                 return;
@@ -68,9 +75,9 @@ public class WahaConfig {
     }
 
     private WahaSessionConfig getWahaSessionConfigRequestDto() {
-        List<WahaSessionConfig.Webhook> webhooks = List.of(new dev.m2g2.simao.dto.waha.WahaSessionConfig.Webhook(host+"/whatsapp/message", List.of("message", "message.any")));
-        WahaSessionConfig.Noweb noweb = new dev.m2g2.simao.dto.waha.WahaSessionConfig.Noweb(new dev.m2g2.simao.dto.waha.WahaSessionConfig.Store(false, false));
-        WahaSessionConfig.Config config = new dev.m2g2.simao.dto.waha.WahaSessionConfig.Config(noweb, 2, webhooks, false);
+        List<WahaSessionConfig.Webhook> webhooks = List.of(new WahaSessionConfig.Webhook(host + "/whatsapp/message", List.of("message", "message.any"), List.of(new WahaSessionConfig.CustomHeader("X-Webhook-Secret", webhookSecret))));
+        WahaSessionConfig.Noweb noweb = new WahaSessionConfig.Noweb(new WahaSessionConfig.Store(false, false));
+        WahaSessionConfig.Config config = new WahaSessionConfig.Config(noweb, 2, webhooks, false);
         return new WahaSessionConfig(config);
     }
 }

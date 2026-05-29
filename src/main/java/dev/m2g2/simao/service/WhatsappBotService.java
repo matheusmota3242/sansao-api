@@ -11,6 +11,7 @@ import dev.m2g2.simao.model.chat.ChatRecord;
 import dev.m2g2.simao.service.automation.AutomationService;
 import dev.m2g2.simao.util.ChatbotUtil;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,9 @@ import static dev.m2g2.simao.util.ChatbotUtil.*;
 
 @Service
 public class WhatsappBotService {
+
+    @Value("${application.owner-phone}")
+    private String ownerPhone;
 
     private final WahaClientService wahaClientService;
     private final TaskService taskService;
@@ -66,7 +70,7 @@ public class WhatsappBotService {
             return;
         }
         reply = format(reply);
-        WahaSendMessageResponse responseDto = wahaClientService.sendText(new WahaSendMessageRequest("558499607700@c.us", reply));
+        WahaSendMessageResponse responseDto = wahaClientService.sendText(new WahaSendMessageRequest(ownerPhone + "@c.us", reply));
     }
 
     @Transactional
