@@ -32,3 +32,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Secrets ###
+.app_env
+.waha_env
+.postgres_app.env
+.postgres_waha.env
