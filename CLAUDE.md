@@ -28,6 +28,13 @@ Artifacts like spring-boot-starter-data-jpa-test do not exist. Never add a test 
 - getCurrentStep() returns the first non-completed step
 - Error responses do NOT mark the step completed — state stays on same step
 - Every subclass must implement cancelMessage()
+- Step has no equals() override — do NOT use reference or object equality to identify steps
+  after deserialization; use data state instead (e.g. check if data.getScheduleConfig() != null)
+
+## Automation recurrence
+- Automation.recurrent controls post-execution behaviour
+- recurrent=true → updateNextExecutionAtOrInactivate() recalculates nextExecutionAt
+- recurrent=false → sets active=false (one-shot execution)
 
 ## DateTimeUtil
 - getDayOfWeekIndex(String) maps Portuguese abbreviations to day numbers (1–7)
