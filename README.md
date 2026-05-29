@@ -38,6 +38,9 @@ Schedule automated WhatsApp messages on a recurring or one-time basis.
 | `@cauto` | Create a new automation (interactive) |
 | `@lauto` | List all active automations |
 | `@dauto <id>` | Delete an automation |
+| `@cnote` | Create a new note (interactive) |
+| `@lnote` | List all notes |
+| `@dnote <id>` | Delete a note |
 | `@cancel` | Cancel the current in-progress interaction |
 
 All commands must be prefixed with `#` when sent via WhatsApp (e.g. `#@ctask`).
