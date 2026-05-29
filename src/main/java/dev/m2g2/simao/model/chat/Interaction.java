@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.m2g2.simao.dto.chat.ChatResponse;
-import dev.m2g2.simao.model.chat.task.CreateTaskInteraction;
 import dev.m2g2.simao.model.chat.automation.CreateAutomationInteraction;
+import dev.m2g2.simao.model.chat.note.CreateNoteInteraction;
+import dev.m2g2.simao.model.chat.task.CreateTaskInteraction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,8 @@ import java.util.List;
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = CreateTaskInteraction.class),
-        @JsonSubTypes.Type(value = CreateAutomationInteraction.class)
+        @JsonSubTypes.Type(value = CreateAutomationInteraction.class),
+        @JsonSubTypes.Type(value = CreateNoteInteraction.class)
 })
 public abstract class Interaction<T>  {
 

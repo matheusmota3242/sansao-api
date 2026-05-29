@@ -12,7 +12,10 @@ public enum ChatType {
     EXECUTE_TASK("@etask", "Mark task as completed", false),
     CREATE_AUTOMATION("@cauto", "Create new automation", true),
     LIST_AUTOMATIONS("@lauto", "List all automations", false),
-    DELETE_AUTOMATION("@dauto", "Delete automation from ID", false);
+    DELETE_AUTOMATION("@dauto", "Delete automation from ID", false),
+    CREATE_NOTE("@cnote", "Create new note", true),
+    LIST_NOTES("@lnote", "List all notes", false),
+    DELETE_NOTE("@dnote", "Delete note from ID", false);
 
     private final String value;
     private final String description;

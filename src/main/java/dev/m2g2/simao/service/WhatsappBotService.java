@@ -2,6 +2,7 @@ package dev.m2g2.simao.service;
 
 import dev.m2g2.simao.dto.chat.AutomationChatResponse;
 import dev.m2g2.simao.dto.chat.ChatResponse;
+import dev.m2g2.simao.dto.chat.NoteChatResponse;
 import dev.m2g2.simao.dto.chat.TaskChatResponse;
 import dev.m2g2.simao.dto.waha.WahaRequest;
 import dev.m2g2.simao.dto.waha.WahaSendMessageRequest;
@@ -32,12 +33,14 @@ public class WhatsappBotService {
     private final WahaClientService wahaClientService;
     private final TaskService taskService;
     private final AutomationService automationService;
+    private final NoteService noteService;
     private final ChatRecordService chatRecordService;
 
-    public WhatsappBotService(WahaClientService wahaClientService, TaskService taskService, AutomationService automationService, ChatRecordService chatRecordService) {
+    public WhatsappBotService(WahaClientService wahaClientService, TaskService taskService, AutomationService automationService, NoteService noteService, ChatRecordService chatRecordService) {
         this.wahaClientService = wahaClientService;
         this.taskService = taskService;
         this.automationService = automationService;
+        this.noteService = noteService;
         this.chatRecordService = chatRecordService;
     }
 
@@ -60,7 +63,10 @@ public class WhatsappBotService {
                         taskService.completeTaskIf(incomingMessage),
                         automationService.createInteractionIf(incomingMessage),
                         automationService.listIf(incomingMessage),
-                        automationService.deleteIf(incomingMessage)
+                        automationService.deleteIf(incomingMessage),
+                        noteService.createInteractionIf(incomingMessage),
+                        noteService.listIf(incomingMessage),
+                        noteService.deleteIf(incomingMessage)
                     )
                     .filter(Objects::nonNull)
                     .findFirst()
@@ -101,6 +107,9 @@ public class WhatsappBotService {
 
                     if (chatResponse instanceof AutomationChatResponse automationChatResponse)
                         automationService.create(automationChatResponse.automation());
+
+                    if (chatResponse instanceof NoteChatResponse noteChatResponse)
+                        noteService.create(noteChatResponse.note());
                 }
             }
         }
