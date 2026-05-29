@@ -53,9 +53,8 @@ class CreateAutomationInteractionTest {
     void nameStep_blankInput_defaultsToUndefinedNameAndAdvances() {
         interaction.processInput("@cauto");
 
-        // Complete the flow to assert name was stored as "Undefined"
-        driveToScheduleStep("  ", "0", "Hello!", "me@c.us");
-        AutomationChatResponse response = interaction.processInput("08:00");
+        driveToRecurrenceStep("  ", "0", "Hello!", "me@c.us", "08:00");
+        AutomationChatResponse response = interaction.processInput("S");
 
         assertTrue(response.completed());
         assertNotNull(response.automation());
@@ -133,8 +132,8 @@ class CreateAutomationInteractionTest {
 
     @Test
     void messageStep_contentStoredInMetadata() {
-        driveToScheduleStep("Announcement", "0", "Hello everyone!", "me@c.us");
-        AutomationChatResponse response = interaction.processInput("08:00");
+        driveToRecurrenceStep("Announcement", "0", "Hello everyone!", "me@c.us", "08:00");
+        AutomationChatResponse response = interaction.processInput("S");
 
         assertTrue(response.completed());
         assertEquals("Hello everyone!", response.automation().getMetadata().get("message"));
@@ -183,14 +182,13 @@ class CreateAutomationInteractionTest {
 
         assertFalse(response.completed());
         assertNull(response.automation());
-        // Assert the concrete schedule prompt — not an OR
         assertTrue(response.text().contains("Data e hora"));
     }
 
     @Test
     void toStep_recipientStoredInMetadata() {
-        driveToScheduleStep("Announcement", "0", "Hello!", "558499999999@c.us");
-        AutomationChatResponse response = interaction.processInput("08:00");
+        driveToRecurrenceStep("Announcement", "0", "Hello!", "558499999999@c.us", "08:00");
+        AutomationChatResponse response = interaction.processInput("S");
 
         assertTrue(response.completed());
         assertEquals("558499999999@c.us", response.automation().getMetadata().get("to"));
@@ -201,10 +199,21 @@ class CreateAutomationInteractionTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void scheduleStep_dailyTime_createsDailyScheduleAndCompletes() {
+    void scheduleStep_dailyTime_advancesToRecurrenceStep() {
         driveToScheduleStep("Daily briefing", "0", "Good morning!", "me@c.us");
 
         AutomationChatResponse response = interaction.processInput("08:00");
+
+        assertFalse(response.completed());
+        assertNull(response.automation());
+        assertTrue(response.text().contains("recorrente"));
+    }
+
+    @Test
+    void scheduleStep_dailyTime_createsDailyScheduleAndCompletes() {
+        driveToRecurrenceStep("Daily briefing", "0", "Good morning!", "me@c.us", "08:00");
+
+        AutomationChatResponse response = interaction.processInput("S");
 
         assertTrue(response.completed());
         assertNotNull(response.automation());
@@ -222,9 +231,9 @@ class CreateAutomationInteractionTest {
 
     @Test
     void scheduleStep_specificDateTime_createsSpecificDateScheduleAndCompletes() {
-        driveToScheduleStep("One-time alert", "0", "Alert!", "me@c.us");
+        driveToRecurrenceStep("One-time alert", "0", "Alert!", "me@c.us", "01/01/2030 10:00");
 
-        AutomationChatResponse response = interaction.processInput("01/01/2030 10:00");
+        AutomationChatResponse response = interaction.processInput("N");
 
         assertTrue(response.completed());
         assertNotNull(response.automation());
@@ -245,9 +254,9 @@ class CreateAutomationInteractionTest {
 
     @Test
     void scheduleStep_weeklyCustom_createsWeeklyCustomScheduleAndCompletes() {
-        driveToScheduleStep("Weekly summary", "0", "Summary!", "me@c.us");
+        driveToRecurrenceStep("Weekly summary", "0", "Summary!", "me@c.us", "SEG 09:00, QUA 14:00");
 
-        AutomationChatResponse response = interaction.processInput("SEG 09:00, QUA 14:00");
+        AutomationChatResponse response = interaction.processInput("S");
 
         assertTrue(response.completed());
         assertNotNull(response.automation());
@@ -256,7 +265,6 @@ class CreateAutomationInteractionTest {
         WeeklyCustomSchedule schedule = (WeeklyCustomSchedule) response.automation().getScheduleConfig();
         assertEquals(2, schedule.getDays().size());
 
-        // Assert actual days and times, not just list size
         WeeklyCustomSchedule.DayTime monday = schedule.getDays().get(0);
         assertEquals(DayOfWeek.MONDAY, monday.getDay());
         assertEquals(9, monday.getTime().getHour());
@@ -272,9 +280,9 @@ class CreateAutomationInteractionTest {
 
     @Test
     void scheduleStep_taskRemembranceFlow_setsTaskIdInMetadataAndCompletes() {
-        driveToScheduleStep("Remind task", "1", "5", "me@c.us");
+        driveToRecurrenceStep("Remind task", "1", "5", "me@c.us", "08:00");
 
-        AutomationChatResponse response = interaction.processInput("08:00");
+        AutomationChatResponse response = interaction.processInput("S");
 
         assertTrue(response.completed());
         assertNotNull(response.automation());
@@ -295,11 +303,11 @@ class CreateAutomationInteractionTest {
         assertFalse(firstResponse.completed());
         assertNull(firstResponse.automation());
 
-        // Retry with valid input should complete
+        // Retry with valid input should advance to recurrence step
         AutomationChatResponse retryResponse = interaction.processInput("08:00");
 
-        assertTrue(retryResponse.completed());
-        assertInstanceOf(DailySchedule.class, retryResponse.automation().getScheduleConfig());
+        assertFalse(retryResponse.completed());
+        assertTrue(retryResponse.text().contains("recorrente"));
     }
 
     @Test
@@ -311,11 +319,11 @@ class CreateAutomationInteractionTest {
         assertFalse(firstResponse.completed());
         assertNull(firstResponse.automation());
 
-        // Retry with valid input should complete
+        // Retry with valid input should advance to recurrence step
         AutomationChatResponse retryResponse = interaction.processInput("01/01/2030 10:00");
 
-        assertTrue(retryResponse.completed());
-        assertInstanceOf(SpecificDateSchedule.class, retryResponse.automation().getScheduleConfig());
+        assertFalse(retryResponse.completed());
+        assertTrue(retryResponse.text().contains("recorrente"));
     }
 
     @Test
@@ -327,6 +335,73 @@ class CreateAutomationInteractionTest {
 
         assertFalse(response.completed());
         assertNull(response.automation());
+    }
+
+    // -------------------------------------------------------------------------
+    // Recurrence step
+    // -------------------------------------------------------------------------
+
+    @Test
+    void recurrenceStep_sInput_setsRecurrentTrueAndCompletes() {
+        driveToRecurrenceStep("Daily briefing", "0", "Good morning!", "me@c.us", "08:00");
+
+        AutomationChatResponse response = interaction.processInput("S");
+
+        assertTrue(response.completed());
+        assertNotNull(response.automation());
+        assertTrue(response.automation().isRecurrent());
+    }
+
+    @Test
+    void recurrenceStep_nInput_setsRecurrentFalseAndCompletes() {
+        driveToRecurrenceStep("One-time alert", "0", "Alert!", "me@c.us", "01/01/2030 10:00");
+
+        AutomationChatResponse response = interaction.processInput("N");
+
+        assertTrue(response.completed());
+        assertNotNull(response.automation());
+        assertFalse(response.automation().isRecurrent());
+    }
+
+    @Test
+    void recurrenceStep_lowercaseInput_accepted() {
+        driveToRecurrenceStep("Daily briefing", "0", "msg", "me@c.us", "08:00");
+
+        AutomationChatResponse response = interaction.processInput("s");
+
+        assertTrue(response.completed());
+        assertTrue(response.automation().isRecurrent());
+    }
+
+    @Test
+    void recurrenceStep_invalidInput_returnsErrorAndStaysOnStep() {
+        driveToRecurrenceStep("Daily briefing", "0", "msg", "me@c.us", "08:00");
+
+        AutomationChatResponse firstResponse = interaction.processInput("maybe");
+
+        assertFalse(firstResponse.completed());
+        assertNull(firstResponse.automation());
+        assertTrue(firstResponse.text().contains("S") && firstResponse.text().contains("N"));
+
+        // Retry with valid input should complete
+        AutomationChatResponse retryResponse = interaction.processInput("S");
+
+        assertTrue(retryResponse.completed());
+    }
+
+    @Test
+    void recurrenceStep_blankInput_returnsErrorAndStaysOnStep() {
+        driveToRecurrenceStep("Daily briefing", "0", "msg", "me@c.us", "08:00");
+
+        AutomationChatResponse firstResponse = interaction.processInput("");
+
+        assertFalse(firstResponse.completed());
+        assertNull(firstResponse.automation());
+
+        AutomationChatResponse retryResponse = interaction.processInput("N");
+
+        assertTrue(retryResponse.completed());
+        assertFalse(retryResponse.automation().isRecurrent());
     }
 
     // -------------------------------------------------------------------------
@@ -360,5 +435,10 @@ class CreateAutomationInteractionTest {
     private void driveToScheduleStep(String name, String actionTypeIndex, String messageOrTaskId, String recipient) {
         driveToToStep(name, actionTypeIndex, messageOrTaskId);
         interaction.processInput(recipient);
+    }
+
+    private void driveToRecurrenceStep(String name, String actionTypeIndex, String messageOrTaskId, String recipient, String scheduleInput) {
+        driveToScheduleStep(name, actionTypeIndex, messageOrTaskId, recipient);
+        interaction.processInput(scheduleInput);
     }
 }
