@@ -48,16 +48,17 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
                 new Step("Destinatário:"),
                 new Step("""
                         Data e hora:
-                        
+
                         Diário
                         _Ex: 12:00_
-                        
+
                         Data específica
                         _Ex: 01/01/2000 12:00_
-                        
+
                         Semanal customizado
                         _Ex: SEG 12:00, QUA 14:00 (segunda às 12h e quarta às 14h)_
-                        """)
+                        """),
+                new Step("É recorrente? (S/N)")
                 ));
         this.data = new AutomationDTO();
     }
@@ -145,8 +146,12 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
     }
 
     private AutomationChatResponse executeScheduleConfigStep(String value) {
+        if (this.data.getScheduleConfig() != null)
+            return executeRecurrenceStep(value);
+
         if (value == null || value.isBlank())
             return error(INVALID_FORMAT_ERROR_MESSAGE);
+
         LocalTime time = null;
         try {
             time = LocalTime.parse(value);
@@ -166,10 +171,9 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
             } catch (Exception _) {}
         }
 
-        List<WeeklyCustomSchedule.DayTime> dayTimes;
         if (time == null && dateTime == null) {
             try {
-                dayTimes = Arrays.stream(value.split(","))
+                List<WeeklyCustomSchedule.DayTime> dayTimes = Arrays.stream(value.split(","))
                         .map(part -> {
                             String[] pieces = part.trim().split(" ");
                             int day;
@@ -180,11 +184,8 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
                             } catch (Exception e) {
                                 throw new IllegalArgumentException(INVALID_FORMAT_ERROR_MESSAGE, e);
                             }
-
-                            if (day < 1 || day > 7) {
+                            if (day < 1 || day > 7)
                                 throw new IllegalArgumentException("Dia precisa estar no intervalo 1-7. Tente novamente.");
-                            }
-
                             return new WeeklyCustomSchedule.DayTime(day, dayTime);
                         }).toList();
                 WeeklyCustomSchedule weeklyCustomSchedule = new WeeklyCustomSchedule();
@@ -194,6 +195,18 @@ public class CreateAutomationInteraction extends Interaction<AutomationDTO> {
                 return error(e.getMessage());
             }
         }
+
+        getCurrentStep().setCompleted(true);
+        return proceed(getCurrentStep().getDescription());
+    }
+
+    private AutomationChatResponse executeRecurrenceStep(String value) {
+        if (value == null || value.isBlank())
+            return error("Responda S para sim ou N para não.");
+        String trimmed = value.trim().toUpperCase();
+        if (!trimmed.equals("S") && !trimmed.equals("N"))
+            return error("Responda S para sim ou N para não.");
+        this.data.setRecurrent(trimmed.equals("S"));
         return success(AUTOMATION_CREATED_SUCCESSFULLY, data);
     }
 }

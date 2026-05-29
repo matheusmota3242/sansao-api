@@ -62,6 +62,7 @@ public class AutomationService implements InteractionBaseService {
         automation.setCreatedAt(now);
         automation.setUpdatedAt(now);
         automation.setScheduleConfig(automationDTO.getScheduleConfig());
+        automation.setRecurrent(automationDTO.isRecurrent());
         automation.setNextExecutionAt(automationDTO.getScheduleConfig().getNextExecutionAt());
         return repository.save(automation);
     }
@@ -108,8 +109,10 @@ public class AutomationService implements InteractionBaseService {
             try {
                 ActionBaseService actionService = actionFactory.getActionServiceByType(automation.getActionType());
                 actionService.execute(automation);
+                LocalDateTime now = LocalDateTime.now();
+                automation.setExecutedAt(now);
                 automation.updateNextExecutionAtOrInactivate();
-                automation.setUpdatedAt(LocalDateTime.now());
+                automation.setUpdatedAt(now);
                 repository.save(automation);
 
             } catch (Exception e) {

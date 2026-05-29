@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.m2g2.simao.enums.ActionType;
 import dev.m2g2.simao.model.BaseModel;
 import dev.m2g2.simao.model.automation.schedule.ScheduleConfig;
-import dev.m2g2.simao.model.automation.schedule.SpecificDateSchedule;
 import jakarta.persistence.Entity;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -27,6 +26,10 @@ public class Automation extends BaseModel {
     private ScheduleConfig scheduleConfig;
 
     private LocalDateTime nextExecutionAt;
+
+    private LocalDateTime executedAt;
+
+    private boolean recurrent;
 
     public enum Periodicity {
         DAILY,
@@ -84,14 +87,27 @@ public class Automation extends BaseModel {
         this.nextExecutionAt = nextExecutionAt;
     }
 
+    public LocalDateTime getExecutedAt() {
+        return executedAt;
+    }
+
+    public void setExecutedAt(LocalDateTime executedAt) {
+        this.executedAt = executedAt;
+    }
+
+    public boolean isRecurrent() {
+        return recurrent;
+    }
+
+    public void setRecurrent(boolean recurrent) {
+        this.recurrent = recurrent;
+    }
+
     public void updateNextExecutionAtOrInactivate() {
-        if (this.scheduleConfig != null) {
-            if (this.scheduleConfig instanceof SpecificDateSchedule) {
-                if (((SpecificDateSchedule) this.scheduleConfig).getDate().isBefore(LocalDateTime.now())) {
-                    this.active = false;
-                }
-            }
+        if (recurrent) {
             this.nextExecutionAt = this.scheduleConfig.getNextExecutionAt();
+        } else {
+            this.active = false;
         }
     }
 }

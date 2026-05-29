@@ -12,6 +12,7 @@ public class AutomationDTO {
     private ActionType actionType;
     private Map<String, Object> metadata = new HashMap<>();
     private ScheduleConfig scheduleConfig;
+    private boolean recurrent;
 
     public String getName() {
         return name;
@@ -43,5 +44,13 @@ public class AutomationDTO {
 
     public void setScheduleConfig(ScheduleConfig scheduleConfig) {
         this.scheduleConfig = scheduleConfig;
+    }
+
+    public boolean isRecurrent() {
+        return recurrent;
+    }
+
+    public void setRecurrent(boolean recurrent) {
+        this.recurrent = recurrent;
     }
 }
