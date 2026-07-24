@@ -29,7 +29,7 @@ services:
       - "127.0.0.1:5433:5432"
 
   waha:
-    image: devlikeapro/waha
+    image: devlikeapro/waha:latest-2026.7.1
     container_name: waha
     restart: unless-stopped
     depends_on:
