@@ -22,7 +22,7 @@ public class AutomationJobService {
      */
     @Scheduled(cron = "0 */5 * * * *")
     public void executeBatch() {
-        log.info("Executing batch");
+        log.info("Executing automation batch");
         automationService.executeBatch();
     }
 }
