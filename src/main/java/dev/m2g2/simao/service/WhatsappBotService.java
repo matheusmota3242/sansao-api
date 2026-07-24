@@ -3,6 +3,7 @@ package dev.m2g2.simao.service;
 import dev.m2g2.simao.dto.chat.AutomationChatResponse;
 import dev.m2g2.simao.dto.chat.ChatResponse;
 import dev.m2g2.simao.dto.chat.NoteChatResponse;
+import dev.m2g2.simao.dto.chat.PurchaseChatResponse;
 import dev.m2g2.simao.dto.chat.TaskChatResponse;
 import dev.m2g2.simao.dto.waha.WahaRequest;
 import dev.m2g2.simao.dto.waha.WahaSendMessageRequest;
@@ -30,17 +31,22 @@ public class WhatsappBotService {
     @Value("${application.owner-phone}")
     private String ownerPhone;
 
+    @Value("${application.purchase-group-id}")
+    private String purchaseGroupId;
+
     private final WahaClientService wahaClientService;
     private final TaskService taskService;
     private final AutomationService automationService;
     private final NoteService noteService;
+    private final PurchaseService purchaseService;
     private final ChatRecordService chatRecordService;
 
-    public WhatsappBotService(WahaClientService wahaClientService, TaskService taskService, AutomationService automationService, NoteService noteService, ChatRecordService chatRecordService) {
+    public WhatsappBotService(WahaClientService wahaClientService, TaskService taskService, AutomationService automationService, NoteService noteService, PurchaseService purchaseService, ChatRecordService chatRecordService) {
         this.wahaClientService = wahaClientService;
         this.taskService = taskService;
         this.automationService = automationService;
         this.noteService = noteService;
+        this.purchaseService = purchaseService;
         this.chatRecordService = chatRecordService;
     }
 
@@ -48,6 +54,7 @@ public class WhatsappBotService {
         if (!isValid(requestDto)) {
             return;
         }
+        String chatId = resolveChatId(requestDto);
         String incomingMessage = requestDto.payload().body().replace("#", "").trim();
         String reply = null;
         if (isRelatedToChatRecord(incomingMessage)) {
@@ -55,28 +62,59 @@ public class WhatsappBotService {
         }
 
         if (reply == null) {
-            reply = Stream.of(
-                        showMenuIf(incomingMessage),
-                        taskService.createInteractionIf(incomingMessage),
-                        taskService.listIf(incomingMessage),
-                        taskService.deleteIf(incomingMessage),
-                        taskService.completeTaskIf(incomingMessage),
-                        automationService.createInteractionIf(incomingMessage),
-                        automationService.listIf(incomingMessage),
-                        automationService.deleteIf(incomingMessage),
-                        noteService.createInteractionIf(incomingMessage),
-                        noteService.listIf(incomingMessage),
-                        noteService.deleteIf(incomingMessage)
-                    )
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
+            reply = isPurchaseGroup(chatId)
+                    ? matchPurchaseCommand(incomingMessage)
+                    : matchOwnerCommand(incomingMessage);
         }
         if (reply == null) {
             return;
         }
         reply = format(reply);
-        WahaSendMessageResponse responseDto = wahaClientService.sendText(new WahaSendMessageRequest(ownerPhone + "@c.us", reply));
+        WahaSendMessageResponse responseDto = wahaClientService.sendText(new WahaSendMessageRequest(chatId, reply));
+    }
+
+    private String matchOwnerCommand(String incomingMessage) {
+        return Stream.of(
+                    showMenuIf(incomingMessage),
+                    taskService.createInteractionIf(incomingMessage),
+                    taskService.listIf(incomingMessage),
+                    taskService.deleteIf(incomingMessage),
+                    taskService.completeTaskIf(incomingMessage),
+                    automationService.createInteractionIf(incomingMessage),
+                    automationService.listIf(incomingMessage),
+                    automationService.deleteIf(incomingMessage),
+                    noteService.createInteractionIf(incomingMessage),
+                    noteService.listIf(incomingMessage),
+                    noteService.deleteIf(incomingMessage)
+                )
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private String matchPurchaseCommand(String incomingMessage) {
+        return Stream.of(
+                    ChatType.showPurchaseMenuIf(incomingMessage),
+                    purchaseService.createInteractionIf(incomingMessage),
+                    purchaseService.listIf(incomingMessage),
+                    purchaseService.updateInteractionIf(incomingMessage),
+                    purchaseService.deleteIf(incomingMessage)
+                )
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean isPurchaseGroup(String chatId) {
+        return purchaseGroupId != null && !purchaseGroupId.isBlank() && purchaseGroupId.equals(chatId);
+    }
+
+    private String resolveChatId(WahaRequest requestDto) {
+        String to = requestDto.payload().to();
+        if (to == null || to.isBlank()) {
+            return ownerPhone + "@c.us";
+        }
+        return to;
     }
 
     @Transactional
@@ -110,6 +148,13 @@ public class WhatsappBotService {
 
                     if (chatResponse instanceof NoteChatResponse noteChatResponse)
                         noteService.create(noteChatResponse.note());
+
+                    if (chatResponse instanceof PurchaseChatResponse purchaseChatResponse) {
+                        if (purchaseChatResponse.updateId() == null)
+                            purchaseService.create(purchaseChatResponse.purchase());
+                        else
+                            purchaseService.update(purchaseChatResponse.updateId(), purchaseChatResponse.purchase());
+                    }
                 }
             }
         }

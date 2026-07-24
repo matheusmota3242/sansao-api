@@ -15,7 +15,11 @@ public enum ChatType {
     DELETE_AUTOMATION("@dauto", "Remover automação pelo ID", false),
     CREATE_NOTE("@cnote", "Criar nova nota", true),
     LIST_NOTES("@lnote", "Listar notas", false),
-    DELETE_NOTE("@dnote", "Remover nota pelo ID", false);
+    DELETE_NOTE("@dnote", "Remover nota pelo ID", false),
+    CREATE_PURCHASE("@cbuy", "Registrar nova compra", true),
+    LIST_PURCHASES("@lbuy", "Listar compras", false),
+    UPDATE_PURCHASE("@ubuy", "Atualizar compra pelo ID", true),
+    DELETE_PURCHASE("@dbuy", "Remover compra pelo ID", false);
 
     private final String value;
     private final String description;
@@ -44,7 +48,7 @@ public enum ChatType {
             return null;
 
         return """
-                🤖 *Simão Bot*
+                *Simão Bot*
 
                 📋 *Tarefas*
                 *@ctask* — Criar nova tarefa
@@ -61,6 +65,25 @@ public enum ChatType {
                 *@cnote* — Criar nova nota
                 *@lnote* — Listar notas
                 *@dnote <id>* — Remover nota
+
+                🔧 *Geral*
+                *@menu* — Exibir este menu
+                *@cancel* — Cancelar interação em andamento
+                """;
+    }
+
+    public static String showPurchaseMenuIf(String message) {
+        if (!message.equalsIgnoreCase(ChatType.MENU.getValue()))
+            return null;
+
+        return """
+                *Simão Bot — Compras 3D*
+
+                🛒 *Compras de insumos*
+                *@cbuy* — Registrar nova compra
+                *@lbuy* — Listar compras
+                *@ubuy <id>* — Atualizar compra
+                *@dbuy <id>* — Remover compra
 
                 🔧 *Geral*
                 *@menu* — Exibir este menu

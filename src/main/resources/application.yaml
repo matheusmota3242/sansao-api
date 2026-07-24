@@ -22,3 +22,4 @@ waha:
 application:
   host: ${APPLICATION_HOST}
   owner-phone: ${OWNER_PHONE}
+  purchase-group-id: ${PURCHASE_GROUP_ID}
