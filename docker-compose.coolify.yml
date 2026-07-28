@@ -1,0 +1,67 @@
+# Stack de produção para o Coolify.
+# O Coolify builda a app a partir de deploy/Dockerfile e orquestra tudo.
+# NÃO há arquivos .env aqui: defina as variáveis na aba "Environment Variables"
+# do recurso no Coolify — ele as injeta nos ${...} abaixo no deploy.
+# 1 Postgres (2 bancos: simao_db + waha_db), WAHA NOWEB.
+
+services:
+  postgres-app:
+    image: postgres:alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./deploy/init-db:/docker-entrypoint-initdb.d:ro   # cria waha_db no 1º boot
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  waha:
+    image: devlikeapro/waha:latest-2026.7.1
+    restart: unless-stopped
+    depends_on:
+      postgres-app:
+        condition: service_healthy
+    environment:
+      WAHA_USERNAME: ${WAHA_USERNAME}
+      WAHA_PASSWORD: ${WAHA_PASSWORD}
+      WHATSAPP_API_KEY: ${WAHA_API_KEY}
+      WAHA_WEBHOOK_SECRET: ${WAHA_WEBHOOK_SECRET}
+      WHATSAPP_DEFAULT_ENGINE: NOWEB
+      WHATSAPP_SESSIONS_POSTGRESQL_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-app:5432/waha_db?sslmode=disable
+    volumes:
+      - waha_sessions:/app/.sessions
+    # Atribua um domínio a este serviço no Coolify para escanear o QR pelo painel.
+    expose:
+      - "3000"
+
+  app:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres-app:
+        condition: service_healthy
+    environment:
+      TZ: America/Sao_Paulo
+      DATABASE_URL: jdbc:postgresql://postgres-app:5432/${POSTGRES_DB}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      WAHA_USERNAME: ${WAHA_USERNAME}
+      WAHA_PASSWORD: ${WAHA_PASSWORD}
+      WAHA_API_KEY: ${WAHA_API_KEY}
+      WAHA_WEBHOOK_SECRET: ${WAHA_WEBHOOK_SECRET}
+      APPLICATION_HOST: http://app:8080   # webhook interno (WAHA -> app)
+      OWNER_PHONE: ${OWNER_PHONE}
+    expose:
+      - "8080"
+
+volumes:
+  postgres-data:
+  waha_sessions:
