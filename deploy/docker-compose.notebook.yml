@@ -5,7 +5,7 @@
 
 services:
   postgres-app:
-    image: postgres:alpine
+    image: postgres:17-alpine
     container_name: simao-postgres
     restart: unless-stopped
     env_file: [.postgres_app.env]
