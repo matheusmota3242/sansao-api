@@ -39,6 +39,9 @@ services:
     # Atribua um domínio a este serviço no Coolify para escanear o QR pelo painel.
     expose:
       - "3000"
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   app:
     build:
