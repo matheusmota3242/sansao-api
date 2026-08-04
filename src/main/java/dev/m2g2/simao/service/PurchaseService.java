@@ -189,8 +189,10 @@ public class PurchaseService implements InteractionBaseService {
             return "Nenhuma compra registrada!";
 
         StringBuilder builder = new StringBuilder("Compras de insumos 3D:\n\n");
+        BigDecimal grandTotal = BigDecimal.ZERO;
         for (Purchase purchase : purchases) {
             BigDecimal total = purchase.getUnitPrice().multiply(BigDecimal.valueOf(purchase.getAmount()));
+            grandTotal = grandTotal.add(total);
             builder.append("*%d - %s* (%s)\n".formatted(
                     purchase.getId(),
                     purchase.getDescription(),
@@ -205,6 +207,7 @@ public class PurchaseService implements InteractionBaseService {
                 builder.append("Obs: %s\n".formatted(purchase.getObservations()));
             builder.append("\n");
         }
+        builder.append("*Total geral: R$ %s*".formatted(grandTotal.toPlainString()));
         return builder.toString().trim();
     }
 
