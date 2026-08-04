@@ -95,10 +95,12 @@ public class WhatsappBotService {
     private String matchPurchaseCommand(String incomingMessage) {
         return Stream.of(
                     ChatType.showPurchaseMenuIf(incomingMessage),
+                    ChatType.showPurchaseInlineTemplateIf(incomingMessage),
                     purchaseService.createInteractionIf(incomingMessage),
                     purchaseService.listIf(incomingMessage),
                     purchaseService.updateInteractionIf(incomingMessage),
-                    purchaseService.deleteIf(incomingMessage)
+                    purchaseService.deleteIf(incomingMessage),
+                    purchaseService.createInlineIf(incomingMessage)
                 )
                 .filter(Objects::nonNull)
                 .findFirst()

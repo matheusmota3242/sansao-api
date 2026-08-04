@@ -17,6 +17,7 @@ public enum ChatType {
     LIST_NOTES("@lnote", "Listar notas", false),
     DELETE_NOTE("@dnote", "Remover nota pelo ID", false),
     CREATE_PURCHASE("@cbuy", "Registrar nova compra", true),
+    CREATE_PURCHASE_INLINE_TEMPLATE("@cbuy_inline_t", "Modelo para cadastrar várias compras", false),
     LIST_PURCHASES("@lbuy", "Listar compras", false),
     UPDATE_PURCHASE("@ubuy", "Atualizar compra pelo ID", true),
     DELETE_PURCHASE("@dbuy", "Remover compra pelo ID", false);
@@ -81,6 +82,7 @@ public enum ChatType {
 
                 🛒 *Compras de insumos*
                 *@cbuy* — Registrar nova compra
+                *@cbuy_inline_t* — Modelo p/ cadastrar várias de uma vez
                 *@lbuy* — Listar compras
                 *@ubuy <id>* — Atualizar compra
                 *@dbuy <id>* — Remover compra
@@ -88,6 +90,23 @@ public enum ChatType {
                 🔧 *Geral*
                 *@menu* — Exibir este menu
                 *@cancel* — Cancelar interação em andamento
+                """;
+    }
+
+    public static String showPurchaseInlineTemplateIf(String message) {
+        if (!message.equalsIgnoreCase(ChatType.CREATE_PURCHASE_INLINE_TEMPLATE.getValue()))
+            return null;
+
+        return """
+                Você pode cadastrar várias compras ao mesmo tempo, uma por linha, na estrutura:
+
+                # <descrição> | <quantidade> | <preço unitário> | <fonte> | <data dd/mm/aaaa> | <observações>
+
+                Exemplo:
+                # Filamento PLA | 2 | 89,90 | Loja X | 04/08/2026 | cor preta
+                # Resina | 1 | 120,00 | Loja Y | 05/08/2026 | -
+
+                As observações são opcionais (use - ou omita o último campo).
                 """;
     }
 

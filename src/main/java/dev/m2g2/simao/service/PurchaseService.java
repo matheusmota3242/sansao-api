@@ -9,9 +9,12 @@ import dev.m2g2.simao.model.chat.purchase.UpdatePurchaseInteraction;
 import dev.m2g2.simao.repository.PurchaseRepository;
 import org.springframework.stereotype.Service;
 
+import dev.m2g2.simao.util.PurchaseInputUtil;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -94,6 +97,86 @@ public class PurchaseService implements InteractionBaseService {
         record.setInteraction(interaction);
         chatRecordService.create(record);
         return interaction.processInput(ChatType.UPDATE_PURCHASE.getValue()).text();
+    }
+
+    /**
+     * Registers several purchases from a single inline message, one per line, in the
+     * structure: descrição | quantidade | preço | fonte | data | observações (última
+     * opcional). Returns null when the message is not in the inline structure, so the
+     * caller can fall back to the usual flow. Validates every line first: if any line is
+     * invalid, nothing is persisted and the offending lines are reported.
+     */
+    public String createInlineIf(String incomingMessage) {
+        if (incomingMessage == null || !incomingMessage.contains("|"))
+            return null;
+
+        List<PurchaseDTO> parsed = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+        int lineNumber = 0;
+        for (String rawLine : incomingMessage.split("\\r?\\n")) {
+            String line = rawLine.trim();
+            if (line.isBlank())
+                continue;
+            lineNumber++;
+            try {
+                parsed.add(parseInlineLine(line));
+            } catch (IllegalArgumentException e) {
+                errors.add("Linha %d: %s".formatted(lineNumber, e.getMessage()));
+            }
+        }
+
+        if (parsed.isEmpty() && errors.isEmpty())
+            return null;
+
+        if (!errors.isEmpty())
+            return "Nenhuma compra foi cadastrada. Corrija:\n" + String.join("\n", errors);
+
+        parsed.forEach(this::create);
+        return "%d compra(s) cadastrada(s) com sucesso!".formatted(parsed.size());
+    }
+
+    private PurchaseDTO parseInlineLine(String line) {
+        String[] parts = line.split("\\|", -1);
+        if (parts.length < 5 || parts.length > 6)
+            throw new IllegalArgumentException("use descrição | quantidade | preço | fonte | data | observações");
+
+        PurchaseDTO dto = new PurchaseDTO();
+
+        String description = parts[0].trim();
+        if (description.isBlank())
+            throw new IllegalArgumentException("descrição vazia");
+        dto.setDescription(description);
+
+        try {
+            dto.setAmount(PurchaseInputUtil.parseAmount(parts[1]));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("quantidade inválida");
+        }
+
+        try {
+            dto.setUnitPrice(PurchaseInputUtil.parsePrice(parts[2]));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("preço inválido");
+        }
+
+        String source = parts[3].trim();
+        if (source.isBlank())
+            throw new IllegalArgumentException("fonte vazia");
+        dto.setSource(source);
+
+        try {
+            dto.setPurchasedAt(PurchaseInputUtil.parsePurchasedAt(parts[4]));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("data inválida (dd/mm/aaaa)");
+        }
+
+        if (parts.length == 6) {
+            String observations = parts[5].trim();
+            if (!observations.isBlank() && !observations.equals("-"))
+                dto.setObservations(observations);
+        }
+
+        return dto;
     }
 
     @Override
