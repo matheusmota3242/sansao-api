@@ -51,7 +51,7 @@ public class WhatsappBotService {
     }
 
     public void receiveMessage(WahaRequest requestDto) {
-        if (!isValid(requestDto)) {
+        if (!isValid(requestDto, purchaseGroupId)) {
             return;
         }
         String chatId = resolveChatId(requestDto);
@@ -110,6 +110,10 @@ public class WhatsappBotService {
     }
 
     private String resolveChatId(WahaRequest requestDto) {
+        // Mensagem de outra pessoa (ex.: membro do grupo de compras): responder no chat de origem.
+        if (!Boolean.TRUE.equals(requestDto.payload().fromMe())) {
+            return requestDto.payload().from();
+        }
         String to = requestDto.payload().to();
         if (to == null || to.isBlank()) {
             return ownerPhone + "@c.us";

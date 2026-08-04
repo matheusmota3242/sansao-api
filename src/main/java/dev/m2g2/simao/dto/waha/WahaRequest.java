@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public record WahaRequest(Payload payload) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Payload(String body, Boolean fromMe, String to, String source) {}
+    public record Payload(String body, Boolean fromMe, String from, String to, String source) {}
 }
