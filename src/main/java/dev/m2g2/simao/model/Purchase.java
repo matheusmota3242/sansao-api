@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 public class Purchase extends BaseModel {
@@ -13,6 +14,8 @@ public class Purchase extends BaseModel {
     @Column(name = "unit_price")
     private BigDecimal unitPrice;
     private String source;
+    @Column(name = "purchased_at")
+    private LocalDate purchasedAt;
     private String observations;
 
     public String getDescription() {
@@ -45,6 +48,14 @@ public class Purchase extends BaseModel {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public LocalDate getPurchasedAt() {
+        return purchasedAt;
+    }
+
+    public void setPurchasedAt(LocalDate purchasedAt) {
+        this.purchasedAt = purchasedAt;
     }
 
     public String getObservations() {

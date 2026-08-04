@@ -24,6 +24,7 @@ public class CreatePurchaseInteraction extends Interaction<PurchaseDTO> {
                 new Step("Quantidade:"),
                 new Step("Preço unitário (R$):"),
                 new Step("Fonte/loja:"),
+                new Step("Data da compra (dd/mm/aaaa):"),
                 new Step("Observações (digite - para pular):")
         ));
         this.data = new PurchaseDTO();
@@ -45,6 +46,9 @@ public class CreatePurchaseInteraction extends Interaction<PurchaseDTO> {
 
         if (this.steps.get(3).equals(getCurrentStep()))
             return executeSourceStep(value);
+
+        if (this.steps.get(4).equals(getCurrentStep()))
+            return executePurchasedAtStep(value);
 
         return executeObservationsStep(value);
     }
@@ -87,6 +91,16 @@ public class CreatePurchaseInteraction extends Interaction<PurchaseDTO> {
             return error("Fonte não pode ser vazia. Tente novamente.");
         this.data.setSource(value.trim());
         this.steps.get(3).setCompleted(true);
+        return proceed(getCurrentStep().getDescription());
+    }
+
+    private PurchaseChatResponse executePurchasedAtStep(String value) {
+        try {
+            this.data.setPurchasedAt(PurchaseInputUtil.parsePurchasedAt(value));
+        } catch (IllegalArgumentException e) {
+            return error("Data inválida. Use o formato dd/mm/aaaa. Ex: 04/08/2026");
+        }
+        this.steps.get(4).setCompleted(true);
         return proceed(getCurrentStep().getDescription());
     }
 

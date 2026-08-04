@@ -18,6 +18,7 @@ import java.util.List;
 public class PurchaseService implements InteractionBaseService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final PurchaseRepository repository;
     private final ChatRecordService chatRecordService;
@@ -33,6 +34,7 @@ public class PurchaseService implements InteractionBaseService {
         purchase.setAmount(dto.getAmount());
         purchase.setUnitPrice(dto.getUnitPrice());
         purchase.setSource(dto.getSource());
+        purchase.setPurchasedAt(dto.getPurchasedAt());
         purchase.setObservations(dto.getObservations());
         LocalDateTime now = LocalDateTime.now();
         purchase.setCreatedAt(now);
@@ -49,6 +51,7 @@ public class PurchaseService implements InteractionBaseService {
         purchase.setAmount(dto.getAmount());
         purchase.setUnitPrice(dto.getUnitPrice());
         purchase.setSource(dto.getSource());
+        purchase.setPurchasedAt(dto.getPurchasedAt());
         purchase.setObservations(dto.getObservations());
         return repository.save(purchase);
     }
@@ -114,6 +117,7 @@ public class PurchaseService implements InteractionBaseService {
                     purchase.getUnitPrice().toPlainString(),
                     total.toPlainString()));
             builder.append("Fonte: %s\n".formatted(purchase.getSource()));
+            builder.append("Data da compra: %s\n".formatted(purchase.getPurchasedAt().format(DATE_FORMATTER)));
             if (purchase.getObservations() != null && !purchase.getObservations().isBlank())
                 builder.append("Obs: %s\n".formatted(purchase.getObservations()));
             builder.append("\n");
@@ -147,6 +151,7 @@ public class PurchaseService implements InteractionBaseService {
         dto.setAmount(purchase.getAmount());
         dto.setUnitPrice(purchase.getUnitPrice());
         dto.setSource(purchase.getSource());
+        dto.setPurchasedAt(purchase.getPurchasedAt());
         dto.setObservations(purchase.getObservations());
         return dto;
     }

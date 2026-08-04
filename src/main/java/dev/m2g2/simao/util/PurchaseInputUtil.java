@@ -1,8 +1,13 @@
 package dev.m2g2.simao.util;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class PurchaseInputUtil {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     /**
      * Parses a whole-number quantity. Throws IllegalArgumentException when the
@@ -32,5 +37,17 @@ public class PurchaseInputUtil {
         if (price.signum() <= 0)
             throw new IllegalArgumentException("Price must be positive");
         return price;
+    }
+
+    /**
+     * Parses a purchase date in Brazilian format (dd/MM/yyyy). Throws
+     * IllegalArgumentException when the value is not a valid date.
+     */
+    public static LocalDate parsePurchasedAt(String value) {
+        try {
+            return LocalDate.parse(value.trim(), DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date", e);
+        }
     }
 }

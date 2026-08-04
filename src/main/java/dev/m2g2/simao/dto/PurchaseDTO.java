@@ -1,6 +1,7 @@
 package dev.m2g2.simao.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class PurchaseDTO {
 
@@ -8,6 +9,7 @@ public class PurchaseDTO {
     private Integer amount;
     private BigDecimal unitPrice;
     private String source;
+    private LocalDate purchasedAt;
     private String observations;
 
     public String getDescription() {
@@ -40,6 +42,14 @@ public class PurchaseDTO {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public LocalDate getPurchasedAt() {
+        return purchasedAt;
+    }
+
+    public void setPurchasedAt(LocalDate purchasedAt) {
+        this.purchasedAt = purchasedAt;
     }
 
     public String getObservations() {

@@ -22,7 +22,8 @@ public class UpdatePurchaseInteraction extends Interaction<PurchaseDTO> {
             2 - Quantidade
             3 - Preço unitário
             4 - Fonte
-            5 - Observações
+            5 - Data da compra
+            6 - Observações
             """;
 
     private Long targetId;
@@ -59,11 +60,12 @@ public class UpdatePurchaseInteraction extends Interaction<PurchaseDTO> {
             case "2" -> "amount";
             case "3" -> "unitPrice";
             case "4" -> "source";
-            case "5" -> "observations";
+            case "5" -> "purchasedAt";
+            case "6" -> "observations";
             default -> null;
         };
         if (selected == null)
-            return error("Opção inválida. Escolha um número de 1 a 5.");
+            return error("Opção inválida. Escolha um número de 1 a 6.");
         this.field = selected;
         this.steps.get(0).setCompleted(true);
         return proceed(getCurrentStep().getDescription());
@@ -94,6 +96,13 @@ public class UpdatePurchaseInteraction extends Interaction<PurchaseDTO> {
                 if (value == null || value.isBlank())
                     return error("Fonte não pode ser vazia. Tente novamente.");
                 this.data.setSource(value.trim());
+            }
+            case "purchasedAt" -> {
+                try {
+                    this.data.setPurchasedAt(PurchaseInputUtil.parsePurchasedAt(value));
+                } catch (IllegalArgumentException e) {
+                    return error("Data inválida. Use o formato dd/mm/aaaa. Ex: 04/08/2026");
+                }
             }
             case "observations" -> this.data.setObservations(
                     value == null || value.isBlank() ? null : value.trim());
