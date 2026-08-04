@@ -22,7 +22,7 @@ services:
       retries: 10
 
   waha:
-    image: devlikeapro/waha:latest-2026.7.1
+    image: devlikeapro/waha:latest-2026.7.2
     restart: unless-stopped
     depends_on:
       postgres-app:
