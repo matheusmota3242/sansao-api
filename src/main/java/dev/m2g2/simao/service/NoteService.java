@@ -37,11 +37,13 @@ public class NoteService implements InteractionBaseService {
     }
 
     @Override
-    public String createInteractionIf(String incomingMessage) {
+    public String createInteractionIf(String incomingMessage, String chatId, String participantId) {
         if (incomingMessage.equalsIgnoreCase(ChatType.CREATE_NOTE.getValue())) {
             CreateNoteInteraction interaction = new CreateNoteInteraction();
             ChatRecord record = new ChatRecord();
             record.setInteraction(interaction);
+            record.setChatId(chatId);
+            record.setParticipantId(participantId);
             chatRecordService.create(record);
             return interaction.processInput(incomingMessage).text();
         }

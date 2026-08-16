@@ -55,16 +55,18 @@ public class WhatsappBotService {
             return;
         }
         String chatId = resolveChatId(requestDto);
+        boolean fromPurchaseGroup = isPurchaseGroup(chatId);
+        String participantId = fromPurchaseGroup ? requestDto.payload().participant() : null;
         String incomingMessage = requestDto.payload().body().replace("#", "").trim();
         String reply = null;
         if (isRelatedToChatRecord(incomingMessage)) {
-            reply = retrieveReplyFromChatRecord(incomingMessage).orElse(null);
+            reply = retrieveReplyFromChatRecord(incomingMessage, chatId, fromPurchaseGroup, participantId).orElse(null);
         }
 
         if (reply == null) {
-            reply = isPurchaseGroup(chatId)
-                    ? matchPurchaseCommand(incomingMessage)
-                    : matchOwnerCommand(incomingMessage);
+            reply = fromPurchaseGroup
+                    ? matchPurchaseCommand(incomingMessage, chatId, participantId)
+                    : matchOwnerCommand(incomingMessage, chatId);
         }
         if (reply == null) {
             return;
@@ -73,17 +75,17 @@ public class WhatsappBotService {
         WahaSendMessageResponse responseDto = wahaClientService.sendText(new WahaSendMessageRequest(chatId, reply));
     }
 
-    private String matchOwnerCommand(String incomingMessage) {
+    private String matchOwnerCommand(String incomingMessage, String chatId) {
         return Stream.of(
                     showMenuIf(incomingMessage),
-                    taskService.createInteractionIf(incomingMessage),
+                    taskService.createInteractionIf(incomingMessage, chatId, null),
                     taskService.listIf(incomingMessage),
                     taskService.deleteIf(incomingMessage),
                     taskService.completeTaskIf(incomingMessage),
-                    automationService.createInteractionIf(incomingMessage),
+                    automationService.createInteractionIf(incomingMessage, chatId, null),
                     automationService.listIf(incomingMessage),
                     automationService.deleteIf(incomingMessage),
-                    noteService.createInteractionIf(incomingMessage),
+                    noteService.createInteractionIf(incomingMessage, chatId, null),
                     noteService.listIf(incomingMessage),
                     noteService.deleteIf(incomingMessage)
                 )
@@ -92,13 +94,13 @@ public class WhatsappBotService {
                 .orElse(null);
     }
 
-    private String matchPurchaseCommand(String incomingMessage) {
+    private String matchPurchaseCommand(String incomingMessage, String chatId, String participantId) {
         return Stream.of(
                     ChatType.showPurchaseMenuIf(incomingMessage),
                     ChatType.showPurchaseInlineTemplateIf(incomingMessage),
-                    purchaseService.createInteractionIf(incomingMessage),
+                    purchaseService.createInteractionIf(incomingMessage, chatId, participantId),
                     purchaseService.listIf(incomingMessage),
-                    purchaseService.updateInteractionIf(incomingMessage),
+                    purchaseService.updateInteractionIf(incomingMessage, chatId, participantId),
                     purchaseService.deleteIf(incomingMessage),
                     purchaseService.createInlineIf(incomingMessage)
                 )
@@ -124,9 +126,12 @@ public class WhatsappBotService {
     }
 
     @Transactional
-    private Optional<String> retrieveReplyFromChatRecord(String message) {
+    private Optional<String> retrieveReplyFromChatRecord(String message, String chatId, boolean fromPurchaseGroup, String participantId) {
         String reply = null;
-        ChatRecord record = chatRecordService.getLastNotCompletedChatRecord().orElse(null);
+        ChatRecord record = (fromPurchaseGroup
+                ? chatRecordService.getLastNotCompletedGroupChatRecord(chatId, participantId)
+                : chatRecordService.getLastNotCompletedOwnerChatRecord(chatId))
+                .orElse(null);
         if (record == null) {
             return Optional.empty();
         }
