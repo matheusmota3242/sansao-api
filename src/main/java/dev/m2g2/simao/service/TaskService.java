@@ -39,11 +39,13 @@ public class TaskService implements InteractionBaseService {
         return repository.findById(id);
     }
 
-    public String createInteractionIf(String message) {
+    public String createInteractionIf(String message, String chatId, String participantId) {
         if (message.equalsIgnoreCase(ChatType.CREATE_TASK.getValue())) {
             CreateTaskInteraction createTaskInteraction = new CreateTaskInteraction();
             ChatRecord record = new ChatRecord();
             record.setInteraction(createTaskInteraction);
+            record.setChatId(chatId);
+            record.setParticipantId(participantId);
             chatRecordService.create(record);
             return createTaskInteraction.processInput(message).text();
         }

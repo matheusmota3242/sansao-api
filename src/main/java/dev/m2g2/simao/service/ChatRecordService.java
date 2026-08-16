@@ -23,8 +23,12 @@ public class ChatRecordService {
         repository.save(chatRecord);
     }
 
-    public Optional<ChatRecord> getLastNotCompletedChatRecord() {
-        return repository.findFirstByCompletedFalseAndActiveTrueOrderByIdDesc();
+    public Optional<ChatRecord> getLastNotCompletedOwnerChatRecord(String ownerChatId) {
+        return repository.findLastPendingForOwnerChat(ownerChatId);
+    }
+
+    public Optional<ChatRecord> getLastNotCompletedGroupChatRecord(String groupChatId, String participantId) {
+        return repository.findFirstByChatIdAndParticipantIdAndCompletedFalseAndActiveTrueOrderByIdDesc(groupChatId, participantId);
     }
 
     public void update(ChatRecord chatRecord) {

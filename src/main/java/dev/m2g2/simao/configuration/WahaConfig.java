@@ -56,7 +56,7 @@ public class WahaConfig {
                         log.error("Interrupted while waiting to send Waha health message", e);
                     }
                     wahaClientService.sendText(new WahaSendMessageRequest(ownerPhone, ChatbotUtil.format("Simão Bot is now online!")));
-                    ChatRecord record = chatRecordService.getLastNotCompletedChatRecord().orElse(null);
+                    ChatRecord record = chatRecordService.getLastNotCompletedOwnerChatRecord(ownerPhone + "@c.us").orElse(null);
                     if (record != null) {
                         String stepDescription = record.getInteraction().getCurrentStep().getDescription();
                         wahaClientService.sendText(new WahaSendMessageRequest(ownerPhone, ChatbotUtil.format(stepDescription)));

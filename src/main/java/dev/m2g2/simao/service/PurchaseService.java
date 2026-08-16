@@ -60,18 +60,20 @@ public class PurchaseService implements InteractionBaseService {
     }
 
     @Override
-    public String createInteractionIf(String incomingMessage) {
+    public String createInteractionIf(String incomingMessage, String chatId, String participantId) {
         if (incomingMessage.equalsIgnoreCase(ChatType.CREATE_PURCHASE.getValue())) {
             CreatePurchaseInteraction interaction = new CreatePurchaseInteraction();
             ChatRecord record = new ChatRecord();
             record.setInteraction(interaction);
+            record.setChatId(chatId);
+            record.setParticipantId(participantId);
             chatRecordService.create(record);
             return interaction.processInput(incomingMessage).text();
         }
         return null;
     }
 
-    public String updateInteractionIf(String incomingMessage) {
+    public String updateInteractionIf(String incomingMessage, String chatId, String participantId) {
         if (!incomingMessage.toLowerCase().startsWith(ChatType.UPDATE_PURCHASE.getValue()))
             return null;
 
@@ -95,6 +97,8 @@ public class PurchaseService implements InteractionBaseService {
         interaction.setData(toDto(purchase));
         ChatRecord record = new ChatRecord();
         record.setInteraction(interaction);
+        record.setChatId(chatId);
+        record.setParticipantId(participantId);
         chatRecordService.create(record);
         return interaction.processInput(ChatType.UPDATE_PURCHASE.getValue()).text();
     }

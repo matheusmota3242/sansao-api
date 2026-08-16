@@ -41,11 +41,13 @@ public class AutomationService implements InteractionBaseService {
     }
 
     @Override
-    public String createInteractionIf(String incomingMessage) {
+    public String createInteractionIf(String incomingMessage, String chatId, String participantId) {
         if (incomingMessage.equalsIgnoreCase(ChatType.CREATE_AUTOMATION.getValue())) {
             CreateAutomationInteraction createAutomationInteraction = new CreateAutomationInteraction();
             ChatRecord record = new ChatRecord();
             record.setInteraction(createAutomationInteraction);
+            record.setChatId(chatId);
+            record.setParticipantId(participantId);
             chatRecordService.create(record);
             return createAutomationInteraction.processInput(incomingMessage).text();
         }
