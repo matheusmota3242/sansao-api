@@ -95,7 +95,15 @@ public class CreateTaskInteraction extends Interaction<TaskDTO> {
             return new TaskChatResponse(TASK_CREATED_MESSAGE, true, this.data);
         }
 
-        String[] chunks = value.split(" ");
+        // "1" selects the custom week, so the day list is required. Without this
+        // guard the missing chunk threw ArrayIndexOutOfBoundsException out of the
+        // webhook handler instead of prompting the user again.
+        String[] chunks = value.trim().split("\\s+", 2);
+        if (chunks.length < 2 || chunks[1].isBlank()) {
+            return new TaskChatResponse(
+                    "Informe os dias da semana. _Ex: 1 SEG,QUA,SEX_", false, null);
+        }
+
         String[] daysOfweek = chunks[1].split(",");
         if (daysOfweek.length > 7) {
             return new TaskChatResponse("Dias da semana inválidos. Tente novamente.", false, null);
