@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,6 +34,7 @@ class CreatePurchaseInteractionTest {
         interaction.processInput("3");
         interaction.processInput("89,90");
         interaction.processInput("Loja 3D Fila");
+        interaction.processInput("04/08/2026");
 
         PurchaseChatResponse response = interaction.processInput("Promoção");
 
@@ -43,6 +45,7 @@ class CreatePurchaseInteractionTest {
         assertEquals(3, response.purchase().getAmount());
         assertEquals(0, new BigDecimal("89.90").compareTo(response.purchase().getUnitPrice()));
         assertEquals("Loja 3D Fila", response.purchase().getSource());
+        assertEquals(LocalDate.of(2026, 8, 4), response.purchase().getPurchasedAt());
         assertEquals("Promoção", response.purchase().getObservations());
     }
 
@@ -113,5 +116,6 @@ class CreatePurchaseInteractionTest {
         interaction.processInput("1");
         interaction.processInput("100");
         interaction.processInput("Loja 3D Fila");
+        interaction.processInput("04/08/2026");
     }
 }
