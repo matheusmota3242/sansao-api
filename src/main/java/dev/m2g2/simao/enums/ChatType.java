@@ -16,6 +16,9 @@ public enum ChatType {
     CREATE_NOTE("@cnote", "Criar nova nota", true),
     LIST_NOTES("@lnote", "Listar notas", false),
     DELETE_NOTE("@dnote", "Remover nota pelo ID", false),
+    CREATE_TRACKER("@ctracker", "Criar novo acompanhamento", true),
+    LIST_TRACKERS("@ltracker", "Listar acompanhamentos e progresso do dia", false),
+    DELETE_TRACKER("@dtracker", "Remover acompanhamento pelo ID", false),
     CREATE_PURCHASE("@cbuy", "Registrar nova compra", true),
     CREATE_PURCHASE_INLINE_TEMPLATE("@cbuy_inline_t", "Modelo para cadastrar várias compras", false),
     LIST_PURCHASES("@lbuy", "Listar compras", false),
@@ -76,6 +79,12 @@ public enum ChatType {
                 *@cnote* — Criar nova nota
                 *@lnote* — Listar notas
                 *@dnote <id>* — Remover nota
+
+                💧 *Acompanhamentos*
+                *@ctracker* — Criar novo acompanhamento
+                *@ltracker* — Listar e ver progresso do dia
+                *@<apelido> <qtd>* — Registrar (ex: @agua 250)
+                *@dtracker <id>* — Remover acompanhamento
 
                 🔧 *Geral*
                 *@menu* — Exibir este menu

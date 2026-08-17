@@ -11,6 +11,7 @@ import dev.m2g2.simao.model.chat.order.UpdateOrderInteraction;
 import dev.m2g2.simao.model.chat.purchase.CreatePurchaseInteraction;
 import dev.m2g2.simao.model.chat.purchase.UpdatePurchaseInteraction;
 import dev.m2g2.simao.model.chat.task.CreateTaskInteraction;
+import dev.m2g2.simao.model.chat.tracker.CreateTrackerInteraction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,8 @@ import java.util.List;
         @JsonSubTypes.Type(value = CreatePurchaseInteraction.class),
         @JsonSubTypes.Type(value = UpdatePurchaseInteraction.class),
         @JsonSubTypes.Type(value = CreateOrderInteraction.class),
-        @JsonSubTypes.Type(value = UpdateOrderInteraction.class)
+        @JsonSubTypes.Type(value = UpdateOrderInteraction.class),
+        @JsonSubTypes.Type(value = CreateTrackerInteraction.class)
 })
 public abstract class Interaction<T>  {
 
