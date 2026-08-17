@@ -20,7 +20,17 @@ public enum ChatType {
     CREATE_PURCHASE_INLINE_TEMPLATE("@cbuy_inline_t", "Modelo para cadastrar várias compras", false),
     LIST_PURCHASES("@lbuy", "Listar compras", false),
     UPDATE_PURCHASE("@ubuy", "Atualizar compra pelo ID", true),
-    DELETE_PURCHASE("@dbuy", "Remover compra pelo ID", false);
+    DELETE_PURCHASE("@dbuy", "Remover compra pelo ID", false),
+    CREATE_ORDER("@cord", "Registrar novo pedido", true),
+    LIST_ORDERS("@lord", "Listar pedidos e fila de impressão", false),
+    UPDATE_ORDER("@uord", "Atualizar pedido pelo ID", true),
+    MOVE_ORDER("@mord", "Mover pedido na fila", false),
+    ORDER_STATUS("@sord", "Alterar status do pedido", false),
+    DELETE_ORDER("@dord", "Remover pedido pelo ID", false),
+    CREATE_CUSTOMER("@ccli", "Cadastrar novo cliente", false),
+    LIST_CUSTOMERS("@lcli", "Listar clientes", false),
+    UPDATE_CUSTOMER("@ucli", "Renomear cliente pelo ID", false),
+    DELETE_CUSTOMER("@dcli", "Remover cliente pelo ID", false);
 
     private final String value;
     private final String description;
@@ -86,6 +96,20 @@ public enum ChatType {
                 *@lbuy* — Listar compras
                 *@ubuy <id>* — Atualizar compra
                 *@dbuy <id>* — Remover compra
+
+                🖨️ *Pedidos / fila de impressão*
+                *@cord* — Registrar novo pedido
+                *@lord* — Listar pedidos e fila
+                *@uord <id>* — Atualizar pedido
+                *@mord <id> <pos>* — Mover pedido na fila
+                *@sord <id> <status>* — Alterar status
+                *@dord <id>* — Remover pedido
+
+                👤 *Clientes*
+                *@ccli <nome>* — Cadastrar cliente
+                *@lcli* — Listar clientes
+                *@ucli <id> <nome>* — Renomear cliente
+                *@dcli <id>* — Remover cliente
 
                 🔧 *Geral*
                 *@menu* — Exibir este menu
