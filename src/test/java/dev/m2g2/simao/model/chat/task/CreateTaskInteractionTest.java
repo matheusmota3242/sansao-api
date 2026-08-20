@@ -223,6 +223,23 @@ class CreateTaskInteractionTest {
         assertDoesNotThrow(() -> interaction.processInput("1"));
     }
 
+    @Test
+    void periodicityStep_weeklyCustom_missingDaysList_returnsErrorAndStaysOnStep() {
+        driveToPeriodicityStep("Gym", "01/06/2030 06:00");
+
+        TaskChatResponse response = interaction.processInput("1");
+
+        assertFalse(response.completed());
+        assertNull(response.task());
+        assertTrue(response.text().toLowerCase().contains("dias da semana"));
+
+        // Retry with the day list should complete
+        TaskChatResponse retry = interaction.processInput("1 SEG,QUA");
+
+        assertTrue(retry.completed());
+        assertEquals(TaskScheduler.Periodicity.WEEKLY_CUSTOM, retry.task().getPeriodicity());
+    }
+
     // -------------------------------------------------------------------------
     // Cancel message
     // -------------------------------------------------------------------------

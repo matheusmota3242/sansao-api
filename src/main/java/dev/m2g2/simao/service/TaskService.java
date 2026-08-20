@@ -64,12 +64,14 @@ public class TaskService implements InteractionBaseService {
                         
                         """);
                 for (Task task : tasks) {
+                    // scheduledAt is an optional due date, so it may be null.
+                    String due = task.getScheduledAt() == null
+                            ? "sem data"
+                            : task.getScheduledAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
                     builder.append("""
                             %d - %s (%s)
-                            
-                            """.formatted(task.getId(),
-                            task.getDescription(),
-                            task.getScheduledAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
+
+                            """.formatted(task.getId(), task.getDescription(), due));
                 }
                 builder.append("""
                         *Ações*

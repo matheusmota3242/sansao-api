@@ -3,8 +3,10 @@ package dev.m2g2.simao.service;
 import dev.m2g2.simao.dto.chat.AutomationChatResponse;
 import dev.m2g2.simao.dto.chat.ChatResponse;
 import dev.m2g2.simao.dto.chat.NoteChatResponse;
+import dev.m2g2.simao.dto.chat.OrderChatResponse;
 import dev.m2g2.simao.dto.chat.PurchaseChatResponse;
 import dev.m2g2.simao.dto.chat.TaskChatResponse;
+import dev.m2g2.simao.dto.chat.TrackerChatResponse;
 import dev.m2g2.simao.dto.waha.WahaRequest;
 import dev.m2g2.simao.dto.waha.WahaSendMessageRequest;
 import dev.m2g2.simao.dto.waha.WahaSendMessageResponse;
@@ -39,14 +41,20 @@ public class WhatsappBotService {
     private final AutomationService automationService;
     private final NoteService noteService;
     private final PurchaseService purchaseService;
+    private final OrderService orderService;
+    private final CustomerService customerService;
+    private final TrackerService trackerService;
     private final ChatRecordService chatRecordService;
 
-    public WhatsappBotService(WahaClientService wahaClientService, TaskService taskService, AutomationService automationService, NoteService noteService, PurchaseService purchaseService, ChatRecordService chatRecordService) {
+    public WhatsappBotService(WahaClientService wahaClientService, TaskService taskService, AutomationService automationService, NoteService noteService, PurchaseService purchaseService, OrderService orderService, CustomerService customerService, TrackerService trackerService, ChatRecordService chatRecordService) {
         this.wahaClientService = wahaClientService;
         this.taskService = taskService;
         this.automationService = automationService;
         this.noteService = noteService;
         this.purchaseService = purchaseService;
+        this.orderService = orderService;
+        this.customerService = customerService;
+        this.trackerService = trackerService;
         this.chatRecordService = chatRecordService;
     }
 
@@ -87,7 +95,13 @@ public class WhatsappBotService {
                     automationService.deleteIf(incomingMessage),
                     noteService.createInteractionIf(incomingMessage, chatId, null),
                     noteService.listIf(incomingMessage),
-                    noteService.deleteIf(incomingMessage)
+                    noteService.deleteIf(incomingMessage),
+                    trackerService.createInteractionIf(incomingMessage, chatId, null),
+                    trackerService.listIf(incomingMessage),
+                    trackerService.deleteIf(incomingMessage),
+                    // Last: matches any "@<keyword> ..." for a known tracker, so it
+                    // must not shadow the static commands above.
+                    trackerService.logIf(incomingMessage)
                 )
                 .filter(Objects::nonNull)
                 .findFirst()
@@ -102,6 +116,18 @@ public class WhatsappBotService {
                     purchaseService.listIf(incomingMessage),
                     purchaseService.updateInteractionIf(incomingMessage, chatId, participantId),
                     purchaseService.deleteIf(incomingMessage),
+                    orderService.createInteractionIf(incomingMessage, chatId, participantId),
+                    orderService.listIf(incomingMessage),
+                    orderService.updateInteractionIf(incomingMessage, chatId, participantId),
+                    orderService.moveIf(incomingMessage),
+                    orderService.changeStatusIf(incomingMessage),
+                    orderService.deleteIf(incomingMessage),
+                    customerService.createIf(incomingMessage),
+                    customerService.listIf(incomingMessage),
+                    customerService.updateIf(incomingMessage),
+                    customerService.deleteIf(incomingMessage),
+                    // Last: matches any message containing "|", so it must not
+                    // shadow the commands above.
                     purchaseService.createInlineIf(incomingMessage)
                 )
                 .filter(Objects::nonNull)
@@ -165,6 +191,26 @@ public class WhatsappBotService {
                             purchaseService.create(purchaseChatResponse.purchase());
                         else
                             purchaseService.update(purchaseChatResponse.updateId(), purchaseChatResponse.purchase());
+                    }
+
+                    if (chatResponse instanceof TrackerChatResponse trackerChatResponse) {
+                        // Keyword uniqueness is a DB check, so creation can fail
+                        // after the interaction already wrote its success message;
+                        // a non-null outcome replaces it.
+                        String outcome = trackerService.createFromChat(trackerChatResponse.tracker());
+                        if (outcome != null)
+                            reply = outcome;
+                    }
+
+                    if (chatResponse instanceof OrderChatResponse orderChatResponse) {
+                        // Persisting can still fail (unknown customer id), and the
+                        // interaction already wrote a success message, so a
+                        // non-null outcome replaces it.
+                        String outcome = orderChatResponse.updateId() == null
+                                ? orderService.createFromChat(orderChatResponse.order())
+                                : orderService.updateFromChat(orderChatResponse.updateId(), orderChatResponse.order());
+                        if (outcome != null)
+                            reply = outcome;
                     }
                 }
             }
