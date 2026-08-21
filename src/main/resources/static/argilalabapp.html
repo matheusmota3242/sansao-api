@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ARGILA LAB — Catálogo e Custos</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 :root{
   --barro:#9C5B3C; --barro-esc:#5E3222; --areia:#F6F1EA; --papel:#FFFDFA;
   --tinta:#2B2320; --suave:#7A6A60; --linha:#E4D9CC; --claro:#F2E5D8;
@@ -134,33 +135,124 @@ a{color:var(--barro)}
   font-weight:600;z-index:90;transition:transform .25s;box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .toast.on{transform:translateX(-50%) translateY(0)}
 
+/* ---------- galeria de fotos ---------- */
+.gal{display:flex;gap:9px;flex-wrap:wrap}
+.gal .t{position:relative;width:78px;height:78px;border-radius:7px;overflow:hidden;
+  border:1px solid var(--linha);background:#F0E7DC}
+.gal .t.pri{border:2px solid var(--barro)}
+.gal .t img{width:100%;height:100%;object-fit:cover;display:block}
+.gal .t .x{position:absolute;top:2px;right:2px;background:rgba(43,35,32,.72);color:#fff;
+  border:0;border-radius:4px;width:18px;height:18px;font-size:12px;line-height:1;padding:0}
+.gal .t .pz{position:absolute;bottom:0;left:0;right:0;background:rgba(43,35,32,.72);color:#fff;
+  border:0;font-size:9px;letter-spacing:.06em;padding:2px 0;text-transform:uppercase}
+.gal .t.pri .pz{background:var(--barro)}
+.gal .add{width:78px;height:78px;border:1px dashed var(--linha);border-radius:7px;background:#fff;
+  color:var(--suave);font-size:11px;line-height:1.3}
+.gal .add:hover{background:var(--claro);color:var(--barro-esc)}
+
+/* ---------- nuvem ---------- */
+.nuvem{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:14px;padding:4px 18px 8px}
+.nvbar{padding:2px 18px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.nvst{font-size:12px;color:var(--suave);display:flex;align-items:center;gap:7px}
+.nvst .li{width:8px;height:8px;border-radius:50%;background:#C9B7A6}
+.nvst.on .li{background:var(--verde)}
+.nvst.erro .li{background:var(--vermelho)}
+
+/* ---------- estado do arquivo ---------- */
+.arq{display:flex;align-items:center;gap:7px;font-size:12px;color:#E7D8C9;
+  background:rgba(255,255,255,.09);border-radius:7px;padding:6px 11px;max-width:280px}
+.arq b{font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arq .li{width:7px;height:7px;border-radius:50%;background:#E0B65C;flex:0 0 auto}
+.arq.on .li{background:#7FBF8A}
+.badge{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:1px}
+.badge.pub{color:#2F6B3A;background:#E4F0E4}
+.badge.nao{color:var(--suave);background:#EFE7DE}
+.badge.dest{color:var(--barro);background:var(--claro)}
+
 /* ---------- impressão ---------- */
+:root{
+  --g:#2C2C2A; --tc:#D85A30; --tc-cl:#F0997B; --cr:#FAECE7;
+  --cz:#5F5E5A; --aux:#B4B2A9;
+}
 .print{display:none}
 @media print{
   .top,.wrap,.ov,.toast{display:none !important}
   .print{display:block}
   body{background:#fff}
-  @page{margin:12mm 10mm}
+  @page{size:A4;margin:13mm 12mm 14mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
-#pcat h1{font-size:24px;letter-spacing:.16em;color:var(--barro-esc);margin:0 0 2px}
-#pcat .sb{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--barro);margin:0 0 18px}
-#pcat h2{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--barro);
-  margin:18px 0 8px;padding-bottom:5px;border-bottom:1.5px solid var(--linha)}
-#pcat .it{display:flex;gap:13px;align-items:center;padding:7px 0;border-bottom:1px solid #F0E9E0;
-  page-break-inside:avoid}
-#pcat .it img{width:74px;height:74px;object-fit:cover;border-radius:6px;border:1px solid var(--linha)}
-#pcat .it .nb{width:74px;height:74px;border:1px dashed var(--linha);border-radius:6px}
-#pcat .it .tx{flex:1}
-#pcat .it h3{margin:0 0 2px;font-size:13.5px}
-#pcat .it p{margin:0;font-size:11px;color:var(--suave)}
-#pcat .it .pz{font-size:15px;font-weight:700;color:var(--barro-esc);white-space:nowrap}
-#petq{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm}
-#petq .e{border:1px dashed #C9B7A6;border-radius:5px;padding:7mm 5mm;text-align:center;
-  page-break-inside:avoid;height:32mm;display:flex;flex-direction:column;justify-content:center}
-#petq .e .m{font-size:8px;letter-spacing:.22em;color:var(--barro);font-weight:700}
-#petq .e .n{font-size:11px;font-weight:700;margin:3px 0 1px;line-height:1.25}
-#petq .e .s{font-size:8px;letter-spacing:.1em;color:var(--suave)}
-#petq .e .p{font-size:16px;font-weight:800;color:var(--barro-esc);margin-top:4px}
+#pcat{font-family:"Zilla Slab","Bitter",Georgia,"Times New Roman",serif;color:var(--g)}
+#pcat .mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
+
+/* --- capa --- */
+#pcat .capa{height:250mm;display:flex;flex-direction:column;justify-content:center;
+  align-items:center;text-align:center;position:relative;break-after:page;
+  border:1px solid var(--aux);padding:0 16mm}
+#pcat .capa::before,#pcat .capa::after{content:"";position:absolute;width:9mm;height:9mm}
+#pcat .capa::before{top:4mm;left:4mm;border-top:1.4px solid var(--tc);border-left:1.4px solid var(--tc)}
+#pcat .capa::after{bottom:4mm;right:4mm;border-bottom:1.4px solid var(--tc);border-right:1.4px solid var(--tc)}
+#pcat .capa svg{width:52mm;height:auto;margin-bottom:12mm}
+#pcat .capa .wm{font-size:46px;font-weight:300;letter-spacing:.02em;line-height:1}
+#pcat .capa .wm b{font-weight:700;color:var(--tc)}
+#pcat .capa .tgl{font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--cz);margin-top:6mm}
+#pcat .capa .rl{width:34mm;height:1px;background:var(--aux);margin:10mm 0}
+#pcat .capa .meta{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--cz);line-height:2}
+#pcat .capa .meta b{color:var(--g);font-weight:500}
+
+/* --- cabeçalho de categoria --- */
+#pcat .cat{break-inside:auto;margin:0 0 9mm}
+#pcat .cat+.cat{margin-top:11mm}
+#pcat .ch{display:flex;align-items:baseline;gap:8px;border-bottom:1.4px solid var(--g);
+  padding-bottom:4px;margin-bottom:5mm;break-after:avoid}
+#pcat .ch .cd{font-size:9px;letter-spacing:.2em;color:var(--tc);font-weight:500}
+#pcat .ch h2{margin:0;font-size:17px;font-weight:600;letter-spacing:.01em;flex:1}
+#pcat .ch .qt{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--cz)}
+
+/* --- grade de produtos --- */
+#pcat .gr{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+#pcat .pd{break-inside:avoid;border:1px solid var(--aux);display:flex;flex-direction:column;
+  background:#fff}
+#pcat .pd .im{position:relative;height:44mm;background:var(--cr);overflow:hidden;
+  border-bottom:1px solid var(--aux)}
+#pcat .pd .im img{position:absolute;top:50%;left:0;transform:translateY(-50%);
+  width:100%;height:auto;min-height:100%;object-fit:cover;display:block}
+#pcat .pd .im .nb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--tc-cl)}
+#pcat .pd .sku{position:absolute;top:0;left:0;background:var(--g);color:var(--cr);
+  font-size:8px;letter-spacing:.14em;padding:2.2mm 3mm;font-weight:500}
+#pcat .pd .bd{padding:4mm 4.5mm 3mm;display:flex;flex-direction:column;flex:1}
+#pcat .pd h3{margin:0 0 2mm;font-size:12.5px;font-weight:600;line-height:1.28}
+#pcat .pd p{margin:0;font-size:9px;line-height:1.55;color:var(--cz);
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+#pcat .pd .pz{margin-top:auto;padding-top:3mm;border-top:1px dashed var(--aux);
+  display:flex;align-items:baseline;justify-content:space-between}
+#pcat .pd .pz .lb{font-size:7.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--aux)}
+#pcat .pd .pz .vl{font-size:16px;font-weight:700;color:var(--tc);letter-spacing:-.01em}
+#pcat .pd .pz .vl.sob{font-size:9.5px;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--cz)}
+
+/* --- fechamento --- */
+#pcat .fim{break-inside:avoid;margin-top:12mm;border:1px solid var(--aux);padding:8mm 9mm;
+  background:var(--cr)}
+#pcat .fim h2{margin:0 0 5mm;font-size:14px;font-weight:600;letter-spacing:.01em}
+#pcat .fim ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}
+#pcat .fim li{font-size:9.5px;line-height:1.6;color:var(--cz)}
+#pcat .fim li b{display:block;font-size:8px;letter-spacing:.2em;color:var(--tc);margin-bottom:1.5mm}
+#pcat .fim .cn{margin:7mm 0 0;padding-top:5mm;border-top:1px solid var(--aux);
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--cz)}
+
+/* --- etiquetas --- */
+#petq{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm;
+  font-family:"Zilla Slab","Bitter",Georgia,"Times New Roman",serif;color:var(--g)}
+#petq .e{border:1px solid var(--aux);padding:6mm 4mm;text-align:center;
+  break-inside:avoid;height:33mm;display:flex;flex-direction:column;justify-content:center}
+#petq .e .m{font-family:"IBM Plex Mono",monospace;font-size:7.5px;letter-spacing:.3em;
+  color:var(--tc);font-weight:500}
+#petq .e .n{font-size:11px;font-weight:600;margin:2mm 0 1mm;line-height:1.25}
+#petq .e .s{font-family:"IBM Plex Mono",monospace;font-size:7.5px;letter-spacing:.14em;color:var(--cz)}
+#petq .e .p{font-size:15px;font-weight:700;color:var(--tc);margin-top:2mm}
 </style>
 </head>
 <body>
@@ -169,7 +261,13 @@ a{color:var(--barro)}
   <div class="marca">ARGILA<span>LAB</span></div><span class="dot" id="dot" title="alterações não salvas"></span>
   <div class="sp"></div>
   <button class="tbtn pri" onclick="abrir()">+ Novo produto</button>
-  <button class="tbtn" onclick="fileIn.click()">Importar projeto</button>
+  <span class="arq" id="arq" title="arquivo do projeto"><span class="li"></span><b>não conectado</b></span>
+  <button class="tbtn" id="btnConectar" onclick="conectarArquivo()">Conectar arquivo</button>
+  <button class="tbtn" onclick="fileIn.click()">Abrir cópia</button>
+  <button class="tbtn" onclick="salvarProjeto()">Baixar backup</button>
+  <button class="tbtn" onclick="previewSite()">Ver o site</button>
+  <button class="tbtn" onclick="baixarSite()">Baixar site</button>
+  <button class="tbtn" onclick="publicarSite()">Publicar JSON</button>
   <button class="tbtn" onclick="imprimir('cat')">Catálogo PDF</button>
   <button class="tbtn" onclick="imprimir('etq')">Etiquetas</button>
   <button class="tbtn" onclick="exportarCSV()">CSV</button>
@@ -181,6 +279,50 @@ a{color:var(--barro)}
   <details class="painel" id="pn">
     <summary>Parâmetros de custo — mexeu aqui, todos os produtos recalculam</summary>
     <div class="pgrid" id="params"></div>
+    <div style="padding:0 18px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn gh" type="button" onclick="recomprimirTudo()">Recomprimir fotos embutidas</button>
+      <span class="cont" id="pesoProj"></span>
+    </div>
+  </details>
+
+  <details class="painel" id="pnLoja">
+    <summary>Loja — textos, contato e regras que aparecem no site</summary>
+    <div class="pgrid">
+      <div class="f"><label>Instagram <span class="hint">só o usuário, sem @</span></label>
+        <input id="l_ig" data-l="instagram" placeholder="argila_lab"></div>
+      <div class="f"><label>WhatsApp <span class="hint">vazio = botão não aparece · formato 5584...</span></label>
+        <input id="l_zap" data-l="whatsapp" placeholder=""></div>
+      <div class="f"><label>Frete grátis a partir de (R$) <span class="hint">0 = sem barra de frete</span></label>
+        <input id="l_frete" data-l="freteGratis" type="number" min="0" step="10"></div>
+      <div class="f full"><label>Título do topo</label><input id="l_ht" data-l="heroTitulo"></div>
+      <div class="f full"><label>Texto do topo</label><textarea id="l_hx" data-l="heroTexto"></textarea></div>
+      <div class="f full"><label>Faixa de confiança <span class="hint">uma por linha: título | texto</span></label>
+        <textarea id="l_conf" data-l="confianca"></textarea></div>
+      <div class="f full"><label>Como funciona <span class="hint">um passo por linha: título | texto</span></label>
+        <textarea id="l_proc" data-l="processo"></textarea></div>
+      <div class="f full"><label>Perguntas frequentes <span class="hint">uma por linha: pergunta | resposta</span></label>
+        <textarea id="l_faq" data-l="faq" style="min-height:120px"></textarea></div>
+      <div class="f full"><label>Rodapé</label><input id="l_rod" data-l="rodape"></div>
+      <div class="f full"><label>Aviso no fim do pedido</label><input id="l_obs" data-l="obsPedido"></div>
+    </div>
+    <div class="nvbar">
+      <button class="btn gh" type="button" onclick="previewSite()">Ver o site com estas mudanças</button>
+    </div>
+  </details>
+
+  <details class="painel" id="pnNuvem">
+    <summary>Nuvem — sincronizar entre aparelhos e publicar o site</summary>
+    <div class="nuvem">
+      <div class="f" style="grid-column:1/-1">
+        <label>Servidor <span class="hint">os dados ficam no simao-api; tudo que você edita é salvo na hora</span></label>
+        <div id="n_status" class="nstat">conectando...</div>
+      </div>
+    </div>
+    <div class="pgrid" style="padding-top:0">
+      <button class="btn gh" type="button" onclick="carregar()">Recarregar do servidor</button>
+      <button class="btn gh" type="button" onclick="salvarProjeto()">Baixar cópia (JSON)</button>
+      <span class="nvst" id="n_st"><span class="li"></span><span id="n_msg">desconectado</span></span>
+    </div>
   </details>
 
   <div class="bar">
@@ -226,16 +368,49 @@ a{color:var(--barro)}
     </div>
 
     <div class="blk">
-      <h4>Foto</h4>
-      <div class="prev">
-        <div class="ph" id="i_prev"><span>sem foto</span></div>
-        <div style="flex:1;display:grid;gap:10px">
-          <div class="f"><label>URL da imagem</label><input id="i_foto" placeholder="https://..."></div>
-          <div class="f"><label>ou envie um arquivo <span class="hint">fica embutido no projeto</span></label>
-            <input type="file" id="i_file" accept="image/*"></div>
-          <div class="f"><label>Página de origem <span class="hint">opcional</span></label>
-            <input id="i_origem" placeholder="https://makerworld.com/..."></div>
-        </div>
+      <h4>Fotos <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--suave)">— a primeira é a principal</span></h4>
+      <div class="gal" id="i_gal"></div>
+      <input type="file" id="i_file" accept="image/*" multiple style="display:none">
+      <div class="g2" style="margin-top:12px">
+        <div class="f"><label>Adicionar por URL</label>
+          <div style="display:flex;gap:8px">
+            <input id="i_url" placeholder="https://...">
+            <button class="btn gh" type="button" onclick="addFotoURL()">Add</button>
+          </div></div>
+        <div class="f"><label>Página de origem do STL <span class="hint">rastreabilidade de PI</span></label>
+          <input id="i_origem" placeholder="https://makerworld.com/..."></div>
+      </div>
+    </div>
+
+    <div class="blk">
+      <h4>Site e vitrine</h4>
+      <div class="g3">
+        <div class="f full"><label>Slug da URL <span class="hint">endereço da página — só minúsculas e hífen</span></label>
+          <div style="display:flex;gap:8px">
+            <input id="i_slug" placeholder="molde-de-tigela-24-cm">
+            <button class="btn gh" type="button" onclick="gerarSlug(true)">Gerar do nome</button>
+          </div></div>
+        <div class="f"><label>Prazo de produção <span class="hint">dias úteis</span></label>
+          <input id="i_prazo" type="number" min="0" step="1" value="5"></div>
+        <div class="f"><label>Ordem na vitrine <span class="hint">menor aparece antes</span></label>
+          <input id="i_ordem" type="number" min="0" step="1" value="0"></div>
+        <div class="f"><label>Material</label><input id="i_material" value="PLA rígido"></div>
+        <div class="f"><label>Dimensões da peça <span class="hint">texto livre</span></label>
+          <input id="i_dim" placeholder="24 × 12 × 3 cm"></div>
+        <div class="f"><label>Peso embalado (g) <span class="hint">frete — pode ficar vazio</span></label>
+          <input id="i_epeso" type="number" min="0" step="1" placeholder=""></div>
+        <div class="f"><label>Embalagem C×L×A (cm) <span class="hint">frete — pode ficar vazio</span></label>
+          <input id="i_edim" placeholder="20 × 15 × 5"></div>
+        <div class="f"><label>Publicar no site</label><select id="i_pub">
+          <option value="1">Sim</option><option value="0">Não</option></select></div>
+        <div class="f"><label>Destaque na home</label><select id="i_dest">
+          <option value="0">Não</option><option value="1">Sim</option></select></div>
+        <div class="f full"><label>Descrição longa <span class="hint">página do produto — vazio usa a de catálogo</span></label>
+          <textarea id="i_desclonga" placeholder="Benefício, como usar, o que acompanha."></textarea></div>
+        <div class="f full"><label>Meta descrição <span class="hint">buscador — até 160 caracteres</span></label>
+          <input id="i_meta" maxlength="160" placeholder=""></div>
+        <div class="f full"><label>Licença do arquivo <span class="hint">interno — nunca vai para o site</span></label>
+          <input id="i_licenca" placeholder="Modelagem própria / comercial licenciada / a modelar"></div>
       </div>
     </div>
 
@@ -275,32 +450,763 @@ a{color:var(--barro)}
   <div id="petq"></div>
 </div>
 
+<script type="text/template" id="tplLoja"><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>argila lab — ferramentas para cerâmica</title>
+<meta name="description" content="Ferramentas para torno e cerâmica, feitas sob encomenda em Pipa, RN. Envio para todo o Brasil.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="argila lab — ferramentas para cerâmica">
+<meta property="og:description" content="Ferramentas para torno e cerâmica, feitas sob encomenda em Pipa, RN.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--g:#2C2C2A;--tc:#D85A30;--tcl:#F0997B;--cr:#FAECE7;--cz:#5F5E5A;--aux:#B4B2A9;--pp:#FFFDFB}
+*{box-sizing:border-box}
+body{margin:0;background:var(--pp);color:var(--g);font-family:"Zilla Slab",Georgia,serif;line-height:1.55}
+body.travado{overflow:hidden}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+button{font-family:inherit;cursor:pointer}
+.aviso{background:var(--g);color:var(--cr);padding:9px 22px;font-family:"IBM Plex Mono",monospace;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+
+/* cabeçalho */
+header{position:sticky;top:0;z-index:30;background:var(--pp);border-bottom:1px solid var(--aux);
+  padding:12px 22px;display:flex;align-items:center;gap:16px}
+.wm{font-size:20px;font-weight:300;letter-spacing:.02em;line-height:1.1;cursor:pointer}
+.wm b{font-weight:700;color:var(--tc)}
+.tgl{font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--cz)}
+header .sp{flex:1}
+.bcart{position:relative;background:var(--g);color:var(--cr);border:0;padding:10px 18px;
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-family:"IBM Plex Mono",monospace}
+.bcart .n{background:var(--tc);color:#fff;border-radius:99px;padding:1px 7px;margin-left:7px;font-size:11px}
+
+/* hero */
+.hero{padding:54px 22px 40px;border-bottom:1px solid var(--aux);display:flex;gap:38px;
+  align-items:center;flex-wrap:wrap}
+.hero h1{font-size:35px;font-weight:600;line-height:1.16;margin:0 0 14px;max-width:17ch}
+.hero p{margin:0;color:var(--cz);max-width:46ch;font-size:15px}
+.hero svg{width:132px;flex:0 0 auto}
+
+/* faixa de confiança */
+.conf{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;
+  background:var(--aux);border-bottom:1px solid var(--aux)}
+.conf div{background:var(--cr);padding:16px 20px;font-size:12px;color:var(--cz)}
+.conf b{display:block;font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--tc);margin-bottom:4px}
+
+/* controles */
+.controles{padding:24px 22px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.busca{flex:1;min-width:200px;border:1px solid var(--aux);background:#fff;padding:10px 14px;
+  font-family:inherit;font-size:14px}
+.sel{border:1px solid var(--aux);background:#fff;padding:10px 12px;font-family:"IBM Plex Mono",monospace;
+  font-size:11px;letter-spacing:.08em}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;padding:14px 22px 0}
+.fb{border:1px solid var(--aux);background:transparent;border-radius:99px;padding:7px 15px;
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--cz)}
+.fb.on{background:var(--g);border-color:var(--g);color:var(--cr)}
+.conta{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--aux);
+  padding:14px 22px 0}
+
+/* grade */
+main{padding:12px 22px 10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(244px,1fr));gap:24px}
+.card{border:1px solid var(--aux);background:#fff;display:flex;flex-direction:column;
+  transition:transform .12s,box-shadow .12s}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(44,44,42,.1)}
+.card .im{position:relative;height:0;padding-top:78%;background:var(--cr);overflow:hidden;cursor:pointer}
+.card .im img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+.card .im .nb{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;
+  justify-content:center;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--tcl)}
+.card .sku{position:absolute;top:0;left:0;background:var(--g);color:var(--cr);font-size:9px;
+  letter-spacing:.14em;padding:5px 9px}
+.card .dst{position:absolute;top:0;right:0;background:var(--tc);color:#fff;font-size:9px;
+  letter-spacing:.14em;padding:5px 9px;text-transform:uppercase}
+.card .bd{padding:14px 15px 13px;display:flex;flex-direction:column;flex:1}
+.card h3{margin:0 0 6px;font-size:15px;font-weight:600;line-height:1.3;cursor:pointer}
+.card p{margin:0;font-size:12.5px;color:var(--cz);display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden}
+.tams{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0 0}
+.tb{border:1px solid var(--aux);background:#fff;padding:4px 10px;font-family:"IBM Plex Mono",monospace;
+  font-size:10px;letter-spacing:.1em;color:var(--cz)}
+.tb.on{background:var(--cr);border-color:var(--tc);color:var(--tc)}
+.card .pz{margin-top:auto;padding-top:12px;display:flex;align-items:baseline;justify-content:space-between}
+.card .vl{font-size:19px;font-weight:700;color:var(--tc)}
+.card .vl.sob{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--cz)}
+.card .pr{font-size:10px;letter-spacing:.1em;color:var(--aux)}
+.add{margin-top:11px;width:100%;background:var(--g);color:var(--cr);border:0;padding:11px;
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase}
+.add:hover{background:var(--tc)}
+.add[disabled]{background:var(--cr);color:var(--aux);cursor:default}
+.vazio{grid-column:1/-1;text-align:center;padding:64px 20px;color:var(--cz)}
+
+/* seções */
+.secao{padding:52px 22px;border-top:1px solid var(--aux)}
+.secao h2{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--tc);margin:0 0 22px;
+  font-family:"IBM Plex Mono",monospace}
+.passos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:26px}
+.passos .p b{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.2em;
+  color:var(--tc);margin-bottom:7px}
+.passos .p h3{margin:0 0 6px;font-size:17px;font-weight:600}
+.passos .p p{margin:0;font-size:13.5px;color:var(--cz)}
+.faq{max-width:760px}
+.faq details{border-bottom:1px solid var(--aux);padding:14px 0}
+.faq summary{cursor:pointer;font-size:15.5px;font-weight:600;list-style:none;display:flex;
+  justify-content:space-between;gap:14px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--tc);font-size:18px;line-height:1}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin:10px 0 0;font-size:13.5px;color:var(--cz);max-width:64ch}
+
+/* ficha */
+.ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(44,44,42,.62);display:none;z-index:40;
+  overflow:auto;padding:26px 14px}
+.ov.on{display:block}
+.det{background:var(--pp);max-width:940px;margin:0 auto;border:1px solid var(--aux)}
+.det .barra{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;
+  border-bottom:1px solid var(--aux)}
+.det .fechar{border:0;background:none;font-size:24px;line-height:1;color:var(--cz)}
+.det .corpo{display:grid;grid-template-columns:1.05fr 1fr}
+.det .fotos{background:var(--cr);padding:18px;display:flex;flex-direction:column;gap:9px}
+.det .grande{width:100%;height:298px;object-fit:cover;background:#fff}
+.det .fila{display:flex;gap:7px;flex-wrap:wrap}
+.det .fila img{width:56px;height:56px;object-fit:cover;cursor:pointer;border:1px solid var(--aux)}
+.det .txt{padding:24px 26px}
+.det .txt h2{margin:2px 0 0;font-size:23px;font-weight:600;line-height:1.2}
+.det .sk{font-size:10px;letter-spacing:.16em;color:var(--tc);text-transform:uppercase}
+.det .preco{font-size:28px;font-weight:700;color:var(--tc);margin:14px 0 0}
+.det .desc{font-size:14px;color:var(--cz);white-space:pre-line;margin:13px 0 16px}
+.det dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:12.5px;margin:0 0 20px;
+  border-top:1px solid var(--aux);padding-top:13px}
+.det dt{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--aux)}
+.det dd{margin:0;color:var(--cz)}
+
+/* carrinho */
+.gav{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--pp);z-index:50;
+  border-left:1px solid var(--aux);transform:translateX(105%);transition:transform .22s;
+  display:flex;flex-direction:column}
+.gav.on{transform:none}
+.gav .cab{padding:16px 20px;border-bottom:1px solid var(--aux);display:flex;justify-content:space-between;
+  align-items:center}
+.gav .cab h2{margin:0;font-size:16px;font-weight:600}
+.gav .itens{flex:1;overflow:auto;padding:6px 20px}
+.it{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--cr)}
+.it img{width:62px;height:62px;object-fit:cover;background:var(--cr);flex:0 0 auto}
+.it .nm{flex:1;min-width:0}
+.it .nm b{display:block;font-size:13.5px;font-weight:600;line-height:1.3}
+.it .nm span{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;color:var(--tc)}
+.qt{display:flex;align-items:center;gap:8px;margin-top:7px}
+.qt button{width:24px;height:24px;border:1px solid var(--aux);background:#fff;font-size:14px;line-height:1}
+.qt span{font-family:"IBM Plex Mono",monospace;font-size:12px;min-width:16px;text-align:center}
+.it .vl{font-weight:700;color:var(--tc);white-space:nowrap}
+.gav .pe{border-top:1px solid var(--aux);padding:16px 20px 22px}
+.frete{background:var(--cr);padding:11px 13px;margin-bottom:14px;font-size:12px;color:var(--cz)}
+.barra{height:4px;background:#fff;margin-top:8px;overflow:hidden}
+.barra i{display:block;height:100%;background:var(--tc);width:0;transition:width .25s}
+.tot{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.tot b{font-size:24px;color:var(--tc)}
+.cta{display:block;width:100%;background:var(--tc);color:#fff;border:0;text-decoration:none;
+  text-align:center;padding:14px;font-weight:600;font-size:14.5px;font-family:inherit}
+.cta:hover{background:#C24A22}
+.cta.sec{background:transparent;color:var(--g);border:1px solid var(--g);margin-top:9px}
+.cta.sec:hover{background:var(--cr)}
+.gav .obs{font-size:11px;color:var(--aux);margin:11px 0 0;text-align:center;line-height:1.5}
+.fundo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(44,44,42,.5);z-index:45;display:none}
+.fundo.on{display:block}
+.aviso-copia{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(140%);
+  background:var(--g);color:var(--cr);padding:13px 22px;font-size:13px;z-index:60;transition:transform .25s;
+  max-width:90vw;text-align:center}
+.aviso-copia.on{transform:translateX(-50%)}
+
+footer{border-top:1px solid var(--aux);padding:34px 22px 52px;color:var(--cz);font-size:12.5px}
+footer .mrc{font-size:17px;color:var(--g);margin-bottom:6px}
+@media(max-width:760px){
+  .det .corpo{grid-template-columns:1fr}
+  .hero h1{font-size:27px}
+  .hero{padding:36px 20px 30px}
+  main{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+  .card h3{font-size:13.5px}
+  .card p{display:none}
+  .card .vl{font-size:16px}
+  .secao{padding:38px 20px}
+}
+</style>
+</head>
+<body>
+<div class="aviso" id="aviso" style="display:none"></div>
+
+<header>
+  <div onclick="irPara('')"><div class="wm">argila <b>lab</b></div>
+    <div class="tgl mono">ferramentas para cerâmica</div></div>
+  <div class="sp"></div>
+  <button class="bcart" onclick="abrirCarrinho(true)">Carrinho<span class="n" id="cn">0</span></button>
+</header>
+
+<section class="hero">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M100 44 L131 44 Q123 55 121 66 Q152 92 150 118 Q148 150 124 161 L120 170 L100 170 Z"
+          fill="#D85A30" transform="translate(200,0) scale(-1,1)"/>
+    <path d="M100 44 L131 44 Q123 55 121 66 Q152 92 150 118 Q148 150 124 161 L120 170 L100 170 Z"
+          fill="none" stroke="#2C2C2A" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="100" y1="26" x2="100" y2="188" stroke="#2C2C2A" stroke-width="1" stroke-dasharray="10 4 2 4"/>
+  </svg>
+  <div><h1 id="heroTit"></h1><p id="heroTxt"></p></div>
+</section>
+
+<div class="conf" id="conf"></div>
+
+<div class="controles">
+  <input class="busca" id="q" placeholder="Buscar por nome ou código (AL-...)" oninput="pintar()">
+  <select class="sel" id="ord" onchange="pintar()">
+    <option value="">ordem da vitrine</option>
+    <option value="menor">menor preço</option>
+    <option value="maior">maior preço</option>
+    <option value="nome">nome A–Z</option>
+  </select>
+</div>
+<div class="filtros" id="filtros"></div>
+<div class="conta" id="conta"></div>
+<main id="grade"></main>
+
+<section class="secao" id="secProcesso" style="display:none">
+  <h2>Como funciona</h2>
+  <div class="passos" id="passos"></div>
+</section>
+
+<section class="secao" id="secFaq" style="display:none">
+  <h2>Perguntas frequentes</h2>
+  <div class="faq" id="faq"></div>
+</section>
+
+<div class="ov" id="ov"><div class="det" id="det"></div></div>
+<div class="fundo" id="fundo" onclick="abrirCarrinho(false)"></div>
+
+<aside class="gav" id="gav">
+  <div class="cab"><h2>Seu pedido</h2>
+    <button class="fechar" style="border:0;background:none;font-size:24px" onclick="abrirCarrinho(false)">&times;</button></div>
+  <div class="itens" id="itens"></div>
+  <div class="pe">
+    <div class="frete" id="frete"></div>
+    <div class="tot"><span>Total</span><b id="total">R$ 0,00</b></div>
+    <button class="cta" onclick="fechar_pedido('direct')">Encomendar pelo direct</button>
+    <button class="cta sec" id="btZap" style="display:none" onclick="fechar_pedido('whats')">Pedir pelo WhatsApp</button>
+    <p class="obs" id="obsPedido"></p>
+  </div>
+</aside>
+
+<div class="aviso-copia" id="copia"></div>
+
+<footer>
+  <div class="mrc"><b>argila lab</b></div>
+  <div id="rodape"></div>
+</footer>
+
 <script>
 "use strict";
+/*__FONTE__*/
 
-/* ============================================================
-   ARGILA LAB — front conectado ao backend simao-api.
-   Servido pelo próprio app (src/main/resources/static): usa a MESMA origem,
-   então não precisa configurar host nem CORS. Ao abrir como arquivo local
-   (file://), cai no fallback localhost:8080.
-   ============================================================ */
-const API = location.protocol === "file:" ? "http://localhost:8080" : "";
+var filtro = "", carrinho = [], escolha = {};
 
-/* Metadados dos parâmetros (rótulos/dicas). Os VALORES vêm da API. */
+function brl(v){
+  if (v == null) return null;
+  return "R$ " + Number(v).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+function esc(t){
+  return String(t == null ? "" : t).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function cfg(k, padrao){
+  var L = CAT.loja || {};
+  return (L[k] === undefined || L[k] === null || L[k] === "") ? padrao : L[k];
+}
+
+/* ---- agrupamento de variantes ---- */
+/* Produtos com mesmo código base (AL-MOL-001) e sufixo de tamanho viram um card
+   só, com seletor. Sem sufixo, cada produto é seu próprio grupo. */
+function base(sku){
+  var p = sku.split("-");
+  return p.length > 3 ? p.slice(0, 3).join("-") : sku;
+}
+function agrupar(lista){
+  var mapa = {}, ordem = [];
+  lista.forEach(function(p){
+    var b = base(p.sku);
+    if (!mapa[b]){ mapa[b] = {base: b, itens: []}; ordem.push(b); }
+    mapa[b].itens.push(p);
+  });
+  return ordem.map(function(b){
+    var g = mapa[b];
+    g.variante = g.itens.length > 1;
+    g.nome = g.variante ? g.itens[0].nome.split("—")[0].trim() : g.itens[0].nome;
+    return g;
+  });
+}
+function itemAtual(g){
+  var i = escolha[g.base] || 0;
+  return g.itens[Math.min(i, g.itens.length - 1)];
+}
+function rotuloTam(p){
+  var t = p.sku.split("-")[3];
+  return t || "único";
+}
+
+/* ---- listagem ---- */
+function visiveis(){
+  var q = document.getElementById("q").value.trim().toLowerCase();
+  var lista = CAT.produtos.filter(function(p){
+    if (filtro && p.categoriaId !== filtro) return false;
+    if (!q) return true;
+    return (p.nome + " " + p.sku + " " + (p.resumo || "")).toLowerCase().indexOf(q) >= 0;
+  });
+  return lista;
+}
+function pintar(){
+  var cats = CAT.categorias || [];
+  document.getElementById("filtros").innerHTML =
+    '<button class="fb ' + (filtro ? "" : "on") + '" onclick="filtrar(\'\')">tudo</button>' +
+    cats.map(function(c){
+      return '<button class="fb ' + (filtro === c.id ? "on" : "") + '" onclick="filtrar(\'' +
+        c.id + '\')">' + esc(c.nome) + '</button>';
+    }).join("");
+
+  var lista = visiveis(), grupos = agrupar(lista);
+  var o = document.getElementById("ord").value;
+  if (o){
+    grupos = grupos.slice().sort(function(ga, gb){
+      var a = itemAtual(ga), b = itemAtual(gb);
+      if (o === "nome") return ga.nome.localeCompare(gb.nome, "pt-BR");
+      var pa = a.preco == null ? Infinity : a.preco, pb = b.preco == null ? Infinity : b.preco;
+      return o === "menor" ? pa - pb : pb - pa;
+    });
+  }
+  document.getElementById("conta").textContent =
+    lista.length + (lista.length === 1 ? " produto" : " produtos");
+
+  document.getElementById("grade").innerHTML = grupos.length ? grupos.map(function(g){
+    var p = itemAtual(g), foto = p.fotos && p.fotos[0];
+    var tams = g.variante ? '<div class="tams">' + g.itens.map(function(v, i){
+      return '<button class="tb ' + (itemAtual(g).sku === v.sku ? "on" : "") +
+        '" onclick="event.stopPropagation();trocarTam(\'' + g.base + '\',' + i + ')">' +
+        esc(rotuloTam(v)) + '</button>';
+    }).join("") + '</div>' : "";
+    return '<article class="card">' +
+      '<div class="im" onclick="verSku(\'' + p.sku + '\')">' +
+        (foto ? '<img src="' + esc(foto) + '" alt="' + esc(p.nome) + '" loading="lazy">'
+              : '<div class="nb">foto em breve</div>') +
+        '<span class="sku mono">' + esc(p.sku) + '</span>' +
+        (p.destaque ? '<span class="dst mono">destaque</span>' : '') +
+      '</div>' +
+      '<div class="bd"><h3 onclick="verSku(\'' + p.sku + '\')">' + esc(g.nome) + '</h3>' +
+        '<p>' + esc(p.resumo) + '</p>' + tams +
+        '<div class="pz"><span class="vl' + (p.preco == null ? " sob mono" : "") + '">' +
+          (p.preco == null ? "sob consulta" : brl(p.preco)) + '</span>' +
+          '<span class="pr mono">' + (p.prazoDias ? p.prazoDias + " dias úteis" : "") + '</span></div>' +
+        '<button class="add" onclick="addSku(\'' + p.sku + '\')"' +
+          (p.preco == null ? " disabled" : "") + '>' +
+          (p.preco == null ? "consultar" : "adicionar") + '</button>' +
+      '</div></article>';
+  }).join("") : '<div class="vazio">Nada encontrado com esse filtro.</div>';
+}
+function filtrar(c){ filtro = c; pintar(); }
+function trocarTam(b, i){ escolha[b] = i; pintar(); }
+
+/* ---- ficha e endereço ---- */
+function acharSku(sku){
+  for (var i = 0; i < CAT.produtos.length; i++) if (CAT.produtos[i].sku === sku) return CAT.produtos[i];
+  return null;
+}
+function acharSlug(slug){
+  for (var i = 0; i < CAT.produtos.length; i++) if (CAT.produtos[i].slug === slug) return CAT.produtos[i];
+  return null;
+}
+function verSku(sku){
+  var p = acharSku(sku);
+  if (p) irPara("produto/" + p.slug);
+}
+var rotaAtual = "";
+function irPara(r){
+  rotaAtual = r || "";
+  try{ location.hash = rotaAtual ? "#/" + rotaAtual : "#/"; }catch(e){}
+  aplicarRota();
+}
+
+function ver(p){
+  var fotos = p.fotos || [];
+  function linha(r, v){ return v ? '<dt>' + r + '</dt><dd>' + esc(v) + '</dd>' : ''; }
+  var g = agrupar(CAT.produtos.filter(function(x){ return base(x.sku) === base(p.sku); }))[0];
+  var tams = g.variante ? '<div class="tams" style="margin:14px 0 0">' + g.itens.map(function(v){
+      return '<button class="tb ' + (v.sku === p.sku ? "on" : "") + '" onclick="verSku(\'' +
+        v.sku + '\')">' + esc(rotuloTam(v)) + '</button>';
+    }).join("") + '</div>' : "";
+  var galeria = fotos.length
+    ? '<img class="grande" id="fg" src="' + esc(fotos[0]) + '" alt="' + esc(p.nome) + '">' +
+      (fotos.length > 1 ? '<div class="fila">' + fotos.map(function(f){
+        return '<img src="' + esc(f) + '" onclick="document.getElementById(\'fg\').src=this.src">';
+      }).join("") + '</div>' : '')
+    : '<div class="grande mono" style="display:flex;align-items:center;justify-content:center;color:#F0997B">foto em breve</div>';
+
+  document.getElementById("det").innerHTML =
+    '<div class="barra"><span class="mono" style="font-size:10px;letter-spacing:.2em">' + esc(p.sku) +
+      '</span><button class="fechar" onclick="irPara(\'\')">&times;</button></div>' +
+    '<div class="corpo"><div class="fotos">' + galeria + '</div><div class="txt">' +
+      '<div class="sk mono">' + esc(p.categoria) + '</div>' +
+      '<h2>' + esc(p.nome) + '</h2>' + tams +
+      '<div class="preco">' + (p.preco == null ? "sob consulta" : brl(p.preco)) + '</div>' +
+      '<div class="desc">' + esc(p.descricao || p.resumo) + '</div>' +
+      '<dl>' + linha("material", p.material) + linha("dimensões", p.dimensoes) +
+        linha("prazo", p.prazoDias ? p.prazoDias + " dias úteis" : "") +
+        linha("peso", p.pesoEmbalado ? p.pesoEmbalado + " g" : "") + '</dl>' +
+      '<button class="cta" onclick="addSku(\'' + p.sku + '\')"' + (p.preco == null ? " disabled" : "") +
+        '>' + (p.preco == null ? "Consultar pelo direct" : "Adicionar ao pedido") + '</button>' +
+    '</div></div>';
+  document.getElementById("ov").classList.add("on");
+  document.body.classList.add("travado");
+  document.title = p.nome + " — argila lab";
+}
+function fecharFicha(){
+  document.getElementById("ov").classList.remove("on");
+  document.body.classList.remove("travado");
+  document.title = "argila lab — ferramentas para cerâmica";
+}
+function aplicarRota(){
+  if (rotaAtual.indexOf("produto/") === 0){
+    var p = acharSlug(rotaAtual.slice(8));
+    if (p){ ver(p); return; }
+  }
+  fecharFicha();
+}
+function rota(){
+  var h = (location.hash || "").replace(/^#\/?/, "");
+  if (h || !rotaAtual) rotaAtual = h;
+  aplicarRota();
+}
+window.addEventListener("hashchange", rota);
+document.getElementById("ov").addEventListener("mousedown", function(e){
+  if (e.target.id === "ov") irPara("");
+});
+document.addEventListener("keydown", function(e){
+  if (e.key !== "Escape") return;
+  if (document.getElementById("gav").classList.contains("on")) abrirCarrinho(false);
+  else irPara("");
+});
+
+/* ---- carrinho ---- */
+function salvarCarrinho(){
+  try{ localStorage.setItem("argilalab.pedido", JSON.stringify(carrinho)); }catch(e){}
+}
+function lerCarrinho(){
+  try{
+    var d = JSON.parse(localStorage.getItem("argilalab.pedido") || "[]");
+    carrinho = d.filter(function(i){ return acharSku(i.sku); });
+  }catch(e){ carrinho = []; }
+}
+function addSku(sku){
+  var p = acharSku(sku);
+  if (!p || p.preco == null) return;
+  var achou = null;
+  carrinho.forEach(function(i){ if (i.sku === sku) achou = i; });
+  if (achou) achou.qtd++;
+  else carrinho.push({sku: sku, qtd: 1});
+  salvarCarrinho(); pintarCarrinho(); abrirCarrinho(true);
+}
+function mudarQtd(sku, d){
+  carrinho.forEach(function(i){ if (i.sku === sku) i.qtd += d; });
+  carrinho = carrinho.filter(function(i){ return i.qtd > 0; });
+  salvarCarrinho(); pintarCarrinho();
+}
+function totalPedido(){
+  var t = 0;
+  carrinho.forEach(function(i){
+    var p = acharSku(i.sku);
+    if (p && p.preco != null) t += p.preco * i.qtd;
+  });
+  return t;
+}
+function pintarCarrinho(){
+  var n = 0;
+  carrinho.forEach(function(i){ n += i.qtd; });
+  document.getElementById("cn").textContent = n;
+
+  document.getElementById("itens").innerHTML = carrinho.length ? carrinho.map(function(i){
+    var p = acharSku(i.sku), foto = p.fotos && p.fotos[0];
+    return '<div class="it">' +
+      (foto ? '<img src="' + esc(foto) + '" alt="">' : '<img alt="">') +
+      '<div class="nm"><b>' + esc(p.nome) + '</b><span class="mono">' + esc(p.sku) + '</span>' +
+        '<div class="qt"><button onclick="mudarQtd(\'' + p.sku + '\',-1)">−</button>' +
+        '<span>' + i.qtd + '</span>' +
+        '<button onclick="mudarQtd(\'' + p.sku + '\',1)">+</button></div></div>' +
+      '<div class="vl">' + brl(p.preco * i.qtd) + '</div></div>';
+  }).join("") : '<p style="color:var(--cz);font-size:13.5px;padding:22px 0">Seu pedido está vazio.</p>';
+
+  var t = totalPedido(), lim = Number(cfg("freteGratis", 0));
+  var f = document.getElementById("frete");
+  if (lim > 0){
+    var falta = lim - t;
+    f.style.display = "block";
+    f.innerHTML = (falta > 0
+      ? "Faltam <b>" + brl(falta) + "</b> para o frete sair por nossa conta."
+      : "<b>Frete grátis</b> neste pedido.") +
+      '<div class="barra"><i style="width:' + Math.min(100, lim ? t / lim * 100 : 0) + '%"></i></div>';
+  } else { f.style.display = "none"; }
+
+  document.getElementById("total").textContent = brl(t);
+  document.getElementById("obsPedido").textContent = cfg("obsPedido",
+    "O pedido é copiado para você colar na conversa. Confirmamos prazo e frete por lá.");
+}
+function abrirCarrinho(abrir){
+  document.getElementById("gav").classList.toggle("on", abrir);
+  document.getElementById("fundo").classList.toggle("on", abrir);
+  document.body.classList.toggle("travado", abrir);
+}
+function textoPedido(){
+  var L = ["Olá! Quero encomendar na argila lab:", ""];
+  carrinho.forEach(function(i){
+    var p = acharSku(i.sku);
+    L.push(i.qtd + "× " + p.sku + " — " + p.nome + " — " + brl(p.preco * i.qtd));
+  });
+  L.push("", "Total: " + brl(totalPedido()));
+  return L.join("\n");
+}
+function recado(msg){
+  var c = document.getElementById("copia");
+  c.textContent = msg; c.classList.add("on");
+  clearTimeout(c._h); c._h = setTimeout(function(){ c.classList.remove("on"); }, 5000);
+}
+function fechar_pedido(via){
+  if (!carrinho.length){ recado("Seu pedido está vazio."); return; }
+  var txt = textoPedido();
+  if (via === "whats"){
+    var num = cfg("whatsapp", "");
+    if (!num){ recado("WhatsApp não configurado."); return; }
+    window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(txt), "_blank");
+    return;
+  }
+  var user = cfg("instagram", "argila_lab");
+  function abrir(){ window.open("https://ig.me/m/" + user, "_blank"); }
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){
+      recado("Pedido copiado. Cole na conversa do direct que vai abrir.");
+      abrir();
+    }, function(){ recado("Copie o pedido:\n\n" + txt); abrir(); });
+  } else { recado("Copie o pedido:\n\n" + txt); abrir(); }
+}
+
+/* ---- montagem ---- */
+function montarFixos(){
+  document.getElementById("heroTit").textContent =
+    cfg("heroTitulo", "A ferramenta que você desenhou na cabeça e nunca achou pra comprar.");
+  document.getElementById("heroTxt").textContent =
+    cfg("heroTexto", "Costelas, calibres, moldes e carimbos feitos sob encomenda, um a um. Enviamos para todo o Brasil.");
+
+  var conf = cfg("confianca", []);
+  document.getElementById("conf").innerHTML = conf.map(function(c){
+    return '<div><b>' + esc(c.titulo) + '</b>' + esc(c.texto) + '</div>';
+  }).join("");
+  document.getElementById("conf").style.display = conf.length ? "" : "none";
+
+  var passos = cfg("processo", []);
+  if (passos.length){
+    document.getElementById("secProcesso").style.display = "";
+    document.getElementById("passos").innerHTML = passos.map(function(p, i){
+      return '<div class="p"><b>' + ("0" + (i + 1)).slice(-2) + '</b><h3>' + esc(p.titulo) +
+        '</h3><p>' + esc(p.texto) + '</p></div>';
+    }).join("");
+  }
+  var faq = cfg("faq", []);
+  if (faq.length){
+    document.getElementById("secFaq").style.display = "";
+    document.getElementById("faq").innerHTML = faq.map(function(f){
+      return '<details><summary>' + esc(f.p) + '</summary><p>' + esc(f.r) + '</p></details>';
+    }).join("");
+  }
+  document.getElementById("rodape").innerHTML =
+    esc(cfg("rodape", "Ferramentas para torno e cerâmica · Pipa / Tibau do Sul — RN")) +
+    '<br>Encomendas pelo direct do @' + esc(cfg("instagram", "argila_lab")) +
+    ". Cada peça é impressa sob encomenda.";
+  if (cfg("whatsapp", "")) document.getElementById("btZap").style.display = "block";
+}
+function iniciar(){
+  if (PREVIA){
+    var a = document.getElementById("aviso");
+    a.style.display = "block";
+    a.textContent = "pré-visualização · " + CAT.produtos.length + " produtos · gerada em " +
+      new Date(CAT.publicadoEm).toLocaleString("pt-BR");
+  }
+  montarFixos();
+  lerCarrinho();
+  pintar();
+  pintarCarrinho();
+  rota();
+}
+if (FONTE){
+  fetch(FONTE).then(function(r){ return r.json(); })
+    .then(function(d){ CAT = d; iniciar(); })
+    .catch(function(){
+      document.getElementById("grade").innerHTML =
+        '<div class="vazio">Não consegui carregar o catálogo.</div>';
+    });
+} else { iniciar(); }
+<\/script>
+</body>
+</html>
+</script>
+
+<script>
+"use strict";
+const DADOS = {"cats": {"MOL": "Moldes e Formas", "COR": "Corte e Laminação", "TEX": "Texturas e Carimbos", "MOD": "Modelagem e Acabamento", "EQP": "Equipamentos e Suportes"}, "produtos": [{"cat": "MOL", "num": 1, "tam": "P", "nome": "Arredondador de Bordas / Molde de Caneca — P", "desc": "Molde paramétrico para modelar canecas e copos de cerâmica à mão, usado para dar formato e altura personalizados durante a construção da peça antes da queima.", "status": "ativo", "gram": 31, "tempo": 0.8333, "trab": 10, "ins": 0, "emb": 1.0, "catalogo": 29.0, "tempoExato": true, "foto": "https://makerworld.bblmw.com/makerworld/model/USa172c8e7b1cdf3/design/2025-12-02_7863b114208a38.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2066928", "obs": "Tamanho P", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "MOL", "num": 1, "tam": "M", "nome": "Arredondador de Bordas / Molde de Caneca — M", "desc": "Molde paramétrico para modelar canecas e copos de cerâmica à mão, usado para dar formato e altura personalizados durante a construção da peça antes da queima.", "status": "ativo", "gram": 52, "tempo": 1.5, "trab": 10, "ins": 0, "emb": 1.0, "catalogo": 39.0, "tempoExato": true, "foto": "https://makerworld.bblmw.com/makerworld/model/USa172c8e7b1cdf3/design/2025-12-02_7863b114208a38.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2066928", "obs": "Tamanho M", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "MOL", "num": 1, "tam": "G", "nome": "Arredondador de Bordas / Molde de Caneca — G", "desc": "Molde paramétrico para modelar canecas e copos de cerâmica à mão, usado para dar formato e altura personalizados durante a construção da peça antes da queima.", "status": "ativo", "gram": 72, "tempo": 1.9167, "trab": 10, "ins": 0, "emb": 1.0, "catalogo": 49.0, "tempoExato": true, "foto": "https://makerworld.bblmw.com/makerworld/model/USa172c8e7b1cdf3/design/2025-12-02_7863b114208a38.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2066928", "obs": "Tamanho G", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "MOL", "num": 1, "tam": "XG", "nome": "Arredondador de Bordas / Molde de Caneca — XG", "desc": "Molde paramétrico para modelar canecas e copos de cerâmica à mão, usado para dar formato e altura personalizados durante a construção da peça antes da queima.", "status": "ativo", "gram": 98, "tempo": 2.5, "trab": 10, "ins": 0, "emb": 1.0, "catalogo": 59.0, "tempoExato": true, "foto": "https://makerworld.bblmw.com/makerworld/model/USa172c8e7b1cdf3/design/2025-12-02_7863b114208a38.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2066928", "obs": "Tamanho XG", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "MOL", "num": 2, "tam": "", "nome": "Molde de Tigela / Prato Fundo — 24 cm", "desc": "Molde para dar forma a peças de cerâmica (tigelas e pratos fundos), com formato e dimensão configuráveis. É uma ferramenta de modelagem e formação do barro — não vai ao forno junto com a peça.", "status": "ativo", "gram": 164, "tempo": 8.1667, "trab": 10, "ins": 0, "emb": 0, "catalogo": 59.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/US2ea666679b8783/design/88a9e04c5fb930b0.jpeg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2319091", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "MOL", "num": 3, "tam": "", "nome": "Kit Molde de Canecas + Alças — 15/18/20 oz", "desc": "Kit completo com três moldes de caneca (15, 18 e 20 oz) e moldes de alça correspondentes, para produzir canecas de cerâmica à mão com formato, altura e proporção padronizados em toda a série.", "status": "ativo", "gram": 415, "tempo": 9.0, "trab": 10, "ins": 0, "emb": 0, "catalogo": 169.99, "tempoExato": false, "foto": "", "origem": "", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "COR", "num": 1, "tam": "", "nome": "Guias de Laminação de Massa — 24 cm (3 a 10 mm)", "desc": "Kit com 6 guias de espessura (3, 4, 5, 6, 7 e 10 mm) para laminar placas de argila de forma uniforme com o rolo. Ideal para pratos, ladrilhos e peças modeladas à mão.", "status": "ativo", "gram": 204, "tempo": 4.75, "trab": 10, "ins": 0, "emb": 0, "catalogo": 49.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/DSM00000002185533/design/2026-01-01_935d0623fbd978.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2185533", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "COR", "num": 2, "tam": "P", "nome": "Cortador de Círculo Ajustável — Pequeno (1 a 10 cm)", "desc": "Cortador de círculo ajustável para argila: braço com pino central e furos numerados por raio, permite cortar círculos de vários tamanhos na argila fresca. Também pode ser usado só para traçar o círculo antes de cortar com outra ferramenta.", "status": "ativo", "gram": 8, "tempo": 0.45, "trab": 10, "ins": 0, "emb": 0, "catalogo": 19.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/DSM00000002085288/design/2025-12-06_ywn1b9z0m53t3_img_4278.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2085288", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "COR", "num": 2, "tam": "G", "nome": "Cortador de Círculo Ajustável — Grande (1 a 15 cm)", "desc": "Versão ampliada do cortador de círculo ajustável, para peças maiores: traça e corta círculos de 1 a 15 cm de raio na argila fresca com precisão e repetibilidade.", "status": "ativo", "gram": 19, "tempo": 0.7167, "trab": 10, "ins": 0, "emb": 1.0, "catalogo": 29.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/DSM00000002085288/design/2025-12-06_ywn1b9z0m53t3_img_4278.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2085288", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "COR", "num": 3, "tam": "", "nome": "Cortador de Bandeja Oval — 24 x 12 cm (Reforçado)", "desc": "Cortador oval reforçado de 24 x 12 cm para recortar bandejas, travessas e bases em placa de argila sempre no mesmo formato. Estrutura reforçada para suportar a pressão do corte sem deformar.", "status": "ativo", "gram": 36, "tempo": 1.0667, "trab": 10, "ins": 0, "emb": 0, "catalogo": 29.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/US366de4323c1428/design/7ecd09a2e4943455.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2984730", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "TEX", "num": 1, "tam": "", "nome": "Kit 28 Rolos de Textura + Cabo", "desc": "Conjunto com 28 rolos de textura diferentes e cabo giratório reutilizável, para estampar padrões decorativos na argila (técnica de placa). Rolos de aprox. 4 cm de diâmetro por 4 cm de largura. Ferramenta lavável.", "status": "ativo", "gram": 609, "tempo": 28.1833, "trab": 10, "ins": 0, "emb": 0, "catalogo": 159.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/US749ea722edc55c/design/2025-12-15_2d7ca21447b9c.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2118914", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "TEX", "num": 2, "tam": "", "nome": "Carimbo de Alfabeto e Números com Caixa", "desc": "Conjunto de carimbos com alfabeto completo (maiúsculas e minúsculas), números e símbolos, para marcar textos e nomes em peças de argila e cerâmica antes da queima. Acompanha caixa organizadora.", "status": "ativo", "gram": 176, "tempo": 6.5833, "trab": 10, "ins": 0, "emb": 0, "catalogo": 59.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/US433bd0ea29937b/design/2025-11-18_c8a8937140589.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2019436", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "TEX", "num": 3, "tam": "", "nome": "Gabarito para Carimbo — Geométrico", "desc": "Gabarito de alinhamento para carimbar padrões geométricos na argila com espaçamento e repetição constantes, garantindo faixas decorativas simétricas em toda a volta da peça.", "status": "ativo", "gram": 45, "tempo": 1.5167, "trab": 10, "ins": 0, "emb": 0, "catalogo": 49.9, "tempoExato": false, "foto": "", "origem": "", "obs": "Projeto exclusivo ARGILA LAB", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "TEX", "num": 4, "tam": "", "nome": "Rolo de Esferas — 25 mm", "desc": "Rolo texturizador de esferas de 25 mm para aplicar padrão de bolinhas em relevo sobre placas de argila, criando superfícies decorativas uniformes em canecas, vasos e ladrilhos.", "status": "ativo", "gram": 53, "tempo": 1.6667, "trab": 10, "ins": 0, "emb": 1.0, "catalogo": 39.0, "tempoExato": true, "foto": "", "origem": "", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "MOD", "num": 3, "tam": "", "nome": "Conjunto 27 Espátulas Cerâmicas", "desc": "Conjunto de espátulas de cerâmica com formatos variados para modelar vasos, xícaras e texturas geométricas ou orgânicas no barro, acompanhado de organizador para guardar o conjunto.", "status": "ativo", "gram": 430, "tempo": 11.0167, "trab": 10, "ins": 0, "emb": 3.0, "catalogo": 199.0, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/USce740cec55618a/design/2025-09-24_a66f05b842783.png?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/1825155", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "MOD", "num": 4, "tam": "", "nome": "Kit Ferramenta para Pés de Cerâmica", "desc": "Ferramenta para marcar o anel de pé (base) em peças de cerâmica feitas à mão, sem precisar de torno de oleiro. Cria uma borda de apoio uniforme e profissional na base das peças.", "status": "ativo", "gram": 52, "tempo": 1.8667, "trab": 10, "ins": 0, "emb": 0, "catalogo": 39.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/USef6f6f8e79fe33/design/e6ad76864932dba7.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2791808", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "MOD", "num": 5, "tam": "", "nome": "Kit Guias para Enrolar Bobinas (1 a 10 mm)", "desc": "Guias empilháveis para rolar bobinas (cordas) de argila cerâmica ou polimérica com espessura consistente, de 1 a 10 mm. Útil para construção em rolos (coiling) e detalhes decorativos.", "status": "ativo", "gram": 200, "tempo": 5.5167, "trab": 10, "ins": 0, "emb": 2.0, "catalogo": 89.0, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/US598b592bec3597/design/96a220307480a6f7.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2902705", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "EQP", "num": 1, "tam": "", "nome": "Extrusora de Alças com Alavanca", "desc": "Prensa de alças para cerâmica: sistema de alavanca que molda alças uniformes e estáveis para xícaras, canecas e jarros de forma rápida e sem esforço, com moldes intercambiáveis para diferentes perfis.", "status": "ativo", "gram": 670, "tempo": 15.9167, "trab": 10, "ins": 0, "emb": 0, "catalogo": 299.0, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/USdfb94d63c42743/design/2025-09-23_4097db698d32b8.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/1820858", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "EQP", "num": 2, "tam": "", "nome": "Extrusora de Argila + 30 Discos", "desc": "Extrusora/prensa de argila: crie tiras, cordas e formas variadas com 30 discos diferentes, para alças de canecas, decorações e trabalhos detalhados em cerâmica ou massa de modelar. Acompanha bandeja para guardar os discos.", "status": "ativo", "gram": 256, "tempo": 9.0, "trab": 10, "ins": 0, "emb": 0, "catalogo": 99.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/USee5d9a5e8c7613/design/85bb11a5d2fc7578.png?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/2761455", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "EQP", "num": 3, "tam": "", "nome": "Mini Roda de Oleiro (rolamento 608)", "desc": "Mini roda giratória (banding wheel) para pequenos projetos de argila e cerâmica ou como base giratória para decorar peças. Gira suavemente sobre um rolamento de esferas padrão 608.", "status": "ativo", "gram": 117, "tempo": 3.3833, "trab": 10, "ins": 2.0, "emb": 3.0, "catalogo": 59.9, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/USab8e35e2cdcf90/design/2025-07-16_43063f60bf5b9.jpg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/1611921", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "EQP", "num": 4, "tam": "H", "nome": "Suporte Horizontal para Canecas — 3, 5 e 7 cm", "desc": "Suporte horizontal para apoiar e secar canecas em três alturas (3, 5 e 7 cm), mantendo a peça estável e nivelada durante a colagem da alça, o acabamento e a secagem.", "status": "ativo", "gram": 459, "tempo": 13.5, "trab": 10, "ins": 0, "emb": 3.0, "catalogo": 229.0, "tempoExato": true, "foto": "", "origem": "", "obs": "Peça de grande porte", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}, {"cat": "EQP", "num": 4, "tam": "V", "nome": "Suporte Vertical para Canecas — 3, 5 e 7 cm", "desc": "Suporte vertical para canecas em três alturas (3, 5 e 7 cm), que segura a peça em pé com firmeza durante a montagem, a decoração e a secagem, ocupando pouco espaço na bancada.", "status": "ativo", "gram": 250, "tempo": 7.2833, "trab": 10, "ins": 0, "emb": 3.0, "catalogo": 149.0, "tempoExato": false, "foto": "https://makerworld.bblmw.com/makerworld/model/US609fc7d1371adb/design/a36d3e6754e3d113.jpeg?x-oss-process=image/resize,w_600/ignore-error,1", "origem": "https://makerworld.com/pt/models/3021039", "obs": "", "impressora": "Bambu Lab A1", "filamento": "Voolt3D PLA"}]};
+
 const PARAMS = [
- ["filPreco","Filamento (R$/kg)",0.01,"R$ 0,089/g — valor deduzido da planilha original"],
- ["potencia","Potência da impressora (kW)",0.001,"Bambu Lab A1"],
- ["tarifa","Tarifa de energia (R$/kWh)",0.01,"Potência × tarifa = R$ 0,1125/h"],
- ["deprec","Depreciação da impressora (R$/h)",0.01,"Deduzido da planilha"],
- ["mdo","Mão de obra (R$/h)",0.50,"R$ 1,67 por 10 min"],
- ["acresc","Acréscimo sobre o subtotal (%)",1,"Perdas, falhas e encargos"],
- ["markup","Markup do preço sugerido (×)",0.1,"Custo final × markup"],
- ["comissao","Comissão do marketplace (%)",0.5,"Aplicada sobre o preço"],
- ["taxaFixa","Taxa fixa do marketplace (R$)",0.50,"Somada depois da comissão"],
+ ["filPreco","Filamento (R$/kg)",89.00,0.01,"R$ 0,089/g — valor deduzido da planilha original"],
+ ["potencia","Potência da impressora (kW)",0.150,0.001,"Bambu Lab A1"],
+ ["tarifa","Tarifa de energia (R$/kWh)",0.75,0.01,"Potência × tarifa = R$ 0,1125/h"],
+ ["deprec","Depreciação da impressora (R$/h)",0.58,0.01,"Deduzido da planilha"],
+ ["mdo","Mão de obra (R$/h)",10.00,0.50,"R$ 1,67 por 10 min"],
+ ["acresc","Acréscimo sobre o subtotal (%)",10,1,"Perdas, falhas e encargos"],
+ ["markup","Markup do preço sugerido (×)",2.0,0.1,"Custo final × markup"],
+ ["comissao","Comissão do marketplace (%)",25.5,0.5,"Aplicada sobre o preço"],
+ ["taxaFixa","Taxa fixa do marketplace (R$)",4.00,0.50,"Somada depois da comissão"],
 ];
 
-let S = { params:{}, cats:{}, produtos:[] };
-let editandoId = null;
+let S = {
+  params: Object.fromEntries(PARAMS.map(p => [p[0], p[2]])),
+  cats: Object.assign({}, DADOS.cats),
+  midia: {},
+  loja: null,
+  produtos: DADOS.produtos.map((p,i) => migrar(Object.assign({id: "p"+i}, p))),
+};
+let sujo = false, editandoId = null, fotosTmp = [];
+
+/* ---------------- configuração da loja ---------------- */
+const LOJA_PADRAO = {
+  instagram: "argila_lab",
+  whatsapp: "",
+  freteGratis: 250,
+  heroTitulo: "A ferramenta que você desenhou na cabeça e nunca achou pra comprar.",
+  heroTexto: "Costelas, calibres, moldes e carimbos feitos sob encomenda, um a um, com precisão de décimo de milímetro. Enviamos para todo o Brasil.",
+  confianca: [
+    {titulo: "sob encomenda", texto: "Cada peça é impressa depois do seu pedido, uma a uma."},
+    {titulo: "feito em Pipa", texto: "Produção própria em Pipa / Tibau do Sul, RN."},
+    {titulo: "envio nacional", texto: "Enviamos para todo o Brasil com código de rastreio."},
+    {titulo: "projeto testado", texto: "Ferramenta usada em ateliê antes de virar produto."},
+  ],
+  processo: [
+    {titulo: "Você escolhe", texto: "Monte o pedido pelo site e mande a lista pelo direct."},
+    {titulo: "A gente confirma", texto: "Combinamos cor, prazo e frete antes de começar."},
+    {titulo: "Imprimimos e enviamos", texto: "A peça sai da impressora, é revisada e segue com rastreio."},
+  ],
+  faq: [
+    {p: "Quanto tempo leva para ficar pronto?", r: "Cada ficha mostra o prazo de produção da peça. O prazo começa a contar depois da confirmação do pedido."},
+    {p: "A ferramenta vai ao forno?", r: "Não. São ferramentas de modelagem e conformação, usadas com a argila crua. Nenhuma peça vai ao forno."},
+    {p: "Como limpo?", r: "Pano úmido depois do uso. Guarde em local seco, longe de sol direto e de fonte de calor."},
+    {p: "Posso pedir um tamanho ou formato diferente?", r: "Pode. Boa parte do catálogo nasceu de pedido de ceramista. Mande a medida pelo direct que a gente avalia."},
+    {p: "Como pago?", r: "Combinamos pelo direct: Pix é o mais comum."},
+  ],
+  rodape: "Ferramentas para torno e cerâmica · Pipa / Tibau do Sul — RN",
+  obsPedido: "O pedido é copiado para você colar na conversa. Confirmamos prazo e frete por lá.",
+};
+function lojaAtual(){
+  if (!S.loja) S.loja = JSON.parse(JSON.stringify(LOJA_PADRAO));
+  return S.loja;
+}
+/* listas editadas como texto: "título | texto" por linha */
+function paraLinhas(arr, a, b){
+  return (arr || []).map(o => o[a] + " | " + o[b]).join("\n");
+}
+function deLinhas(txt, a, b){
+  return String(txt || "").split("\n").map(l => l.trim()).filter(Boolean).map(l => {
+    const i = l.indexOf("|");
+    const o = {};
+    o[a] = (i < 0 ? l : l.slice(0, i)).trim();
+    o[b] = (i < 0 ? "" : l.slice(i + 1)).trim();
+    return o;
+  });
+}
+function renderLoja(){
+  const L = lojaAtual();
+  $("l_ig").value    = L.instagram || "";
+  $("l_zap").value   = L.whatsapp || "";
+  $("l_frete").value = L.freteGratis == null ? 0 : L.freteGratis;
+  $("l_ht").value    = L.heroTitulo || "";
+  $("l_hx").value    = L.heroTexto || "";
+  $("l_rod").value   = L.rodape || "";
+  $("l_obs").value   = L.obsPedido || "";
+  $("l_conf").value  = paraLinhas(L.confianca, "titulo", "texto");
+  $("l_proc").value  = paraLinhas(L.processo, "titulo", "texto");
+  $("l_faq").value   = paraLinhas(L.faq, "p", "r");
+}
+function ligarLoja(){
+  const simples = {l_ig:"instagram", l_zap:"whatsapp", l_ht:"heroTitulo", l_hx:"heroTexto",
+                   l_rod:"rodape", l_obs:"obsPedido"};
+  Object.keys(simples).forEach(id => $(id).addEventListener("input", e => {
+    lojaAtual()[simples[id]] = e.target.value; agendarLoja();
+  }));
+  $("l_frete").addEventListener("input", e => { lojaAtual().freteGratis = num(e.target.value); agendarLoja(); });
+  $("l_conf").addEventListener("input", e => { lojaAtual().confianca = deLinhas(e.target.value,"titulo","texto"); agendarLoja(); });
+  $("l_proc").addEventListener("input", e => { lojaAtual().processo  = deLinhas(e.target.value,"titulo","texto"); agendarLoja(); });
+  $("l_faq").addEventListener("input",  e => { lojaAtual().faq       = deLinhas(e.target.value,"p","r"); agendarLoja(); });
+}
+
+/* ---------------- acervo de mídia ---------------- */
+/* Cada imagem embutida é guardada UMA vez em S.midia, com chave derivada do
+   conteúdo. As fichas guardam só a referência "midia:<chave>". Quando a foto
+   as imagens sobem para /api/media e a URL devolvida é o que fica no produto. */
+function hashTexto(t){
+  let h = 5381;
+  for (let i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0;
+  let g = 52711;
+  for (let i = t.length - 1; i >= 0; i--) g = ((g * 31) ^ t.charCodeAt(i)) >>> 0;
+  return h.toString(36) + g.toString(36) + t.length.toString(36);
+}
+function guardarMidia(dataURL){
+  const k = hashTexto(dataURL);
+  if (!S.midia[k]) S.midia[k] = dataURL;
+  return "midia:" + k;
+}
+function urlDe(ref){
+  if (!ref) return "";
+  return ref.startsWith("midia:") ? (S.midia[ref.slice(6)] || "") : ref;
+}
+function limparMidia(){
+  const usadas = new Set();
+  S.produtos.forEach(p => (p.fotos || []).forEach(f => {
+    if (f && f.startsWith("midia:")) usadas.add(f.slice(6));
+  }));
+  let n = 0;
+  Object.keys(S.midia).forEach(k => { if (!usadas.has(k)){ delete S.midia[k]; n++; } });
+  return n;
+}
+
+/* ---------------- esquema ---------------- */
+const MAX_FOTO = 1200, QUAL_FOTO = 0.78;
+
+function slugify(t){
+  return String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,70);
+}
+function migrar(p){
+  const q = Object.assign({}, p);
+  if (!Array.isArray(q.fotos)) q.fotos = q.foto ? [q.foto] : [];
+  q.fotos = q.fotos.filter(Boolean).map(f => f.startsWith("data:") ? guardarMidia(f) : f);
+  q.foto      = q.fotos[0] || "";
+  q.slug      = q.slug || slugify(q.nome);
+  q.descLonga = q.descLonga || "";
+  q.metaDesc  = q.metaDesc  || "";
+  q.material  = q.material  || "PLA rígido";
+  q.licenca   = q.licenca   || "";
+  q.dimPeca   = q.dimPeca   || "";
+  q.embPeso   = q.embPeso == null ? null : q.embPeso;
+  q.embDim    = q.embDim    || "";
+  q.prazo     = q.prazo == null ? 5 : q.prazo;
+  q.ordem     = q.ordem == null ? (q.num || 0) * 10 : q.ordem;
+  q.destaque  = !!q.destaque;
+  q.publicado = q.publicado == null ? (q.status === "ativo") : !!q.publicado;
+  return q;
+}
+const fotoDe = p => urlDe((p.fotos && p.fotos[0]) || p.foto || "");
 
 /* ---------------- utilidades ---------------- */
 const $ = id => document.getElementById(id);
@@ -313,7 +1219,10 @@ const num = v => { const n = parseFloat(String(v).replace(",", ".")); return isN
 function horas(txt){
   if (txt == null || txt === "") return null;
   const t = String(txt).trim();
-  if (t.includes(":")){ const [h, m] = t.split(":"); return num(h) + num(m)/60; }
+  if (t.includes(":")){
+    const [h, m] = t.split(":");
+    return num(h) + num(m)/60;
+  }
   return num(t);
 }
 function hhmm(h){
@@ -321,78 +1230,82 @@ function hhmm(h){
   const tot = Math.round(h*60);
   return Math.floor(tot/60) + ":" + String(tot%60).padStart(2,"0");
 }
+function marcar(){ sujo = true; $("dot").classList.add("on"); agendarGravacao(); }
 function toast(msg){
   const t = $("toast"); t.textContent = msg; t.classList.add("on");
   clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("on"), 2600);
 }
 
-/* ---------------- API ---------------- */
-async function api(path, opts){
-  const res = await fetch(API + path, Object.assign(
-    { headers: { "Content-Type": "application/json" } }, opts || {}));
-  if (!res.ok){
-    let msg; try { msg = (await res.json()).message; } catch(_){}
-    throw new Error(msg || ("Erro " + res.status));
-  }
-  return res.status === 204 ? null : res.json();
+/* ---------------- imagens ---------------- */
+function comprimir(file){
+  return new Promise((ok, falha) => {
+    const fr = new FileReader();
+    fr.onerror = () => falha(new Error("leitura"));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => falha(new Error("imagem"));
+      img.onload = () => {
+        let {width:w, height:h} = img;
+        const f = Math.min(1, MAX_FOTO / Math.max(w, h));
+        w = Math.round(w * f); h = Math.round(h * f);
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        const cx = c.getContext("2d");
+        cx.fillStyle = "#fff"; cx.fillRect(0, 0, w, h);
+        cx.drawImage(img, 0, 0, w, h);
+        ok(c.toDataURL("image/jpeg", QUAL_FOTO));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
 }
+const pesoTxt = b => b > 1048576 ? (b/1048576).toFixed(1) + " MB" : Math.round(b/1024) + " KB";
 
-async function carregar(){
-  try{
-    const [cats, params, produtos] = await Promise.all([
-      api("/api/categories"), api("/api/cost-parameters"), api("/api/products")
-    ]);
-    S.cats = Object.fromEntries(cats.map(c => [c.code, c.name]));
-    S.params = params;
-    S.produtos = produtos;
-    preencherCats(); renderParams(); render();
-  }catch(e){ toast("Falha ao carregar do servidor: " + e.message); }
-}
-async function recarregarProdutos(){
-  S.produtos = await api("/api/products"); render();
-}
-
-/* ---------------- cálculo (preview do modal, espelha o backend) ---------------- */
+/* ---------------- cálculo ---------------- */
 function calc(p){
   const P = S.params;
   const gram  = num(p.gram), tempo = p.tempo == null ? 0 : num(p.tempo);
-  const filam = gram * num(P.filPreco) / 1000;
-  const energ = tempo * num(P.potencia) * num(P.tarifa);
-  const depr  = tempo * num(P.deprec);
-  const mao   = num(p.trab)/60 * num(P.mdo);
+  const filam = gram * P.filPreco / 1000;
+  const energ = tempo * P.potencia * P.tarifa;
+  const depr  = tempo * P.deprec;
+  const mao   = num(p.trab)/60 * P.mdo;
   const ins   = num(p.ins), emb = num(p.emb);
   const sub   = ins + emb + filam + energ + depr + mao;
-  const fin   = sub * (1 + num(P.acresc)/100);
-  const sug   = fin * num(P.markup);
-  const denom = 1 - num(P.comissao)/100;
-  const mkt   = denom === 0 ? null : sug / denom + num(P.taxaFixa);
+  const fin   = sub * (1 + P.acresc/100);
+  const sug   = fin * P.markup;
+  const mkt   = sug / (1 - P.comissao/100) + P.taxaFixa;
   const cat   = (p.catalogo == null || p.catalogo === "") ? null : num(p.catalogo);
   const mg    = cat == null ? null : cat - fin;
   const mgp   = (cat == null || cat === 0) ? null : mg / cat;
   return {filam, energ, depr, mao, ins, emb, sub, fin, sug, mkt, cat, mg, mgp};
 }
 
+/* ---------------- SKU ---------------- */
+function skuDe(p){
+  return "AL-" + p.cat + "-" + String(p.num).padStart(3,"0") + (p.tam ? "-" + p.tam : "");
+}
+function proximoNum(cat, ignoraId){
+  let m = 0;
+  S.produtos.forEach(p => { if (p.cat === cat && p.id !== ignoraId) m = Math.max(m, p.num||0); });
+  return m + 1;
+}
+function skuLivre(cat, n, tam, ignoraId){
+  const alvo = "AL-" + cat + "-" + String(n).padStart(3,"0") + (tam ? "-" + tam : "");
+  return !S.produtos.some(p => p.id !== ignoraId && skuDe(p) === alvo);
+}
+
 /* ---------------- parâmetros ---------------- */
-let _parTimer = null;
 function renderParams(){
-  $("params").innerHTML = PARAMS.map(([k,rot,passo,dica]) => `
+  $("params").innerHTML = PARAMS.map(([k,rot,,passo,dica]) => `
     <div class="f">
       <label>${esc(rot)}<span class="hint">${esc(dica)}</span></label>
       <input type="number" step="${passo}" value="${S.params[k]}" data-p="${k}">
     </div>`).join("");
   $("params").querySelectorAll("input").forEach(i => i.oninput = e => {
     S.params[e.target.dataset.p] = num(e.target.value);
-    if ($("ov").classList.contains("on")) atualizarModal();
-    clearTimeout(_parTimer);
-    _parTimer = setTimeout(salvarParams, 500);
+    render(); agendarParams();
   });
-}
-async function salvarParams(){
-  try{
-    S.params = await api("/api/cost-parameters", { method:"PUT", body: JSON.stringify(S.params) });
-    await recarregarProdutos();
-    toast("Parâmetros atualizados — tudo recalculado");
-  }catch(e){ toast("Falha ao salvar parâmetros: " + e.message); }
 }
 
 /* ---------------- lista ---------------- */
@@ -403,14 +1316,14 @@ function filtrados(){
     if (fc && p.cat !== fc) return false;
     if (fs && p.status !== fs) return false;
     if (!q) return true;
-    return (p.nome + " " + p.sku + " " + (p.desc||"")).toLowerCase().includes(q);
+    return (p.nome + " " + skuDe(p) + " " + (p.desc||"")).toLowerCase().includes(q);
   });
+  const C = new Map(L.map(p => [p.id, calc(p)]));
   L.sort((a,b) => {
     if (o === "nome")   return a.nome.localeCompare(b.nome, "pt-BR");
-    if (o === "preco")  return (b.custo.catalogo||0) - (a.custo.catalogo||0);
-    if (o === "margem") return (b.custo.margemPct==null?-900:b.custo.margemPct) -
-                               (a.custo.margemPct==null?-900:a.custo.margemPct);
-    return a.sku.localeCompare(b.sku, "pt-BR");
+    if (o === "preco")  return (C.get(b.id).cat||0) - (C.get(a.id).cat||0);
+    if (o === "margem") return (C.get(b.id).mgp||-9) - (C.get(a.id).mgp||-9);
+    return skuDe(a).localeCompare(skuDe(b), "pt-BR");
   });
   return L;
 }
@@ -430,26 +1343,29 @@ function render(){
   ordemCat.filter(c => grupos[c]).forEach(c => {
     out += `<section class="sec"><h2>${esc(S.cats[c])}<span class="n">${grupos[c].length}</span></h2>`;
     grupos[c].forEach(p => {
-      const r = p.custo;
-      const foto = p.foto ? `<img src="${esc(p.foto)}" alt="" loading="lazy"
+      const r = calc(p);
+      const foto = fotoDe(p) ? `<img src="${esc(fotoDe(p))}" alt="" loading="lazy"
         onerror="this.parentNode.innerHTML='<span>foto<br>indisponível</span>'">` : `<span>foto<br>pendente</span>`;
-      const mgc = r.margemPct == null ? "" : (r.margemPct >= 50 ? "bom" : "ruim");
+      const mgc = r.mgp == null ? "" : (r.mgp >= 0.5 ? "bom" : "ruim");
       out += `<article class="card ${p.status !== "ativo" ? "dev" : ""}">
         <div class="ph">${foto}</div>
         <div class="info">
-          <div class="sku">${esc(p.sku)}</div>
-          <h3>${esc(p.nome)}${p.status !== "ativo" ? `<span class="tag">${p.status === "dev" ? "em desenvolvimento" : "descontinuado"}</span>` : ""}</h3>
+          <div class="sku">${esc(skuDe(p))}</div>
+          <h3>${esc(p.nome)}${p.status !== "ativo" ? `<span class="tag">${p.status === "dev" ? "em desenvolvimento" : "descontinuado"}</span>` : ""}${
+            p.status === "ativo" ? `<span class="badge ${p.publicado ? "pub" : "nao"}">${p.publicado ? "publicado" : "fora do site"}</span>` : ""}${
+            p.destaque ? `<span class="badge dest">destaque</span>` : ""}${
+            (p.fotos && p.fotos.length > 1) ? `<span class="badge nao">${p.fotos.length} fotos</span>` : ""}</h3>
           <p>${esc(p.desc || "")}</p>
         </div>
         <div class="nums">
-          <div class="pv ${r.catalogo == null ? "sob" : ""}">${r.catalogo == null ? "sob consulta" : brl(r.catalogo)}</div>
-          <div class="cst">custo ${brl(r.custoFinal)}</div>
-          ${r.margemPct == null ? "" : `<div class="mg ${mgc}">margem ${Number(r.margemPct).toFixed(0)}%</div>`}
+          <div class="pv ${r.cat == null ? "sob" : ""}">${r.cat == null ? "sob consulta" : brl(r.cat)}</div>
+          <div class="cst">custo ${brl(r.fin)}</div>
+          ${r.mgp == null ? "" : `<div class="mg ${mgc}">margem ${(r.mgp*100).toFixed(0)}%</div>`}
         </div>
         <div class="acts">
-          <button class="mini" onclick="abrir(${p.id})">Editar</button>
-          <button class="mini" onclick="duplicar(${p.id})">Duplicar</button>
-          <button class="mini del" onclick="remover(${p.id})">Excluir</button>
+          <button class="mini" onclick="abrir('${p.id}')">Editar</button>
+          <button class="mini" onclick="duplicar('${p.id}')">Duplicar</button>
+          <button class="mini del" onclick="remover('${p.id}')">Excluir</button>
         </div>
       </article>`;
     });
@@ -457,6 +1373,7 @@ function render(){
   });
   $("lista").innerHTML = out;
   montarImpressao();
+  try{ pesoProjeto(); }catch(e){}
 }
 
 /* ---------------- modal ---------------- */
@@ -467,8 +1384,8 @@ function preencherCats(){
 }
 
 function abrir(id){
-  editandoId = id != null ? id : null;
-  const p = id != null ? S.produtos.find(x => x.id === id) : null;
+  editandoId = id || null;
+  const p = id ? S.produtos.find(x => x.id === id) : null;
   $("mtit").textContent = p ? "Editar produto" : "Novo produto";
   $("i_nome").value   = p ? p.nome : "";
   $("i_cat").value    = p ? p.cat : Object.keys(S.cats)[0];
@@ -476,8 +1393,22 @@ function abrir(id){
   $("i_status").value = p ? p.status : "ativo";
   $("i_obs").value    = p ? (p.obs || "") : "";
   $("i_desc").value   = p ? (p.desc || "") : "";
-  $("i_foto").value   = p ? (p.foto || "") : "";
   $("i_origem").value = p ? (p.origem || "") : "";
+  fotosTmp = p ? (p.fotos || (p.foto ? [p.foto] : [])).slice() : [];
+  $("i_url").value       = "";
+  $("i_slug").value      = p ? (p.slug || "") : "";
+  $("i_prazo").value     = p && p.prazo != null ? p.prazo : 5;
+  $("i_ordem").value     = p && p.ordem != null ? p.ordem : 0;
+  $("i_material").value  = p ? (p.material || "PLA rígido") : "PLA rígido";
+  $("i_dim").value       = p ? (p.dimPeca || "") : "";
+  $("i_epeso").value     = p && p.embPeso != null ? p.embPeso : "";
+  $("i_edim").value      = p ? (p.embDim || "") : "";
+  $("i_pub").value       = p ? (p.publicado ? "1" : "0") : "1";
+  $("i_dest").value      = p ? (p.destaque ? "1" : "0") : "0";
+  $("i_desclonga").value = p ? (p.descLonga || "") : "";
+  $("i_meta").value      = p ? (p.metaDesc || "") : "";
+  $("i_licenca").value   = p ? (p.licenca || "") : "";
+  renderFotos();
   $("i_imp").value    = p ? (p.impressora || "Bambu Lab A1") : "Bambu Lab A1";
   $("i_fil").value    = p ? (p.filamento || "Voolt3D PLA") : "Voolt3D PLA";
   $("i_gram").value   = p && p.gram != null ? p.gram : "";
@@ -494,6 +1425,32 @@ function abrir(id){
 }
 function fechar(){ $("ov").classList.remove("on"); editandoId = null; }
 
+/* ---------------- galeria ---------------- */
+function renderFotos(){
+  const g = $("i_gal");
+  g.innerHTML = fotosTmp.map((f, i) => `
+    <div class="t ${i === 0 ? "pri" : ""}">
+      <img src="${esc(urlDe(f))}" alt="" onerror="this.style.opacity=.25">
+      <button class="x" type="button" title="remover" onclick="removerFoto(${i})">×</button>
+      ${i === 0 ? `<span class="pz">principal</span>`
+                : `<button class="pz" type="button" onclick="promoverFoto(${i})">tornar principal</button>`}
+    </div>`).join("") +
+    `<button class="add" type="button" onclick="i_file.click()">+ enviar<br>foto</button>`;
+  atualizarModal();
+}
+function removerFoto(i){ fotosTmp.splice(i, 1); renderFotos(); }
+function promoverFoto(i){ const [f] = fotosTmp.splice(i, 1); fotosTmp.unshift(f); renderFotos(); }
+function addFotoURL(){
+  const u = $("i_url").value.trim();
+  if (!u) return;
+  fotosTmp.push(u); $("i_url").value = ""; renderFotos();
+}
+function gerarSlug(forcar){
+  const atual = $("i_slug").value.trim();
+  if (atual && !forcar) return;
+  $("i_slug").value = slugify($("i_nome").value);
+}
+
 function rascunho(){
   return {
     nome: $("i_nome").value.trim(),
@@ -502,8 +1459,21 @@ function rascunho(){
     status: $("i_status").value,
     obs: $("i_obs").value.trim(),
     desc: $("i_desc").value.trim(),
-    foto: $("i_foto").value.trim(),
+    fotos: fotosTmp.slice(),
+    foto: fotosTmp[0] || "",
     origem: $("i_origem").value.trim(),
+    slug: $("i_slug").value.trim() || slugify($("i_nome").value),
+    prazo: $("i_prazo").value === "" ? null : num($("i_prazo").value),
+    ordem: num($("i_ordem").value),
+    material: $("i_material").value.trim(),
+    dimPeca: $("i_dim").value.trim(),
+    embPeso: $("i_epeso").value === "" ? null : num($("i_epeso").value),
+    embDim: $("i_edim").value.trim(),
+    publicado: $("i_pub").value === "1",
+    destaque: $("i_dest").value === "1",
+    descLonga: $("i_desclonga").value.trim(),
+    metaDesc: $("i_meta").value.trim(),
+    licenca: $("i_licenca").value.trim(),
     impressora: $("i_imp").value.trim(),
     filamento: $("i_fil").value.trim(),
     gram: $("i_gram").value === "" ? null : num($("i_gram").value),
@@ -517,10 +1487,14 @@ function rascunho(){
 
 function atualizarModal(){
   const d = rascunho();
-  // O num do SKU é atribuído pelo servidor; no cadastro mostramos o prefixo.
-  const atual = editandoId != null ? S.produtos.find(x => x.id === editandoId) : null;
-  $("mysku").textContent = atual ? atual.sku
-    : ("AL-" + d.cat + "-" + (d.tam ? "•••-" + d.tam : "•••"));
+  const atual = editandoId ? S.produtos.find(x => x.id === editandoId) : null;
+  let n;
+  if (atual && atual.cat === d.cat) n = atual.num;
+  else n = proximoNum(d.cat, editandoId);
+  while (!skuLivre(d.cat, n, d.tam, editandoId)) n++;
+  d.num = n;
+  $("mysku").textContent = skuDe(d);
+  $("mysku").dataset.num = n;
 
   const r = calc(d);
   const l = (rot, val, cls) => `<div class="lin ${cls||""}"><span>${rot}</span><b>${brl(val)}</b></div>`;
@@ -531,16 +1505,21 @@ function atualizarModal(){
     l("Mão de obra &nbsp;<small>" + (d.trab||0) + " min</small>", r.mao) +
     l("Insumos", r.ins) + l("Embalagem", r.emb) +
     l("Subtotal", r.sub) +
-    l("Custo final &nbsp;<small>+" + num(S.params.acresc) + "%</small>", r.fin, "tot") +
-    l("Preço sugerido &nbsp;<small>" + num(S.params.markup) + "×</small>", r.sug, "sug") +
+    l("Custo final &nbsp;<small>+" + S.params.acresc + "%</small>", r.fin, "tot") +
+    l("Preço sugerido &nbsp;<small>" + S.params.markup + "×</small>", r.sug, "sug") +
     l("Preço para marketplace", r.mkt, "sug") +
     (r.cat == null ? `<div class="mgbox"><span>Sem valor de catálogo</span><b>sob consulta</b></div>`
       : `<div class="mgbox"><span>Margem sobre o valor de catálogo</span>
          <b>${brl(r.mg)} &nbsp;·&nbsp; ${(r.mgp*100).toFixed(0)}%</b></div>`);
 
-  const pv = $("i_prev");
-  pv.innerHTML = d.foto ? `<img src="${esc(d.foto)}" alt=""
-    onerror="this.parentNode.innerHTML='<span>não<br>carregou</span>'">` : `<span>sem foto</span>`;
+  const bruto = fotosTmp.filter(f => f.startsWith("data:"))
+    .reduce((a, f) => a + Math.round(f.length * 0.75), 0);
+  const av = [];
+  if (!fotosTmp.length) av.push("sem foto");
+  if (!d.slug) av.push("sem slug");
+  if (d.publicado && d.catalogo == null) av.push("no site sem preço");
+  $("mavi").textContent = av.length ? "Pendências: " + av.join(" · ") : "";
+  $("mavi").title = bruto ? "fotos embutidas: " + pesoTxt(bruto) : "";
 }
 
 function usarSugerido(){
@@ -552,54 +1531,454 @@ function usarSugerido(){
 async function salvarProduto(){
   const d = rascunho();
   if (!d.nome){ $("mavi").textContent = "Dê um nome ao produto."; $("i_nome").focus(); return; }
+  d.tempoExato = true;
   try{
-    if (editandoId != null){
-      const upd = await api("/api/products/" + editandoId, { method:"PUT", body: JSON.stringify(d) });
-      toast("Produto atualizado — " + upd.sku);
-    } else {
-      const novo = await api("/api/products", { method:"POST", body: JSON.stringify(d) });
-      toast("Cadastrado como " + novo.sku);
-    }
-    fechar(); await recarregarProdutos();
+    $("mavi").textContent = "salvando...";
+    const fotos = await subirFotos(d.fotos);   // data: -> /api/media/<hash>
+    const corpo = corpoProduto(d, fotos);
+    const salvo = editandoId
+      ? await api("/api/products/" + editandoId, {method:"PUT",  body: JSON.stringify(corpo)})
+      : await api("/api/products",               {method:"POST", body: JSON.stringify(corpo)});
+    toast((editandoId ? "Produto atualizado — " : "Cadastrado como ") + salvo.sku);
+    fechar();
+    S.produtos = (await api("/api/products")).map(paraLocal);
+    render();
   }catch(e){ $("mavi").textContent = e.message; }
 }
 
 async function duplicar(id){
   try{
-    const c = await api("/api/products/" + id + "/duplicate", { method:"POST" });
-    await recarregarProdutos();
+    const c = await api("/api/products/" + id + "/duplicate", {method:"POST"});
+    S.produtos = (await api("/api/products")).map(paraLocal);
+    render();
     toast("Cópia criada — " + c.sku);
   }catch(e){ toast(e.message); }
 }
 
 async function remover(id){
   const p = S.produtos.find(x => x.id === id);
-  if (!confirm("Excluir " + p.sku + " — " + p.nome + " ?\n\nO SKU fica reservado.")) return;
+  if (!confirm("Excluir " + skuDe(p) + " — " + p.nome + " ?\n\nO SKU fica reservado: novos produtos usam o próximo número livre.")) return;
   try{
-    await api("/api/products/" + id, { method:"DELETE" });
-    await recarregarProdutos(); toast("Produto excluído");
+    await api("/api/products/" + id, {method:"DELETE"});
+    S.produtos = (await api("/api/products")).map(paraLocal);
+    render(); toast("Produto excluído");
   }catch(e){ toast(e.message); }
 }
 
-/* ---------------- import (semeia a API a partir de um argilalab.json) ---------------- */
-$("fileIn").onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
-  try{
-    const data = JSON.parse(await f.text());
-    if (!data.produtos) throw new Error("o arquivo precisa ter 'produtos'");
-    const r = await api("/api/import", { method:"POST", body: JSON.stringify(data) });
-    toast(`Importado: ${r.productsCreated} novos, ${r.productsUpdated} atualizados`);
-    await carregar();
-  }catch(err){ toast("Falha no import: " + err.message); }
-  e.target.value = "";
-};
+/* ---------------- projeto ---------------- */
+const temFSA = typeof window.showSaveFilePicker === "function";
+let arqHandle = null, gravTimer = null, gravando = false;
 
-/* ---------------- CSV ---------------- */
+function dadosProjeto(){
+  limparMidia();
+  return {app:"argilalab", versao:4, salvoEm:new Date().toISOString(),
+          params:S.params, cats:S.cats, loja:lojaAtual(), midia:S.midia, produtos:S.produtos};
+}
 function baixar(nome, blob){
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob); a.download = nome; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
+function statusArquivo(txt, ligado){
+  const el = $("arq");
+  el.querySelector("b").textContent = txt;
+  el.classList.toggle("on", !!ligado);
+}
+
+/* --- conexão com o arquivo em disco (Chrome / Edge no computador) --- */
+async function conectarArquivo(){
+  if (!temFSA){
+    toast("Este navegador não grava direto no arquivo. Use “Baixar backup”.");
+    return;
+  }
+  const tipos = [{description:"Projeto argila lab", accept:{"application/json":[".json"]}}];
+  try{
+    const escolha = S.produtos.length && confirm(
+      "OK = usar um arquivo que já existe (os dados dele substituem os atuais).\n" +
+      "Cancelar = criar um arquivo novo com os dados que estão na tela.");
+    if (escolha){
+      [arqHandle] = await window.showOpenFilePicker({types:tipos, multiple:false});
+      const f = await arqHandle.getFile();
+      if (!carregarTexto(await f.text())) { arqHandle = null; return; }
+    } else {
+      arqHandle = await window.showSaveFilePicker({suggestedName:"argilalab.json", types:tipos});
+    }
+    await guardarHandle(arqHandle);
+    statusArquivo(arqHandle.name, true);
+    $("btnConectar").textContent = "Trocar arquivo";
+    await gravarAgora();
+  }catch(e){
+    if (e && e.name !== "AbortError") toast("Não consegui conectar o arquivo.");
+  }
+}
+
+async function permissaoOK(){
+  if (!arqHandle) return false;
+  const op = {mode:"readwrite"};
+  if (await arqHandle.queryPermission(op) === "granted") return true;
+  return await arqHandle.requestPermission(op) === "granted";
+}
+
+async function gravarAgora(){
+  if (!arqHandle || gravando) return false;
+  gravando = true;
+  try{
+    if (!await permissaoOK()){ statusArquivo(arqHandle.name + " (sem permissão)", false); return false; }
+    const w = await arqHandle.createWritable();
+    await w.write(JSON.stringify(dadosProjeto(), null, 1));
+    await w.close();
+    sujo = false; $("dot").classList.remove("on");
+    const h = new Date();
+    statusArquivo(arqHandle.name + " · " + String(h.getHours()).padStart(2,"0") + ":" +
+      String(h.getMinutes()).padStart(2,"0"), true);
+    return true;
+  }catch(e){
+    statusArquivo("falha ao gravar", false);
+    toast("Não consegui gravar no arquivo. Baixe um backup.");
+    return false;
+  }finally{ gravando = false; }
+}
+function agendarGravacao(){
+  if (!arqHandle) return;
+  clearTimeout(gravTimer);
+  gravTimer = setTimeout(gravarAgora, 900);
+}
+
+/* --- lembrar o arquivo entre sessões (só quando o app é servido por http) --- */
+function bdHandle(){
+  return new Promise((ok, nao) => {
+    let r;
+    try{ r = indexedDB.open("argilalab", 1); }catch(e){ return nao(e); }
+    r.onupgradeneeded = () => r.result.createObjectStore("h");
+    r.onsuccess = () => ok(r.result);
+    r.onerror = () => nao(r.error);
+  });
+}
+async function guardarHandle(h){
+  try{
+    const db = await bdHandle();
+    db.transaction("h","readwrite").objectStore("h").put(h, "arquivo");
+  }catch(e){ /* file:// bloqueia — segue sem lembrar */ }
+}
+async function recuperarHandle(){
+  try{
+    const db = await bdHandle();
+    const h = await new Promise((ok,nao) => {
+      const q = db.transaction("h").objectStore("h").get("arquivo");
+      q.onsuccess = () => ok(q.result); q.onerror = () => nao(q.error);
+    });
+    if (!h) return;
+    arqHandle = h;
+    statusArquivo(h.name + " · clique para religar", false);
+    $("btnConectar").textContent = "Religar " + h.name;
+    $("btnConectar").onclick = async () => {
+      if (await permissaoOK()){
+        const f = await arqHandle.getFile();
+        carregarTexto(await f.text());
+        statusArquivo(arqHandle.name, true);
+        $("btnConectar").textContent = "Trocar arquivo";
+        $("btnConectar").onclick = conectarArquivo;
+      } else { toast("Permissão negada."); }
+    };
+  }catch(e){ /* sem IndexedDB disponível */ }
+}
+
+/* Um argilalab.json (de qualquer versão) é enviado ao servidor, que faz upsert
+   por SKU e guarda as imagens embutidas em /api/media. Depois recarregamos. */
+async function carregarTexto(txt){
+  let d;
+  try{
+    d = JSON.parse(txt);
+    if (!d.produtos) throw new Error("formato");
+  }catch(err){
+    alert("Não consegui ler esse arquivo. Ele precisa ser um argilalab.json salvo por este app.");
+    return false;
+  }
+  try{
+    apiStatus("importando...");
+    const r = await api("/api/import", {method:"POST", body: txt});
+    toast("Importado: " + r.productsCreated + " novos, " + r.productsUpdated +
+          " atualizados, " + r.mediaStored + " imagens");
+    await carregar();
+    return true;
+  }catch(err){
+    apiStatus("falha no import: " + err.message, "erro");
+    alert("Falha ao importar no servidor: " + err.message);
+    return false;
+  }
+}
+
+function salvarProjeto(){
+  baixar("argilalab.json",
+    new Blob([JSON.stringify(dadosProjeto(), null, 1)], {type:"application/json"}));
+  if (!arqHandle){ sujo = false; $("dot").classList.remove("on"); }
+  toast("Backup baixado — argilalab.json");
+}
+
+$("fileIn").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => { carregarTexto(fr.result); e.target.value = ""; };
+  fr.readAsText(f);
+};
+
+$("i_file").onchange = async e => {
+  const arqs = [...e.target.files];
+  if (!arqs.length) return;
+  toast(arqs.length > 1 ? "Processando " + arqs.length + " fotos..." : "Processando a foto...");
+  for (const f of arqs){
+    try{ fotosTmp.push(guardarMidia(await comprimir(f))); }
+    catch(err){ toast("Não consegui ler " + f.name); }
+  }
+  e.target.value = "";
+  renderFotos();
+};
+
+/* --- manutenção --- */
+function pesoProjeto(){
+  const b = new Blob([JSON.stringify(dadosProjeto())]).size;
+  const refs = S.produtos.reduce((a,p) => a + (p.fotos||[]).length, 0);
+  $("pesoProj").textContent = "projeto: " + pesoTxt(b) + " · " + refs +
+    " fotos nas fichas · " + Object.keys(S.midia).length + " imagens no acervo";
+  return b;
+}
+async function recomprimirTudo(){
+  const antes = pesoProjeto();
+  const soltas = limparMidia();
+  let n = 0;
+  toast("Recomprimindo — não feche a aba.");
+  const troca = {};
+  for (const k of Object.keys(S.midia)){
+    const orig = S.midia[k];
+    try{
+      const menor = await comprimir(await (await fetch(orig)).blob());
+      if (menor.length < orig.length){
+        const nova = hashTexto(menor);
+        S.midia[nova] = menor;
+        if (nova !== k){ troca["midia:" + k] = "midia:" + nova; delete S.midia[k]; }
+        else S.midia[k] = menor;
+        n++;
+      }
+    }catch(e){ /* mantém a original */ }
+  }
+  S.produtos.forEach(p => {
+    p.fotos = (p.fotos || []).map(f => troca[f] || f);
+    p.foto = p.fotos[0] || "";
+  });
+  const depois = pesoProjeto();
+  render(); marcar();
+  toast(n + " imagens recomprimidas" + (soltas ? " · " + soltas + " órfãs removidas" : "") +
+    " · " + pesoTxt(antes) + " → " + pesoTxt(depois));
+}
+
+/* ---------------- vitrine ---------------- */
+/* O molde da loja fica num bloco de texto separado (#tplLoja) para não sofrer
+   escape do JavaScript. Aqui só injetamos a fonte de dados. */
+function htmlLoja(catalogo, urlRemota, previa){
+  const molde = document.getElementById("tplLoja").textContent
+    .split("<\\/script>").join("</" + "script>");
+  const fonte = urlRemota
+    ? "const FONTE = " + JSON.stringify(urlRemota) + "; var CAT = null; const PREVIA = " + !!previa + ";"
+    : "const FONTE = null; var CAT = " + JSON.stringify(catalogo) + "; const PREVIA = " + !!previa + ";";
+  return molde.replace("/*__FONTE__*/", fonte);
+}
+
+function catalogoAtual(){
+  const pub = S.produtos.filter(p => p.status === "ativo" && p.publicado);
+  /* As fotos já são URL do servidor, então o resolvedor é identidade. */
+  return {lista: pub, dados: snapshotPublico(pub, k => k)};
+}
+/* URL absoluta do catálogo vivo — o site gerado busca daqui e atualiza sozinho. */
+function urlCatalogo(){
+  return (API || location.origin) + "/api/catalog";
+}
+function previewSite(){
+  const {lista, dados} = catalogoAtual();
+  if (!lista.length){ toast("Nenhum produto está marcado para o site."); return; }
+  const blob = new Blob([htmlLoja(dados, null, true)], {type:"text/html"});
+  const u = URL.createObjectURL(blob);
+  const j = window.open(u, "_blank");
+  if (!j) toast("O navegador bloqueou a janela — libere o pop-up e tente de novo.");
+  else toast("Pré-visualização aberta — " + lista.length + " produtos.");
+  setTimeout(() => URL.revokeObjectURL(u), 120000);
+}
+function baixarSite(){
+  const {lista, dados} = catalogoAtual();
+  if (!lista.length){ toast("Nenhum produto está marcado para o site."); return; }
+  const remoto = confirm(
+    "OK = site que busca o catálogo direto do servidor (atualiza sozinho a cada edição).\n" +
+    "Cancelar = site com o catálogo embutido no arquivo (funciona offline, mas congela os preços).")
+    ? urlCatalogo() : null;
+  baixar("index.html", new Blob([htmlLoja(dados, remoto, false)], {type:"text/html"}));
+  toast("index.html gerado — suba no Netlify ou Cloudflare Pages.");
+}
+
+/* ---------------- API (simao-api) ---------------- */
+/* Servido pelo próprio backend: mesma origem, sem CORS nem host fixo.
+   Ao abrir como arquivo local (file://), cai em localhost:8080. */
+const API = location.protocol === "file:" ? "http://localhost:8080" : "";
+
+function apiStatus(msg, tipo){
+  const el = $("n_status");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "nstat" + (tipo ? " " + tipo : "");
+}
+
+async function api(caminho, opts){
+  const res = await fetch(API + caminho, Object.assign(
+    {headers: {"Content-Type": "application/json"}}, opts || {}));
+  if (!res.ok){
+    let msg;
+    try { msg = (await res.json()).message; } catch(_){}
+    throw new Error(msg || ("erro " + res.status));
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+/* Sobe as imagens ainda locais (data: ou midia:) e devolve a lista já em URL. */
+async function subirFotos(fotos){
+  const saida = [];
+  for (const ref of (fotos || [])){
+    if (!ref) continue;
+    let valor = ref;
+    if (ref.startsWith("midia:")) valor = S.midia[ref.slice(6)] || "";
+    if (!valor) continue;
+    if (valor.startsWith("data:")){
+      const r = await api("/api/media", {method:"POST", body: JSON.stringify({dataUri: valor})});
+      saida.push(r.url);
+    } else {
+      saida.push(valor);
+    }
+  }
+  return saida;
+}
+
+/* O backend já devolve os campos com os nomes que a tela usa. */
+function paraLocal(p){
+  const q = Object.assign({}, p);
+  q.fotos = p.fotos || [];
+  q.foto = q.fotos[0] || "";
+  return q;
+}
+
+async function carregar(){
+  apiStatus("carregando...");
+  try{
+    const [cats, params, loja, produtos] = await Promise.all([
+      api("/api/categories"), api("/api/cost-parameters"), api("/api/store"), api("/api/products")
+    ]);
+    S.cats = Object.fromEntries(cats.map(c => [c.code, c.name]));
+    S.params = params;
+    S.loja = loja;
+    S.produtos = produtos.map(paraLocal);
+    S.midia = {};
+    sujo = false; $("dot").classList.remove("on");
+    preencherCats(); renderParams(); renderLoja(); render();
+    apiStatus("conectado · " + S.produtos.length + " produtos", "on");
+  }catch(e){
+    apiStatus("sem conexão com o servidor: " + e.message, "erro");
+    toast("Falha ao carregar do servidor: " + e.message);
+  }
+}
+
+/* Monta o corpo que o backend espera a partir do rascunho da tela. */
+function corpoProduto(d, fotos){
+  return {
+    nome:d.nome, cat:d.cat, tam:d.tam, status:d.status, obs:d.obs, desc:d.desc,
+    fotos: fotos, origem:d.origem, impressora:d.impressora, filamento:d.filamento,
+    gram:d.gram, tempo:d.tempo, trab:d.trab, ins:d.ins, emb:d.emb, catalogo:d.catalogo,
+    slug:d.slug, prazo:d.prazo, ordem:d.ordem, material:d.material, dimPeca:d.dimPeca,
+    embPeso:d.embPeso, embDim:d.embDim, publicado:d.publicado, destaque:d.destaque,
+    descLonga:d.descLonga, metaDesc:d.metaDesc, licenca:d.licenca
+  };
+}
+
+let _parTimer = null;
+function agendarParams(){
+  clearTimeout(_parTimer);
+  _parTimer = setTimeout(salvarParams, 600);
+}
+async function salvarParams(){
+  try{
+    S.params = await api("/api/cost-parameters", {method:"PUT", body: JSON.stringify(S.params)});
+    S.produtos = (await api("/api/products")).map(paraLocal);   // custos recalculados
+    render();
+    apiStatus("parâmetros salvos", "on");
+  }catch(e){ apiStatus("falha ao salvar parâmetros: " + e.message, "erro"); }
+}
+
+let _lojaTimer = null;
+function agendarLoja(){
+  clearTimeout(_lojaTimer);
+  _lojaTimer = setTimeout(salvarLoja, 800);
+}
+async function salvarLoja(){
+  try{
+    S.loja = await api("/api/store", {method:"PUT", body: JSON.stringify(lojaAtual())});
+    apiStatus("loja salva", "on");
+  }catch(e){ apiStatus("falha ao salvar a loja: " + e.message, "erro"); }
+}
+
+function publicoDe(p){
+  return {
+    sku: skuDe(p), slug: p.slug || slugify(p.nome), nome: p.nome,
+    categoria: S.cats[p.cat] || p.cat, categoriaId: p.cat,
+    resumo: p.desc || "", descricao: p.descLonga || p.desc || "",
+    metaDescricao: p.metaDesc || "",
+    preco: (p.catalogo == null || p.catalogo === "") ? null : num(p.catalogo),
+    fotos: (p.fotos && p.fotos.length ? p.fotos : (p.foto ? [p.foto] : [])).map(urlDe),
+    material: p.material || "", dimensoes: p.dimPeca || "",
+    prazoDias: p.prazo == null ? null : p.prazo,
+    pesoEmbalado: p.embPeso == null ? null : p.embPeso,
+    dimEmbalagem: p.embDim || "",
+    destaque: !!p.destaque, ordem: p.ordem == null ? 0 : p.ordem,
+  };
+}
+function snapshotPublico(pub, resolver){
+  /* ordem da vitrine: agrupa por categoria (mesma sequência dos filtros);
+     dentro dela manda o campo "ordem", e o desempate é SKU + tamanho P/M/G/XG */
+  const ordemCat = Object.keys(S.cats);
+  pub = pub.slice().sort((a,b) =>
+    ordemCat.indexOf(a.cat) - ordemCat.indexOf(b.cat) ||
+    (a.ordem||0) - (b.ordem||0) ||
+    ordProd(a,b));
+  const cats = Object.entries(S.cats)
+    .filter(([k]) => pub.some(p => p.cat === k))
+    .map(([id, nome]) => ({id, nome, slug: slugify(nome)}));
+  return {
+    marca: "argila lab", publicadoEm: new Date().toISOString(),
+    loja: lojaAtual(),
+    categorias: cats,
+    produtos: pub.map(p => {
+      const o = publicoDe(p);
+      o.fotos = (p.fotos || []).map(f => f.startsWith("midia:") ? resolver(f.slice(6)) : f);
+      return o;
+    }),
+  };
+}
+function publicarSite(){
+  const pub = S.produtos.filter(p => p.status === "ativo" && p.publicado);
+  if (!pub.length){ toast("Nenhum produto está marcado para o site."); return; }
+  const semPreco = pub.filter(p => p.catalogo == null).map(p => skuDe(p));
+  const semFoto  = pub.filter(p => !fotoDe(p)).map(p => skuDe(p));
+  const semSlug  = pub.filter(p => !p.slug).map(p => skuDe(p));
+  const slugs = pub.map(p => p.slug);
+  const repetidos = [...new Set(slugs.filter((x,i) => slugs.indexOf(x) !== i))];
+  const alerta = [];
+  if (semPreco.length)  alerta.push("Sem preço: " + semPreco.join(", "));
+  if (semFoto.length)   alerta.push("Sem foto: " + semFoto.join(", "));
+  if (semSlug.length)   alerta.push("Sem slug: " + semSlug.join(", "));
+  if (repetidos.length) alerta.push("Slug repetido: " + repetidos.join(", "));
+  if (alerta.length && !confirm("Pendências neste snapshot:\n\n" + alerta.join("\n") +
+      "\n\nGerar mesmo assim?")) return;
+
+  const saida = snapshotPublico(pub, k => k);   // fotos já são URL do servidor
+  baixar("catalogo-publico.json",
+    new Blob([JSON.stringify(saida, null, 1)], {type:"application/json"}));
+  toast(pub.length + " produtos publicados — catalogo-publico.json");
+}
+
 function exportarCSV(){
   const H = ["SKU","Nome","Categoria","Status","Descricao","Foto","Origem","Impressora","Filamento",
     "Gramatura (g)","Tempo (h)","Mao de obra (min)","Insumos","Embalagem","Custo filamento","Energia",
@@ -608,15 +1987,14 @@ function exportarCSV(){
   const q = v => '"' + String(v == null ? "" : v).replace(/"/g,'""') + '"';
   const n2 = v => v == null ? "" : String(Number(v).toFixed(2)).replace(".",",");
   const linhas = [H.map(q).join(";")];
-  S.produtos.slice().sort((a,b) => a.sku.localeCompare(b.sku)).forEach(p => {
-    const r = p.custo;
-    linhas.push([p.sku, p.nome, S.cats[p.cat]||p.cat, p.status, p.desc,
-      (p.foto||"").startsWith("data:") ? "(imagem embutida)" : (p.foto||""), p.origem||"",
+  S.produtos.slice().sort((a,b) => skuDe(a).localeCompare(skuDe(b))).forEach(p => {
+    const r = calc(p);
+    linhas.push([skuDe(p), p.nome, S.cats[p.cat]||p.cat, p.status, p.desc,
+      (p.fotos||[]).length + " foto(s)", p.origem||"",
       p.impressora||"", p.filamento||"", p.gram==null?"":p.gram, p.tempo==null?"":n2(p.tempo), p.trab,
-      n2(r.insumos), n2(r.embalagem), n2(r.filamento), n2(r.energia), n2(r.depreciacao), n2(r.maoDeObra),
-      n2(r.subtotal), n2(r.custoFinal), n2(r.precoSugerido), n2(r.precoMarketplace),
-      r.catalogo==null?"":n2(r.catalogo), r.margem==null?"":n2(r.margem),
-      r.margemPct==null?"":n2(r.margemPct), p.obs||""].map(q).join(";"));
+      n2(r.ins), n2(r.emb), n2(r.filam), n2(r.energ), n2(r.depr), n2(r.mao), n2(r.sub), n2(r.fin),
+      n2(r.sug), n2(r.mkt), r.cat==null?"":n2(r.cat), r.mg==null?"":n2(r.mg),
+      r.mgp==null?"":n2(r.mgp*100), p.obs||""].map(q).join(";"));
   });
   baixar("registro-sku-argilalab.csv",
     new Blob(["﻿" + linhas.join("\r\n")], {type:"text/csv;charset=utf-8"}));
@@ -624,57 +2002,138 @@ function exportarCSV(){
 }
 
 /* ---------------- impressão ---------------- */
+const ORDEM_TAM = ["","P","M","G","XG","H","V"];
+function ordProd(a,b){
+  if (a.num !== b.num) return (a.num||0) - (b.num||0);
+  const ia = ORDEM_TAM.indexOf(a.tam||""), ib = ORDEM_TAM.indexOf(b.tam||"");
+  if (ia !== ib) return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  return String(a.tam||"").localeCompare(String(b.tam||""));
+}
 function montarImpressao(){
-  const ativos = S.produtos.filter(p => p.status !== "off");
+  const cat = S.produtos.filter(p => p.status === "ativo");
+  const etq = S.produtos.filter(p => p.status !== "off");
+  const hoje = new Date().toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric"});
+
+  const PERFIL = "M100 44 L131 44 Q123 55 121 66 Q152 92 150 118 Q148 150 124 161 L120 170 L100 170 Z";
+  const simbolo = `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <path d="${PERFIL}" fill="#D85A30" transform="translate(200,0) scale(-1,1)"/>
+    <path d="${PERFIL}" fill="none" stroke="#2C2C2A" stroke-width="2"
+          stroke-linejoin="round"/>
+    <line x1="100" y1="26" x2="100" y2="188" stroke="#2C2C2A" stroke-width="1"
+          stroke-dasharray="10 4 2 4"/>
+    <g stroke="#B4B2A9" stroke-width="1">
+      <line x1="69" y1="182" x2="131" y2="182"/>
+      <path d="M69 177v10M131 177v10"/>
+    </g>
+  </svg>`;
+
+  let c = `<section class="capa">
+    ${simbolo}
+    <div class="wm">argila <b>lab</b></div>
+    <div class="tgl mono">ferramentas para cerâmica</div>
+    <div class="rl"></div>
+    <div class="meta mono">
+      Catálogo · edição <b>${hoje}</b><br>
+      ${cat.length} referências em ${Object.keys(S.cats).length} categorias<br>
+      Pipa / Tibau do Sul — RN · @argila_lab
+    </div>
+  </section>`;
+
   const grupos = {};
-  ativos.forEach(p => { (grupos[p.cat] = grupos[p.cat] || []).push(p); });
-  let c = `<h1>ARGILA LAB</h1><p class="sb">Ferramentas de cerâmica impressas em 3D · catálogo</p>`;
+  cat.forEach(p => { (grupos[p.cat] = grupos[p.cat] || []).push(p); });
+
   Object.keys(S.cats).filter(k => grupos[k]).forEach(k => {
-    const its = grupos[k].slice().sort((a,b) => a.sku.localeCompare(b.sku));
-    c += `<h2>${esc(S.cats[k])}</h2>`;
+    const its = grupos[k].slice().sort(ordProd);
+    c += `<section class="cat">
+      <div class="ch">
+        <span class="cd mono">AL-${esc(k)}</span>
+        <h2>${esc(S.cats[k])}</h2>
+        <span class="qt mono">${its.length} ${its.length === 1 ? "item" : "itens"}</span>
+      </div>
+      <div class="gr">`;
     its.forEach(p => {
-      c += `<div class="it">
-        ${p.foto ? `<img src="${esc(p.foto)}" alt="">` : `<div class="nb"></div>`}
-        <div class="tx"><h3>${esc(p.nome)}</h3><p>${esc(p.desc||"")}</p></div>
-        <div class="pz">${p.custo.catalogo == null ? "sob consulta" : brl(p.custo.catalogo)}</div>
-      </div>`;
+      const r = calc(p);
+      c += `<article class="pd">
+        <div class="im">
+          ${fotoDe(p) ? `<img src="${esc(fotoDe(p))}" alt="">` : `<div class="nb mono">foto pendente</div>`}
+          <span class="sku mono">${esc(skuDe(p))}</span>
+        </div>
+        <div class="bd">
+          <h3>${esc(p.nome)}</h3>
+          <p>${esc(p.desc || "")}</p>
+          <div class="pz">
+            <span class="lb mono">preço</span>
+            <span class="vl ${r.cat == null ? "mono sob" : ""}">${r.cat == null ? "sob consulta" : brl(r.cat)}</span>
+          </div>
+        </div>
+      </article>`;
     });
+    c += `</div></section>`;
   });
+
+  c += `<section class="fim">
+    <h2>Como encomendar</h2>
+    <ol>
+      <li><b class="mono">01</b>Escolha as referências pelo código AL- e envie a lista pelo direct ou WhatsApp.</li>
+      <li><b class="mono">02</b>Confirmamos prazo e cor. Cada peça é impressa sob encomenda, uma a uma.</li>
+      <li><b class="mono">03</b>Enviamos para todo o Brasil, com código de rastreio.</li>
+    </ol>
+    <p class="cn mono">@argila_lab · Pipa / Tibau do Sul — RN · preços válidos em ${hoje}</p>
+  </section>`;
+
   $("pcat").innerHTML = c;
 
-  $("petq").innerHTML = ativos.slice()
-    .sort((a,b) => a.sku.localeCompare(b.sku))
-    .map(p => `<div class="e"><div class="m">ARGILA LAB</div>
+  $("petq").innerHTML = etq.slice()
+    .sort((a,b) => skuDe(a).localeCompare(skuDe(b)))
+    .map(p => {
+      const r = calc(p);
+      return `<div class="e"><div class="m">ARGILA LAB</div>
         <div class="n">${esc(p.nome)}</div>
-        <div class="s">${esc(p.sku)}</div>
-        <div class="p">${p.custo.catalogo == null ? "sob consulta" : brl(p.custo.catalogo)}</div></div>`).join("");
+        <div class="s">${esc(skuDe(p))}</div>
+        <div class="p">${r.cat == null ? "sob consulta" : brl(r.cat)}</div></div>`;
+    }).join("");
 }
 function imprimir(qual){
   $("pcat").style.display = qual === "cat" ? "block" : "none";
   $("petq").style.display = qual === "etq" ? "grid"  : "none";
   montarImpressao();
-  setTimeout(() => window.print(), 120);
+  const imgs = [...document.querySelectorAll(".print img")];
+  const prontas = imgs.map(im => im.decode ? im.decode().catch(() => {})
+    : new Promise(r => { if (im.complete) r(); else { im.onload = r; im.onerror = r; } }));
+  const limite = new Promise(r => setTimeout(r, 8000));
+  toast("Montando " + (qual === "cat" ? "o catálogo" : "as etiquetas") + "...");
+  Promise.race([Promise.all(prontas), limite]).then(() => setTimeout(() => window.print(), 150));
 }
 
 /* ---------------- eventos ---------------- */
-["i_nome","i_cat","i_tam","i_gram","i_tempo","i_trab","i_ins","i_emb","i_cat_preco","i_foto","i_status"]
+["i_nome","i_cat","i_tam","i_gram","i_tempo","i_trab","i_ins","i_emb","i_cat_preco","i_status",
+ "i_slug","i_prazo","i_ordem","i_material","i_dim","i_epeso","i_edim","i_pub","i_dest",
+ "i_desclonga","i_meta","i_licenca"]
   .forEach(id => { $(id).addEventListener("input", atualizarModal); $(id).addEventListener("change", atualizarModal); });
+$("i_nome").addEventListener("blur", () => gerarSlug(false));
+$("i_url").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); addFotoURL(); } });
 ["busca","fcat","fst","ord"].forEach(id => $(id).addEventListener("input", render));
 $("ov").addEventListener("mousedown", e => { if (e.target === $("ov")) fechar(); });
-$("i_file").onchange = e => {
-  const f = e.target.files[0]; if (!f) return;
-  const fr = new FileReader();
-  fr.onload = () => { $("i_foto").value = fr.result; atualizarModal(); };
-  fr.readAsDataURL(f);
-};
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && $("ov").classList.contains("on")) fechar();
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s"){
+    e.preventDefault(); arqHandle ? gravarAgora() : salvarProjeto(); }
+});
+window.addEventListener("beforeunload", e => {
+  if (sujo && !arqHandle){ e.preventDefault(); e.returnValue = ""; }
 });
 
 /* ---------------- start ---------------- */
+preencherCats(); renderParams(); render();
 $("pcat").style.display = "block"; $("petq").style.display = "none";
+if (!temFSA){
+  $("btnConectar").style.display = "none";
+  statusArquivo("salvamento manual", false);
+} else {
+  recuperarHandle();
+}
+renderLoja(); ligarLoja();
 carregar();
-
 </script>
 </body>
 </html>
