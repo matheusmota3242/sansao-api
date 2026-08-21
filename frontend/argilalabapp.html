@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ARGILA LAB — Catálogo e Custos</title>
+<style>
+:root{
+  --barro:#9C5B3C; --barro-esc:#5E3222; --areia:#F6F1EA; --papel:#FFFDFA;
+  --tinta:#2B2320; --suave:#7A6A60; --linha:#E4D9CC; --claro:#F2E5D8;
+  --verde:#3B7A46; --vermelho:#A6413A;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--areia);color:var(--tinta);line-height:1.5;
+  font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;font-size:14px}
+button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
+button{cursor:pointer}
+a{color:var(--barro)}
+
+/* ---------- topo ---------- */
+.top{background:var(--barro-esc);color:#F6EFE7;padding:14px 22px;display:flex;
+  align-items:center;gap:18px;flex-wrap:wrap;position:sticky;top:0;z-index:40}
+.marca{font-size:19px;font-weight:800;letter-spacing:.16em;white-space:nowrap}
+.marca span{font-weight:300}
+.top .sp{flex:1}
+.tbtn{background:rgba(255,255,255,.11);color:#F6EFE7;border:1px solid rgba(255,255,255,.2);
+  border-radius:7px;padding:8px 14px;font-size:13px;font-weight:600;white-space:nowrap}
+.tbtn:hover{background:rgba(255,255,255,.2)}
+.tbtn.pri{background:#C97B52;border-color:#C97B52;color:#fff}
+.tbtn.pri:hover{background:#B96A42}
+.dot{width:8px;height:8px;border-radius:50%;background:#E0B65C;display:none;margin-left:-8px}
+.dot.on{display:inline-block}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:22px 22px 70px}
+.painel{background:var(--papel);border:1px solid var(--linha);border-radius:12px;margin-bottom:20px}
+.painel>summary{list-style:none;cursor:pointer;padding:14px 18px;font-size:12px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--barro);display:flex;align-items:center;gap:10px}
+.painel>summary::-webkit-details-marker{display:none}
+.painel>summary::before{content:"▸";font-size:14px;transition:transform .15s}
+.painel[open]>summary::before{transform:rotate(90deg)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:14px;padding:4px 18px 20px}
+.f{display:flex;flex-direction:column;gap:5px}
+.f label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)}
+.f .hint{display:block;margin-top:2px;font-size:10.5px;color:#A5968B;font-weight:400;
+  text-transform:none;letter-spacing:0;line-height:1.35}
+.f input,.f select,.f textarea{border:1px solid var(--linha);border-radius:7px;padding:9px 11px;
+  background:#fff;width:100%}
+.f input:focus,.f select:focus,.f textarea:focus{outline:2px solid #D9BFA9;border-color:#D9BFA9}
+.f textarea{resize:vertical;min-height:76px}
+
+/* ---------- barra de filtros ---------- */
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.bar input[type=search]{flex:1;min-width:210px;border:1px solid var(--linha);border-radius:8px;
+  padding:10px 13px;background:#fff}
+.bar select{border:1px solid var(--linha);border-radius:8px;padding:10px 12px;background:#fff}
+.cont{font-size:12px;color:var(--suave);white-space:nowrap}
+
+/* ---------- lista ---------- */
+.sec h2{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--barro);
+  margin:26px 0 12px;padding-bottom:9px;border-bottom:2px solid var(--linha);
+  display:flex;align-items:center;gap:10px}
+.sec h2 .n{font-size:11px;color:#fff;background:var(--barro);border-radius:99px;padding:2px 9px;
+  letter-spacing:.04em;font-weight:600}
+.card{display:flex;gap:16px;align-items:center;background:var(--papel);border:1px solid var(--linha);
+  border-radius:11px;padding:12px 16px;margin-bottom:10px}
+.card.dev{background:#FBF7F2;border-style:dashed}
+.ph{flex:0 0 84px;width:84px;height:84px;border-radius:8px;overflow:hidden;background:#F0E7DC;
+  border:1px solid var(--linha);display:flex;align-items:center;justify-content:center}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#B39B85;text-align:center;padding:4px}
+.info{flex:1;min-width:0}
+.sku{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--barro)}
+.card h3{margin:1px 0 4px;font-size:15px;font-weight:700}
+.card p{margin:0;font-size:12.5px;color:var(--suave);overflow:hidden;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--barro);background:var(--claro);border-radius:4px;padding:2px 7px;margin-left:7px;vertical-align:1px}
+.nums{flex:0 0 auto;text-align:right;min-width:132px}
+.nums .pv{font-size:18px;font-weight:700;color:var(--barro-esc)}
+.nums .pv.sob{font-size:12px;font-style:italic;font-weight:600;color:var(--suave)}
+.nums .cst{font-size:11px;color:var(--suave);margin-top:2px}
+.nums .mg{font-size:11px;font-weight:700;margin-top:1px}
+.mg.bom{color:var(--verde)} .mg.ruim{color:var(--vermelho)}
+.acts{flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
+.mini{background:#fff;border:1px solid var(--linha);border-radius:6px;padding:6px 11px;font-size:12px;
+  font-weight:600;color:var(--suave)}
+.mini:hover{background:var(--claro);color:var(--barro-esc)}
+.mini.del:hover{background:#F6E3E1;color:var(--vermelho);border-color:#E6C6C2}
+.vazio{text-align:center;padding:60px 20px;color:var(--suave)}
+
+/* ---------- modal ---------- */
+.ov{position:fixed;inset:0;background:rgba(43,35,32,.55);display:none;z-index:60;
+  align-items:flex-start;justify-content:center;padding:26px 16px;overflow:auto}
+.ov.on{display:flex}
+.modal{background:var(--areia);border-radius:14px;width:100%;max-width:940px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mh{background:var(--barro-esc);color:#F6EFE7;padding:16px 22px;display:flex;align-items:center;gap:14px}
+.mh h2{margin:0;font-size:16px;font-weight:700;flex:1}
+.mh .skubox{background:rgba(255,255,255,.13);border-radius:7px;padding:6px 13px;font-size:13px;
+  font-weight:700;letter-spacing:.09em}
+.mb{padding:20px 22px;max-height:calc(100vh - 210px);overflow:auto}
+.mf{padding:14px 22px;background:var(--papel);border-top:1px solid var(--linha);
+  display:flex;gap:10px;justify-content:flex-end;align-items:center}
+.btn{border:1px solid var(--linha);background:#fff;border-radius:8px;padding:11px 20px;font-weight:600}
+.btn.pri{background:var(--barro);border-color:var(--barro);color:#fff}
+.btn.pri:hover{background:var(--barro-esc)}
+.btn.gh:hover{background:var(--claro)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.full{grid-column:1/-1}
+.blk{margin-bottom:18px}
+.blk>h4{margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--barro);border-bottom:1px solid var(--linha);padding-bottom:7px}
+.prev{display:flex;gap:14px;align-items:center}
+.prev .ph{flex:0 0 96px;width:96px;height:96px}
+
+/* ---------- calculadora ---------- */
+.calc{background:var(--papel);border:1px solid var(--linha);border-radius:10px;padding:14px 16px}
+.lin{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--suave)}
+.lin b{color:var(--tinta);font-weight:600}
+.lin.tot{border-top:1px solid var(--linha);margin-top:6px;padding-top:8px;font-size:15px;color:var(--tinta)}
+.lin.tot b{font-weight:800;color:var(--barro-esc)}
+.lin.sug{color:var(--barro)}
+.mgbox{margin-top:10px;padding:9px 12px;border-radius:8px;background:var(--claro);font-size:12.5px;
+  display:flex;justify-content:space-between}
+.mgbox b{font-weight:800}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120%);
+  background:var(--barro-esc);color:#F6EFE7;padding:12px 22px;border-radius:9px;font-size:13.5px;
+  font-weight:600;z-index:90;transition:transform .25s;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+/* ---------- impressão ---------- */
+.print{display:none}
+@media print{
+  .top,.wrap,.ov,.toast{display:none !important}
+  .print{display:block}
+  body{background:#fff}
+  @page{margin:12mm 10mm}
+}
+#pcat h1{font-size:24px;letter-spacing:.16em;color:var(--barro-esc);margin:0 0 2px}
+#pcat .sb{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--barro);margin:0 0 18px}
+#pcat h2{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--barro);
+  margin:18px 0 8px;padding-bottom:5px;border-bottom:1.5px solid var(--linha)}
+#pcat .it{display:flex;gap:13px;align-items:center;padding:7px 0;border-bottom:1px solid #F0E9E0;
+  page-break-inside:avoid}
+#pcat .it img{width:74px;height:74px;object-fit:cover;border-radius:6px;border:1px solid var(--linha)}
+#pcat .it .nb{width:74px;height:74px;border:1px dashed var(--linha);border-radius:6px}
+#pcat .it .tx{flex:1}
+#pcat .it h3{margin:0 0 2px;font-size:13.5px}
+#pcat .it p{margin:0;font-size:11px;color:var(--suave)}
+#pcat .it .pz{font-size:15px;font-weight:700;color:var(--barro-esc);white-space:nowrap}
+#petq{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm}
+#petq .e{border:1px dashed #C9B7A6;border-radius:5px;padding:7mm 5mm;text-align:center;
+  page-break-inside:avoid;height:32mm;display:flex;flex-direction:column;justify-content:center}
+#petq .e .m{font-size:8px;letter-spacing:.22em;color:var(--barro);font-weight:700}
+#petq .e .n{font-size:11px;font-weight:700;margin:3px 0 1px;line-height:1.25}
+#petq .e .s{font-size:8px;letter-spacing:.1em;color:var(--suave)}
+#petq .e .p{font-size:16px;font-weight:800;color:var(--barro-esc);margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="marca">ARGILA<span>LAB</span></div><span class="dot" id="dot" title="alterações não salvas"></span>
+  <div class="sp"></div>
+  <button class="tbtn pri" onclick="abrir()">+ Novo produto</button>
+  <button class="tbtn" onclick="fileIn.click()">Importar projeto</button>
+  <button class="tbtn" onclick="imprimir('cat')">Catálogo PDF</button>
+  <button class="tbtn" onclick="imprimir('etq')">Etiquetas</button>
+  <button class="tbtn" onclick="exportarCSV()">CSV</button>
+  <input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+</div>
+
+<div class="wrap">
+
+  <details class="painel" id="pn">
+    <summary>Parâmetros de custo — mexeu aqui, todos os produtos recalculam</summary>
+    <div class="pgrid" id="params"></div>
+  </details>
+
+  <div class="bar">
+    <input type="search" id="busca" placeholder="Buscar por nome, SKU ou descrição...">
+    <select id="fcat"><option value="">Todas as categorias</option></select>
+    <select id="fst">
+      <option value="">Todos os status</option>
+      <option value="ativo">Ativos</option>
+      <option value="dev">Em desenvolvimento</option>
+    </select>
+    <select id="ord">
+      <option value="sku">Ordenar por SKU</option>
+      <option value="nome">Nome</option>
+      <option value="preco">Maior preço</option>
+      <option value="margem">Maior margem %</option>
+    </select>
+    <span class="cont" id="cont"></span>
+  </div>
+
+  <div id="lista"></div>
+</div>
+
+<div class="ov" id="ov"><div class="modal">
+  <div class="mh">
+    <h2 id="mtit">Novo produto</h2>
+    <div class="skubox" id="mysku">AL-—</div>
+  </div>
+  <div class="mb">
+    <div class="blk">
+      <h4>Identificação</h4>
+      <div class="g2">
+        <div class="f full"><label>Nome do produto</label><input id="i_nome" placeholder="Ex.: Molde de Tigela — 24 cm"></div>
+        <div class="f"><label>Categoria</label><select id="i_cat"></select></div>
+        <div class="f"><label>Tamanho / variação <span class="hint">opcional — vira sufixo do SKU</span></label>
+          <input id="i_tam" placeholder="P, M, G, XG..."></div>
+        <div class="f"><label>Status</label><select id="i_status">
+          <option value="ativo">Ativo</option><option value="dev">Em desenvolvimento</option>
+          <option value="off">Descontinuado</option></select></div>
+        <div class="f"><label>Observações</label><input id="i_obs" placeholder="Licença, insumo, etc."></div>
+        <div class="f full"><label>Descrição de catálogo</label>
+          <textarea id="i_desc" placeholder="O que é, para que serve, o que acompanha."></textarea></div>
+      </div>
+    </div>
+
+    <div class="blk">
+      <h4>Foto</h4>
+      <div class="prev">
+        <div class="ph" id="i_prev"><span>sem foto</span></div>
+        <div style="flex:1;display:grid;gap:10px">
+          <div class="f"><label>URL da imagem</label><input id="i_foto" placeholder="https://..."></div>
+          <div class="f"><label>ou envie um arquivo <span class="hint">fica embutido no projeto</span></label>
+            <input type="file" id="i_file" accept="image/*"></div>
+          <div class="f"><label>Página de origem <span class="hint">opcional</span></label>
+            <input id="i_origem" placeholder="https://makerworld.com/..."></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="blk">
+      <h4>Produção</h4>
+      <div class="g3">
+        <div class="f"><label>Impressora</label><input id="i_imp" value="Bambu Lab A1"></div>
+        <div class="f"><label>Filamento</label><input id="i_fil" value="Voolt3D PLA"></div>
+        <div class="f"><label>Gramatura (g)</label><input id="i_gram" type="number" min="0" step="1" placeholder="0"></div>
+        <div class="f"><label>Tempo de impressão <span class="hint">h:mm ou horas</span></label>
+          <input id="i_tempo" placeholder="8:10"></div>
+        <div class="f"><label>Mão de obra (min)</label><input id="i_trab" type="number" min="0" step="1" value="10"></div>
+        <div class="f"><label>Insumos (R$)</label><input id="i_ins" type="number" min="0" step="0.01" value="0"></div>
+        <div class="f"><label>Embalagem (R$)</label><input id="i_emb" type="number" min="0" step="0.01" value="0"></div>
+        <div class="f"><label>Valor de catálogo (R$) <span class="hint">deixe vazio = sob consulta</span></label>
+          <input id="i_cat_preco" type="number" min="0" step="0.01" placeholder="0,00"></div>
+        <div class="f" style="justify-content:flex-end"><button class="btn gh" type="button" onclick="usarSugerido()">Usar o preço sugerido</button></div>
+      </div>
+    </div>
+
+    <div class="blk">
+      <h4>Custo calculado</h4>
+      <div class="calc" id="calc"></div>
+    </div>
+  </div>
+  <div class="mf">
+    <span id="mavi" style="flex:1;font-size:12px;color:var(--vermelho);font-weight:600"></span>
+    <button class="btn gh" onclick="fechar()">Cancelar</button>
+    <button class="btn pri" onclick="salvarProduto()">Salvar produto</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<div class="print">
+  <div id="pcat"></div>
+  <div id="petq"></div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   ARGILA LAB — front conectado ao backend simao-api.
+   Ajuste API para o host do backend (ex.: túnel Tailscale).
+   ============================================================ */
+const API = "http://localhost:8080";
+
+/* Metadados dos parâmetros (rótulos/dicas). Os VALORES vêm da API. */
+const PARAMS = [
+ ["filPreco","Filamento (R$/kg)",0.01,"R$ 0,089/g — valor deduzido da planilha original"],
+ ["potencia","Potência da impressora (kW)",0.001,"Bambu Lab A1"],
+ ["tarifa","Tarifa de energia (R$/kWh)",0.01,"Potência × tarifa = R$ 0,1125/h"],
+ ["deprec","Depreciação da impressora (R$/h)",0.01,"Deduzido da planilha"],
+ ["mdo","Mão de obra (R$/h)",0.50,"R$ 1,67 por 10 min"],
+ ["acresc","Acréscimo sobre o subtotal (%)",1,"Perdas, falhas e encargos"],
+ ["markup","Markup do preço sugerido (×)",0.1,"Custo final × markup"],
+ ["comissao","Comissão do marketplace (%)",0.5,"Aplicada sobre o preço"],
+ ["taxaFixa","Taxa fixa do marketplace (R$)",0.50,"Somada depois da comissão"],
+];
+
+let S = { params:{}, cats:{}, produtos:[] };
+let editandoId = null;
+
+/* ---------------- utilidades ---------------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const brl = v => (v == null || isNaN(v)) ? "—" :
+  "R$ " + Number(v).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const num = v => { const n = parseFloat(String(v).replace(",", ".")); return isNaN(n) ? 0 : n; };
+
+function horas(txt){
+  if (txt == null || txt === "") return null;
+  const t = String(txt).trim();
+  if (t.includes(":")){ const [h, m] = t.split(":"); return num(h) + num(m)/60; }
+  return num(t);
+}
+function hhmm(h){
+  if (h == null || h === "" || isNaN(h)) return "";
+  const tot = Math.round(h*60);
+  return Math.floor(tot/60) + ":" + String(tot%60).padStart(2,"0");
+}
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("on"), 2600);
+}
+
+/* ---------------- API ---------------- */
+async function api(path, opts){
+  const res = await fetch(API + path, Object.assign(
+    { headers: { "Content-Type": "application/json" } }, opts || {}));
+  if (!res.ok){
+    let msg; try { msg = (await res.json()).message; } catch(_){}
+    throw new Error(msg || ("Erro " + res.status));
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+async function carregar(){
+  try{
+    const [cats, params, produtos] = await Promise.all([
+      api("/api/categories"), api("/api/cost-parameters"), api("/api/products")
+    ]);
+    S.cats = Object.fromEntries(cats.map(c => [c.code, c.name]));
+    S.params = params;
+    S.produtos = produtos;
+    preencherCats(); renderParams(); render();
+  }catch(e){ toast("Falha ao carregar do servidor: " + e.message); }
+}
+async function recarregarProdutos(){
+  S.produtos = await api("/api/products"); render();
+}
+
+/* ---------------- cálculo (preview do modal, espelha o backend) ---------------- */
+function calc(p){
+  const P = S.params;
+  const gram  = num(p.gram), tempo = p.tempo == null ? 0 : num(p.tempo);
+  const filam = gram * num(P.filPreco) / 1000;
+  const energ = tempo * num(P.potencia) * num(P.tarifa);
+  const depr  = tempo * num(P.deprec);
+  const mao   = num(p.trab)/60 * num(P.mdo);
+  const ins   = num(p.ins), emb = num(p.emb);
+  const sub   = ins + emb + filam + energ + depr + mao;
+  const fin   = sub * (1 + num(P.acresc)/100);
+  const sug   = fin * num(P.markup);
+  const denom = 1 - num(P.comissao)/100;
+  const mkt   = denom === 0 ? null : sug / denom + num(P.taxaFixa);
+  const cat   = (p.catalogo == null || p.catalogo === "") ? null : num(p.catalogo);
+  const mg    = cat == null ? null : cat - fin;
+  const mgp   = (cat == null || cat === 0) ? null : mg / cat;
+  return {filam, energ, depr, mao, ins, emb, sub, fin, sug, mkt, cat, mg, mgp};
+}
+
+/* ---------------- parâmetros ---------------- */
+let _parTimer = null;
+function renderParams(){
+  $("params").innerHTML = PARAMS.map(([k,rot,passo,dica]) => `
+    <div class="f">
+      <label>${esc(rot)}<span class="hint">${esc(dica)}</span></label>
+      <input type="number" step="${passo}" value="${S.params[k]}" data-p="${k}">
+    </div>`).join("");
+  $("params").querySelectorAll("input").forEach(i => i.oninput = e => {
+    S.params[e.target.dataset.p] = num(e.target.value);
+    if ($("ov").classList.contains("on")) atualizarModal();
+    clearTimeout(_parTimer);
+    _parTimer = setTimeout(salvarParams, 500);
+  });
+}
+async function salvarParams(){
+  try{
+    S.params = await api("/api/cost-parameters", { method:"PUT", body: JSON.stringify(S.params) });
+    await recarregarProdutos();
+    toast("Parâmetros atualizados — tudo recalculado");
+  }catch(e){ toast("Falha ao salvar parâmetros: " + e.message); }
+}
+
+/* ---------------- lista ---------------- */
+function filtrados(){
+  const q = $("busca").value.trim().toLowerCase();
+  const fc = $("fcat").value, fs = $("fst").value, o = $("ord").value;
+  let L = S.produtos.filter(p => {
+    if (fc && p.cat !== fc) return false;
+    if (fs && p.status !== fs) return false;
+    if (!q) return true;
+    return (p.nome + " " + p.sku + " " + (p.desc||"")).toLowerCase().includes(q);
+  });
+  L.sort((a,b) => {
+    if (o === "nome")   return a.nome.localeCompare(b.nome, "pt-BR");
+    if (o === "preco")  return (b.custo.catalogo||0) - (a.custo.catalogo||0);
+    if (o === "margem") return (b.custo.margemPct==null?-900:b.custo.margemPct) -
+                               (a.custo.margemPct==null?-900:a.custo.margemPct);
+    return a.sku.localeCompare(b.sku, "pt-BR");
+  });
+  return L;
+}
+
+function render(){
+  const L = filtrados();
+  $("cont").textContent = L.length + " de " + S.produtos.length + " produtos";
+  if (!L.length){
+    $("lista").innerHTML = `<div class="vazio">Nenhum produto encontrado.<br>
+      <button class="btn pri" style="margin-top:14px" onclick="abrir()">Cadastrar o primeiro</button></div>`;
+    montarImpressao(); return;
+  }
+  const ordemCat = Object.keys(S.cats);
+  const grupos = {};
+  L.forEach(p => { (grupos[p.cat] = grupos[p.cat] || []).push(p); });
+  let out = "";
+  ordemCat.filter(c => grupos[c]).forEach(c => {
+    out += `<section class="sec"><h2>${esc(S.cats[c])}<span class="n">${grupos[c].length}</span></h2>`;
+    grupos[c].forEach(p => {
+      const r = p.custo;
+      const foto = p.foto ? `<img src="${esc(p.foto)}" alt="" loading="lazy"
+        onerror="this.parentNode.innerHTML='<span>foto<br>indisponível</span>'">` : `<span>foto<br>pendente</span>`;
+      const mgc = r.margemPct == null ? "" : (r.margemPct >= 50 ? "bom" : "ruim");
+      out += `<article class="card ${p.status !== "ativo" ? "dev" : ""}">
+        <div class="ph">${foto}</div>
+        <div class="info">
+          <div class="sku">${esc(p.sku)}</div>
+          <h3>${esc(p.nome)}${p.status !== "ativo" ? `<span class="tag">${p.status === "dev" ? "em desenvolvimento" : "descontinuado"}</span>` : ""}</h3>
+          <p>${esc(p.desc || "")}</p>
+        </div>
+        <div class="nums">
+          <div class="pv ${r.catalogo == null ? "sob" : ""}">${r.catalogo == null ? "sob consulta" : brl(r.catalogo)}</div>
+          <div class="cst">custo ${brl(r.custoFinal)}</div>
+          ${r.margemPct == null ? "" : `<div class="mg ${mgc}">margem ${Number(r.margemPct).toFixed(0)}%</div>`}
+        </div>
+        <div class="acts">
+          <button class="mini" onclick="abrir(${p.id})">Editar</button>
+          <button class="mini" onclick="duplicar(${p.id})">Duplicar</button>
+          <button class="mini del" onclick="remover(${p.id})">Excluir</button>
+        </div>
+      </article>`;
+    });
+    out += "</section>";
+  });
+  $("lista").innerHTML = out;
+  montarImpressao();
+}
+
+/* ---------------- modal ---------------- */
+function preencherCats(){
+  const o = Object.entries(S.cats).map(([k,v]) => `<option value="${k}">${esc(v)} (${k})</option>`).join("");
+  $("i_cat").innerHTML = o;
+  $("fcat").innerHTML = `<option value="">Todas as categorias</option>` + o;
+}
+
+function abrir(id){
+  editandoId = id != null ? id : null;
+  const p = id != null ? S.produtos.find(x => x.id === id) : null;
+  $("mtit").textContent = p ? "Editar produto" : "Novo produto";
+  $("i_nome").value   = p ? p.nome : "";
+  $("i_cat").value    = p ? p.cat : Object.keys(S.cats)[0];
+  $("i_tam").value    = p ? (p.tam || "") : "";
+  $("i_status").value = p ? p.status : "ativo";
+  $("i_obs").value    = p ? (p.obs || "") : "";
+  $("i_desc").value   = p ? (p.desc || "") : "";
+  $("i_foto").value   = p ? (p.foto || "") : "";
+  $("i_origem").value = p ? (p.origem || "") : "";
+  $("i_imp").value    = p ? (p.impressora || "Bambu Lab A1") : "Bambu Lab A1";
+  $("i_fil").value    = p ? (p.filamento || "Voolt3D PLA") : "Voolt3D PLA";
+  $("i_gram").value   = p && p.gram != null ? p.gram : "";
+  $("i_tempo").value  = p ? hhmm(p.tempo) : "";
+  $("i_trab").value   = p ? (p.trab != null ? p.trab : 10) : 10;
+  $("i_ins").value    = p ? (p.ins || 0) : 0;
+  $("i_emb").value    = p ? (p.emb || 0) : 0;
+  $("i_cat_preco").value = p && p.catalogo != null ? p.catalogo : "";
+  $("i_file").value = "";
+  $("mavi").textContent = "";
+  atualizarModal();
+  $("ov").classList.add("on");
+  setTimeout(() => $("i_nome").focus(), 60);
+}
+function fechar(){ $("ov").classList.remove("on"); editandoId = null; }
+
+function rascunho(){
+  return {
+    nome: $("i_nome").value.trim(),
+    cat: $("i_cat").value,
+    tam: $("i_tam").value.trim().toUpperCase(),
+    status: $("i_status").value,
+    obs: $("i_obs").value.trim(),
+    desc: $("i_desc").value.trim(),
+    foto: $("i_foto").value.trim(),
+    origem: $("i_origem").value.trim(),
+    impressora: $("i_imp").value.trim(),
+    filamento: $("i_fil").value.trim(),
+    gram: $("i_gram").value === "" ? null : num($("i_gram").value),
+    tempo: horas($("i_tempo").value),
+    trab: num($("i_trab").value),
+    ins: num($("i_ins").value),
+    emb: num($("i_emb").value),
+    catalogo: $("i_cat_preco").value === "" ? null : num($("i_cat_preco").value),
+  };
+}
+
+function atualizarModal(){
+  const d = rascunho();
+  // O num do SKU é atribuído pelo servidor; no cadastro mostramos o prefixo.
+  const atual = editandoId != null ? S.produtos.find(x => x.id === editandoId) : null;
+  $("mysku").textContent = atual ? atual.sku
+    : ("AL-" + d.cat + "-" + (d.tam ? "•••-" + d.tam : "•••"));
+
+  const r = calc(d);
+  const l = (rot, val, cls) => `<div class="lin ${cls||""}"><span>${rot}</span><b>${brl(val)}</b></div>`;
+  $("calc").innerHTML =
+    l("Filamento &nbsp;<small>" + (d.gram||0) + " g</small>", r.filam) +
+    l("Energia &nbsp;<small>" + (hhmm(d.tempo) || "0:00") + "</small>", r.energ) +
+    l("Depreciação da impressora", r.depr) +
+    l("Mão de obra &nbsp;<small>" + (d.trab||0) + " min</small>", r.mao) +
+    l("Insumos", r.ins) + l("Embalagem", r.emb) +
+    l("Subtotal", r.sub) +
+    l("Custo final &nbsp;<small>+" + num(S.params.acresc) + "%</small>", r.fin, "tot") +
+    l("Preço sugerido &nbsp;<small>" + num(S.params.markup) + "×</small>", r.sug, "sug") +
+    l("Preço para marketplace", r.mkt, "sug") +
+    (r.cat == null ? `<div class="mgbox"><span>Sem valor de catálogo</span><b>sob consulta</b></div>`
+      : `<div class="mgbox"><span>Margem sobre o valor de catálogo</span>
+         <b>${brl(r.mg)} &nbsp;·&nbsp; ${(r.mgp*100).toFixed(0)}%</b></div>`);
+
+  const pv = $("i_prev");
+  pv.innerHTML = d.foto ? `<img src="${esc(d.foto)}" alt=""
+    onerror="this.parentNode.innerHTML='<span>não<br>carregou</span>'">` : `<span>sem foto</span>`;
+}
+
+function usarSugerido(){
+  const r = calc(rascunho());
+  $("i_cat_preco").value = Math.round(r.sug * 100) / 100;
+  atualizarModal();
+}
+
+async function salvarProduto(){
+  const d = rascunho();
+  if (!d.nome){ $("mavi").textContent = "Dê um nome ao produto."; $("i_nome").focus(); return; }
+  try{
+    if (editandoId != null){
+      const upd = await api("/api/products/" + editandoId, { method:"PUT", body: JSON.stringify(d) });
+      toast("Produto atualizado — " + upd.sku);
+    } else {
+      const novo = await api("/api/products", { method:"POST", body: JSON.stringify(d) });
+      toast("Cadastrado como " + novo.sku);
+    }
+    fechar(); await recarregarProdutos();
+  }catch(e){ $("mavi").textContent = e.message; }
+}
+
+async function duplicar(id){
+  try{
+    const c = await api("/api/products/" + id + "/duplicate", { method:"POST" });
+    await recarregarProdutos();
+    toast("Cópia criada — " + c.sku);
+  }catch(e){ toast(e.message); }
+}
+
+async function remover(id){
+  const p = S.produtos.find(x => x.id === id);
+  if (!confirm("Excluir " + p.sku + " — " + p.nome + " ?\n\nO SKU fica reservado.")) return;
+  try{
+    await api("/api/products/" + id, { method:"DELETE" });
+    await recarregarProdutos(); toast("Produto excluído");
+  }catch(e){ toast(e.message); }
+}
+
+/* ---------------- import (semeia a API a partir de um argilalab.json) ---------------- */
+$("fileIn").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try{
+    const data = JSON.parse(await f.text());
+    if (!data.produtos) throw new Error("o arquivo precisa ter 'produtos'");
+    const r = await api("/api/import", { method:"POST", body: JSON.stringify(data) });
+    toast(`Importado: ${r.productsCreated} novos, ${r.productsUpdated} atualizados`);
+    await carregar();
+  }catch(err){ toast("Falha no import: " + err.message); }
+  e.target.value = "";
+};
+
+/* ---------------- CSV ---------------- */
+function baixar(nome, blob){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = nome; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function exportarCSV(){
+  const H = ["SKU","Nome","Categoria","Status","Descricao","Foto","Origem","Impressora","Filamento",
+    "Gramatura (g)","Tempo (h)","Mao de obra (min)","Insumos","Embalagem","Custo filamento","Energia",
+    "Depreciacao","Mao de obra (R$)","Subtotal","Custo final","Preco sugerido","Preco marketplace",
+    "Valor de catalogo","Margem (R$)","Margem (%)","Observacoes"];
+  const q = v => '"' + String(v == null ? "" : v).replace(/"/g,'""') + '"';
+  const n2 = v => v == null ? "" : String(Number(v).toFixed(2)).replace(".",",");
+  const linhas = [H.map(q).join(";")];
+  S.produtos.slice().sort((a,b) => a.sku.localeCompare(b.sku)).forEach(p => {
+    const r = p.custo;
+    linhas.push([p.sku, p.nome, S.cats[p.cat]||p.cat, p.status, p.desc,
+      (p.foto||"").startsWith("data:") ? "(imagem embutida)" : (p.foto||""), p.origem||"",
+      p.impressora||"", p.filamento||"", p.gram==null?"":p.gram, p.tempo==null?"":n2(p.tempo), p.trab,
+      n2(r.insumos), n2(r.embalagem), n2(r.filamento), n2(r.energia), n2(r.depreciacao), n2(r.maoDeObra),
+      n2(r.subtotal), n2(r.custoFinal), n2(r.precoSugerido), n2(r.precoMarketplace),
+      r.catalogo==null?"":n2(r.catalogo), r.margem==null?"":n2(r.margem),
+      r.margemPct==null?"":n2(r.margemPct), p.obs||""].map(q).join(";"));
+  });
+  baixar("registro-sku-argilalab.csv",
+    new Blob(["﻿" + linhas.join("\r\n")], {type:"text/csv;charset=utf-8"}));
+  toast("CSV exportado — abre direto no Excel");
+}
+
+/* ---------------- impressão ---------------- */
+function montarImpressao(){
+  const ativos = S.produtos.filter(p => p.status !== "off");
+  const grupos = {};
+  ativos.forEach(p => { (grupos[p.cat] = grupos[p.cat] || []).push(p); });
+  let c = `<h1>ARGILA LAB</h1><p class="sb">Ferramentas de cerâmica impressas em 3D · catálogo</p>`;
+  Object.keys(S.cats).filter(k => grupos[k]).forEach(k => {
+    const its = grupos[k].slice().sort((a,b) => a.sku.localeCompare(b.sku));
+    c += `<h2>${esc(S.cats[k])}</h2>`;
+    its.forEach(p => {
+      c += `<div class="it">
+        ${p.foto ? `<img src="${esc(p.foto)}" alt="">` : `<div class="nb"></div>`}
+        <div class="tx"><h3>${esc(p.nome)}</h3><p>${esc(p.desc||"")}</p></div>
+        <div class="pz">${p.custo.catalogo == null ? "sob consulta" : brl(p.custo.catalogo)}</div>
+      </div>`;
+    });
+  });
+  $("pcat").innerHTML = c;
+
+  $("petq").innerHTML = ativos.slice()
+    .sort((a,b) => a.sku.localeCompare(b.sku))
+    .map(p => `<div class="e"><div class="m">ARGILA LAB</div>
+        <div class="n">${esc(p.nome)}</div>
+        <div class="s">${esc(p.sku)}</div>
+        <div class="p">${p.custo.catalogo == null ? "sob consulta" : brl(p.custo.catalogo)}</div></div>`).join("");
+}
+function imprimir(qual){
+  $("pcat").style.display = qual === "cat" ? "block" : "none";
+  $("petq").style.display = qual === "etq" ? "grid"  : "none";
+  montarImpressao();
+  setTimeout(() => window.print(), 120);
+}
+
+/* ---------------- eventos ---------------- */
+["i_nome","i_cat","i_tam","i_gram","i_tempo","i_trab","i_ins","i_emb","i_cat_preco","i_foto","i_status"]
+  .forEach(id => { $(id).addEventListener("input", atualizarModal); $(id).addEventListener("change", atualizarModal); });
+["busca","fcat","fst","ord"].forEach(id => $(id).addEventListener("input", render));
+$("ov").addEventListener("mousedown", e => { if (e.target === $("ov")) fechar(); });
+$("i_file").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => { $("i_foto").value = fr.result; atualizarModal(); };
+  fr.readAsDataURL(f);
+};
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && $("ov").classList.contains("on")) fechar();
+});
+
+/* ---------------- start ---------------- */
+$("pcat").style.display = "block"; $("petq").style.display = "none";
+carregar();
+
+</script>
+</body>
+</html>
