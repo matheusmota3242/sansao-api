@@ -123,12 +123,20 @@ public class ImportService {
                 continue;
             }
             String t = f.trim();
+            // The app writes refs as "midia:<chave>"; the `midia` map is keyed by
+            // the bare <chave>, so strip the prefix before looking it up.
+            boolean isRef = t.startsWith("midia:");
+            String chave = isRef ? t.substring(6) : t;
             String resolved;
-            if (resolvedMedia.get().containsKey(t)) {
-                resolved = resolvedMedia.get().get(t);
-            } else if (t.startsWith("data:")) {
-                resolved = mediaService.store(t).url();
-                resolvedMedia.get().put(t, resolved);
+            if (resolvedMedia.get().containsKey(chave)) {
+                resolved = resolvedMedia.get().get(chave);
+            } else if (chave.startsWith("data:")) {
+                resolved = mediaService.store(chave).url();
+                resolvedMedia.get().put(chave, resolved);
+            } else if (isRef) {
+                // Dangling ref: no entry in `midia`. Skip it instead of storing
+                // "midia:<chave>" as if it were a URL (renders as a broken image).
+                continue;
             } else {
                 resolved = t;
             }
