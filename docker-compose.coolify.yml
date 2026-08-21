@@ -62,9 +62,14 @@ services:
       WAHA_WEBHOOK_SECRET: ${WAHA_WEBHOOK_SECRET}
       APPLICATION_HOST: http://app:8080   # webhook interno (WAHA -> app)
       OWNER_PHONE: ${OWNER_PHONE}
-    # Atribua um domínio a este serviço no Coolify (porta 8080) para expor a API
-    # e o catálogo ARGILA LAB (UI em https://<dominio>/argilalabapp.html — servida
-    # pelo próprio jar, mesma origem, sem CORS).
+    # A API e o catálogo ARGILA LAB (UI em /argilalabapp.html) sobem aqui.
+    # O proxy do Coolify não é usado neste servidor (sem coolify-proxy e a
+    # máquina está atrás de NAT), então publicamos a porta direto na interface
+    # da Tailscale: defina APP_BIND_IP nas Environment Variables do Coolify
+    # como o IP 100.x do servidor na tailnet. Sem essa variável, fica só em
+    # 127.0.0.1 (acessível apenas na própria máquina).
+    ports:
+      - "${APP_BIND_IP:-127.0.0.1}:8080:8080"
     expose:
       - "8080"
 

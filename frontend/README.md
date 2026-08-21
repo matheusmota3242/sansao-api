@@ -17,14 +17,28 @@ O Coolify builda o `app` a partir de `deploy/Dockerfile` (ver
 `docker-compose.coolify.yml`). Fluxo: commit na `master` → *Redeploy* no Coolify.
 Como o build vem do repo, o front vai junto automaticamente.
 
-Para acessar a UI de fora, **atribua um domínio ao serviço `app`** no Coolify
-(porta 8080), do mesmo jeito que o `waha` tem. Aí:
-`https://<dominio-do-app>/argilalabapp.html` — e a API responde na mesma origem
-(`/api/...`), sem CORS.
+### Como a UI fica acessível
+
+O proxy do Coolify **não** é usado neste servidor: não há `coolify-proxy`
+rodando e a máquina está atrás de NAT (o IP público é do roteador). Por isso
+atribuir um domínio no Coolify não funciona aqui.
+
+Em vez disso, a porta do `app` é publicada direto na **interface da Tailscale**.
+No Coolify, em *Environment Variables*, defina:
+
+```
+APP_BIND_IP=100.127.213.86      # IP do servidor na tailnet
+```
+
+O compose usa `${APP_BIND_IP:-127.0.0.1}:8080:8080`, então:
+
+- com a variável definida → acessível de qualquer aparelho da tailnet;
+- sem ela → fica só em `127.0.0.1` (nada exposto por engano).
 
 ## Acessar
 
-- **Deploy:** `https://<dominio-do-app>/argilalabapp.html`.
+- **Deploy (tailnet):** `http://100.127.213.86:8080/argilalabapp.html` — de
+  qualquer dispositivo logado na tailnet (PC, celular).
 - **Local (dev):** com `docker compose up` rodando, abra
   `http://localhost:8080/argilalabapp.html`.
 
