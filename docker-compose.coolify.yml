@@ -62,6 +62,9 @@ services:
       WAHA_WEBHOOK_SECRET: ${WAHA_WEBHOOK_SECRET}
       APPLICATION_HOST: http://app:8080   # webhook interno (WAHA -> app)
       OWNER_PHONE: ${OWNER_PHONE}
+    # Atribua um domínio a este serviço no Coolify (porta 8080) para expor a API
+    # e o catálogo ARGILA LAB (UI em https://<dominio>/argilalabapp.html — servida
+    # pelo próprio jar, mesma origem, sem CORS).
     expose:
       - "8080"
 

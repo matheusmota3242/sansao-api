@@ -6,17 +6,26 @@ O app (`argilalabapp.html`) fala com o backend simao-api
 ## Onde ele vive
 
 O arquivo é servido pelo **próprio backend**, como recurso estático em
-`src/main/resources/static/argilalabapp.html`. Ele entra no fat jar (via
-`deploy/Dockerfile`) e é publicado no GHCR pelo CI — ou seja, **deploya junto
-com o app**, sem container extra. Não há nada a configurar no docker-compose:
-o serviço `app` já o serve na porta 8080.
+`src/main/resources/static/argilalabapp.html`. Ele entra no fat jar que o
+`deploy/Dockerfile` compila — ou seja, **deploya junto com o app**, sem
+container extra. Nada a configurar no compose: o serviço `app` já o serve na
+porta 8080.
+
+## Deploy (Coolify)
+
+O Coolify builda o `app` a partir de `deploy/Dockerfile` (ver
+`docker-compose.coolify.yml`). Fluxo: commit na `master` → *Redeploy* no Coolify.
+Como o build vem do repo, o front vai junto automaticamente.
+
+Para acessar a UI de fora, **atribua um domínio ao serviço `app`** no Coolify
+(porta 8080), do mesmo jeito que o `waha` tem. Aí:
+`https://<dominio-do-app>/argilalabapp.html` — e a API responde na mesma origem
+(`/api/...`), sem CORS.
 
 ## Acessar
 
-- **No notebook (deploy):** `http://<host>:8080/argilalabapp.html`. Como as portas
-  ficam em `127.0.0.1`, exponha pela tailnet com `tailscale serve 8080` e acesse
-  `https://rodrigo.tail….ts.net/argilalabapp.html`.
-- **Local (dev):** com o `docker compose up` rodando, abra
+- **Deploy:** `https://<dominio-do-app>/argilalabapp.html`.
+- **Local (dev):** com `docker compose up` rodando, abra
   `http://localhost:8080/argilalabapp.html`.
 
 A constante `API` no topo do `<script>` fica vazia quando servido pelo app
