@@ -44,7 +44,9 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     ports:
-      - "127.0.0.1:8080:8080"   # API (opcional expor via tailscale serve)
+      # API + catálogo ARGILA LAB (UI em /argilalabapp.html, servida pelo jar).
+      # Exponha via `tailscale serve 8080` para acessar pela tailnet.
+      - "127.0.0.1:8080:8080"
 
   # Vigia o GHCR e reinicia a app quando sai imagem nova. É o "deploy" do pipeline.
   watchtower:

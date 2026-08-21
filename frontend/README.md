@@ -1,35 +1,35 @@
-# ARGILA LAB — front conectado à API
+# ARGILA LAB — frontend
 
-`argilalabapp.html` é a versão do app que fala com o backend simao-api
-(`/api/products`, `/api/categories`, `/api/cost-parameters`, `/api/import`),
-em vez de guardar tudo em memória + `argilalab.json`.
+O app (`argilalabapp.html`) fala com o backend simao-api
+(`/api/products`, `/api/categories`, `/api/cost-parameters`, `/api/import`).
 
-## Configurar
+## Onde ele vive
 
-Edite a constante no topo do `<script>`:
+O arquivo é servido pelo **próprio backend**, como recurso estático em
+`src/main/resources/static/argilalabapp.html`. Ele entra no fat jar (via
+`deploy/Dockerfile`) e é publicado no GHCR pelo CI — ou seja, **deploya junto
+com o app**, sem container extra. Não há nada a configurar no docker-compose:
+o serviço `app` já o serve na porta 8080.
 
-```js
-const API = "http://localhost:8080";
-```
+## Acessar
 
-Aponte para onde o backend está (ex.: o host/porta do túnel Tailscale). O
-backend libera CORS em `/api/**`.
+- **No notebook (deploy):** `http://<host>:8080/argilalabapp.html`. Como as portas
+  ficam em `127.0.0.1`, exponha pela tailnet com `tailscale serve 8080` e acesse
+  `https://rodrigo.tail….ts.net/argilalabapp.html`.
+- **Local (dev):** com o `docker compose up` rodando, abra
+  `http://localhost:8080/argilalabapp.html`.
 
-## Usar
+A constante `API` no topo do `<script>` fica vazia quando servido pelo app
+(mesma origem, sem CORS). Só cai em `http://localhost:8080` se você abrir o
+arquivo direto do disco (`file://`).
 
-- Abra o `argilalabapp.html` no navegador. Ele carrega categorias, parâmetros e
-  produtos da API ao iniciar.
-- **Novo produto / Editar / Duplicar / Excluir** → chamam a API e recarregam.
-  O SKU (`AL-<cat>-<num>`) é gerado no servidor.
-- **Parâmetros de custo** → salvam via `PUT /api/cost-parameters` (debounce) e
-  recalculam todos os produtos.
-- **Importar projeto** → escolha um `argilalab.json` antigo; ele é enviado para
-  `POST /api/import` (upsert idempotente por SKU) para semear/atualizar o banco.
-- **CSV / Catálogo PDF / Etiquetas** → seguem client-side, usando os custos já
+## Fluxo
+
+- **Novo / Editar / Duplicar / Excluir** → chamam a API; o SKU (`AL-<cat>-<num>`)
+  é gerado no servidor.
+- **Parâmetros de custo** → `PUT /api/cost-parameters` (debounce) e recálculo de
+  todos os produtos.
+- **Importar projeto** → envia um `argilalab.json` antigo para
+  `POST /api/import` (upsert idempotente por SKU) e semeia/atualiza o banco.
+- **CSV / Catálogo PDF / Etiquetas** → client-side, usando os custos já
   computados pela API.
-
-## Notas
-
-- A prévia de custo no modal usa um cálculo client-side que espelha o backend,
-  só para dar feedback instantâneo enquanto você digita. O valor persistido/
-  exibido na lista é sempre o computado pelo servidor.

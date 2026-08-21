@@ -280,9 +280,11 @@ a{color:var(--barro)}
 
 /* ============================================================
    ARGILA LAB — front conectado ao backend simao-api.
-   Ajuste API para o host do backend (ex.: túnel Tailscale).
+   Servido pelo próprio app (src/main/resources/static): usa a MESMA origem,
+   então não precisa configurar host nem CORS. Ao abrir como arquivo local
+   (file://), cai no fallback localhost:8080.
    ============================================================ */
-const API = "http://localhost:8080";
+const API = location.protocol === "file:" ? "http://localhost:8080" : "";
 
 /* Metadados dos parâmetros (rótulos/dicas). Os VALORES vêm da API. */
 const PARAMS = [
