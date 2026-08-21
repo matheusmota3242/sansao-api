@@ -3,7 +3,6 @@ package dev.m2g2.simao.model.catalog;
 import dev.m2g2.simao.model.BaseModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
 
 /**
  * An image stored once, content-addressed by hash — the server-side counterpart
@@ -18,7 +17,10 @@ public class Media extends BaseModel {
     @Column(name = "content_type", nullable = false)
     private String contentType;
 
-    @Lob
+    // NÃO anotar com @Lob: no PostgreSQL o Hibernate mapeia @Lob byte[] para
+    // Large Object (OID) e faz bind de um bigint, quebrando com
+    // "column bytes is of type bytea but expression is of type bigint".
+    // byte[] puro já mapeia para bytea.
     @Column(nullable = false)
     private byte[] bytes;
 
