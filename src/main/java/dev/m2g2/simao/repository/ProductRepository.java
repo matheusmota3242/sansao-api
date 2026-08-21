@@ -16,6 +16,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByCategoryIdAndActiveTrue(Long categoryId);
 
+    Optional<Product> findBySlugAndActiveTrue(String slug);
+
     // Upsert key for import: a product is identified by its SKU (category+num+tam).
     Optional<Product> findByCategoryIdAndNumAndTam(Long categoryId, Integer num, String tam);
 

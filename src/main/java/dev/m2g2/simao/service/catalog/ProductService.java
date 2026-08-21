@@ -6,6 +6,7 @@ import dev.m2g2.simao.dto.catalog.ProductResponse;
 import dev.m2g2.simao.model.catalog.Category;
 import dev.m2g2.simao.model.catalog.CostParameters;
 import dev.m2g2.simao.model.catalog.Product;
+import dev.m2g2.simao.model.catalog.ProductPhoto;
 import dev.m2g2.simao.model.catalog.ProductStatus;
 import dev.m2g2.simao.repository.CategoryRepository;
 import dev.m2g2.simao.repository.ProductRepository;
@@ -16,8 +17,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ProductService {
@@ -104,12 +108,26 @@ public class ProductService {
         copy.setEmbalagem(original.getEmbalagem());
         copy.setCatalogoPreco(original.getCatalogoPreco());
         copy.setTempoExato(original.isTempoExato());
-        copy.setFoto(original.getFoto());
         copy.setOrigem(original.getOrigem());
         copy.setImpressora(original.getImpressora());
         copy.setFilamento(original.getFilamento());
+        copy.setPrazo(original.getPrazo());
+        copy.setOrdem(original.getOrdem());
+        copy.setMaterial(original.getMaterial());
+        copy.setDimPeca(original.getDimPeca());
+        copy.setEmbPeso(original.getEmbPeso());
+        copy.setEmbDim(original.getEmbDim());
+        // A copy starts unpublished: it still needs a name/price review.
+        copy.setPublicado(false);
+        copy.setDestaque(false);
+        copy.setDescLonga(original.getDescLonga());
+        copy.setMetaDesc(original.getMetaDesc());
+        copy.setLicenca(original.getLicenca());
         copy.setTam("");
         copy.setNum(nextNum(original.getCategory()));
+        // Same images, new rows; slug must differ from the original's.
+        applyPhotos(copy, original.getPhotos().stream().map(ProductPhoto::getUrl).toList());
+        copy.setSlug(resolveSlug(null, original.getNome(), copy));
         LocalDateTime now = LocalDateTime.now();
         copy.setCreatedAt(now);
         copy.setUpdatedAt(now);
@@ -130,7 +148,6 @@ public class ProductService {
         product.setStatus(request.status() == null ? ProductStatus.ATIVO : request.status());
         product.setObs(trimOrNull(request.obs()));
         product.setDescricao(trimOrNull(request.desc()));
-        product.setFoto(trimOrNull(request.foto()));
         product.setOrigem(trimOrNull(request.origem()));
         product.setImpressora(trimOrNull(request.impressora()));
         product.setFilamento(trimOrNull(request.filamento()));
@@ -141,6 +158,84 @@ public class ProductService {
         product.setEmbalagem(request.emb());
         product.setCatalogoPreco(request.catalogo());
         product.setTempoExato(true);
+
+        // --- storefront / SEO ---
+        product.setSlug(resolveSlug(request.slug(), nome, product));
+        product.setPrazo(request.prazo() == null ? 5 : request.prazo());
+        product.setOrdem(request.ordem());
+        product.setMaterial(request.material() == null || request.material().isBlank()
+                ? "PLA rígido" : request.material().trim());
+        product.setDimPeca(trimOrNull(request.dimPeca()));
+        product.setEmbPeso(request.embPeso());
+        product.setEmbDim(trimOrNull(request.embDim()));
+        // Default: publish what is active, mirroring the frontend migrar().
+        product.setPublicado(request.publicado() == null
+                ? product.getStatus() == ProductStatus.ATIVO : request.publicado());
+        product.setDestaque(Boolean.TRUE.equals(request.destaque()));
+        product.setDescLonga(trimOrNull(request.descLonga()));
+        product.setMetaDesc(trimOrNull(request.metaDesc()));
+        product.setLicenca(trimOrNull(request.licenca()));
+
+        applyPhotos(product, request.fotos());
+    }
+
+    /**
+     * Replaces the photo list in order. photos[0] is mirrored onto `foto` so the
+     * cover stays available to anything reading the flat field.
+     */
+    private void applyPhotos(Product product, List<String> fotos) {
+        List<String> urls = new ArrayList<>();
+        if (fotos != null) {
+            for (String f : fotos) {
+                String t = f == null ? "" : f.trim();
+                if (!t.isEmpty() && !urls.contains(t)) {
+                    urls.add(t);
+                }
+            }
+        }
+        product.getPhotos().clear();
+        int position = 0;
+        LocalDateTime now = LocalDateTime.now();
+        for (String url : urls) {
+            ProductPhoto photo = new ProductPhoto();
+            photo.setProduct(product);
+            photo.setUrl(url);
+            photo.setPosition(position++);
+            photo.setCreatedAt(now);
+            photo.setUpdatedAt(now);
+            photo.setActive(true);
+            product.getPhotos().add(photo);
+        }
+        product.setFoto(urls.isEmpty() ? null : urls.getFirst());
+    }
+
+    /** Slug is the storefront URL and must be unique across products. */
+    private String resolveSlug(String requested, String nome, Product product) {
+        String base = (requested == null || requested.isBlank()) ? slugify(nome) : slugify(requested);
+        if (base.isEmpty()) {
+            base = "produto";
+        }
+        String candidate = base;
+        int suffix = 2;
+        while (true) {
+            Product owner = repository.findBySlugAndActiveTrue(candidate).orElse(null);
+            if (owner == null || owner.getId().equals(product.getId())) {
+                return candidate;
+            }
+            candidate = base + "-" + suffix++;
+        }
+    }
+
+    static String slugify(String value) {
+        if (value == null) {
+            return "";
+        }
+        String n = Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-+)|(-+$)", "");
+        return n;
     }
 
     private Category resolveCategory(String code) {
@@ -192,6 +287,7 @@ public class ProductService {
     private ProductResponse toResponse(Product p, CostParameters params) {
         CostBreakdown custo = costCalculatorService.compute(p, params);
         Category c = p.getCategory();
+        List<String> fotos = p.getPhotos().stream().map(ProductPhoto::getUrl).toList();
         return new ProductResponse(
                 p.getId(),
                 SkuUtil.build(c.getCode(), p.getNum(), p.getTam()),
@@ -211,9 +307,22 @@ public class ProductService {
                 p.getCatalogoPreco(),
                 p.isTempoExato(),
                 p.getFoto(),
+                fotos,
                 p.getOrigem(),
                 p.getImpressora(),
                 p.getFilamento(),
+                p.getSlug(),
+                p.getPrazo(),
+                p.getOrdem(),
+                p.getMaterial(),
+                p.getDimPeca(),
+                p.getEmbPeso(),
+                p.getEmbDim(),
+                p.isPublicado(),
+                p.isDestaque(),
+                p.getDescLonga(),
+                p.getMetaDesc(),
+                p.getLicenca(),
                 custo);
     }
 

@@ -5,10 +5,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Product extends BaseModel {
@@ -50,10 +55,34 @@ public class Product extends BaseModel {
     @Column(name = "tempo_exato")
     private boolean tempoExato = true;
 
+    // Cover photo, kept in sync with photos[0] for compatibility.
     private String foto;
     private String origem;
     private String impressora;
     private String filamento;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("position ASC")
+    private List<ProductPhoto> photos = new ArrayList<>();
+
+    // --- storefront / SEO ---
+    private String slug;
+    private Integer prazo;          // dias
+    private Integer ordem;          // ordenação na loja
+    private String material;
+    @Column(name = "dim_peca")
+    private String dimPeca;
+    @Column(name = "emb_peso")
+    private BigDecimal embPeso;
+    @Column(name = "emb_dim")
+    private String embDim;
+    private boolean publicado = true;
+    private boolean destaque = false;
+    @Column(name = "desc_longa")
+    private String descLonga;
+    @Column(name = "meta_desc")
+    private String metaDesc;
+    private String licenca;
 
     public Category getCategory() {
         return category;
@@ -197,5 +226,109 @@ public class Product extends BaseModel {
 
     public void setFilamento(String filamento) {
         this.filamento = filamento;
+    }
+
+    public List<ProductPhoto> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(List<ProductPhoto> photos) {
+        this.photos = photos;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public Integer getPrazo() {
+        return prazo;
+    }
+
+    public void setPrazo(Integer prazo) {
+        this.prazo = prazo;
+    }
+
+    public Integer getOrdem() {
+        return ordem;
+    }
+
+    public void setOrdem(Integer ordem) {
+        this.ordem = ordem;
+    }
+
+    public String getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(String material) {
+        this.material = material;
+    }
+
+    public String getDimPeca() {
+        return dimPeca;
+    }
+
+    public void setDimPeca(String dimPeca) {
+        this.dimPeca = dimPeca;
+    }
+
+    public BigDecimal getEmbPeso() {
+        return embPeso;
+    }
+
+    public void setEmbPeso(BigDecimal embPeso) {
+        this.embPeso = embPeso;
+    }
+
+    public String getEmbDim() {
+        return embDim;
+    }
+
+    public void setEmbDim(String embDim) {
+        this.embDim = embDim;
+    }
+
+    public boolean isPublicado() {
+        return publicado;
+    }
+
+    public void setPublicado(boolean publicado) {
+        this.publicado = publicado;
+    }
+
+    public boolean isDestaque() {
+        return destaque;
+    }
+
+    public void setDestaque(boolean destaque) {
+        this.destaque = destaque;
+    }
+
+    public String getDescLonga() {
+        return descLonga;
+    }
+
+    public void setDescLonga(String descLonga) {
+        this.descLonga = descLonga;
+    }
+
+    public String getMetaDesc() {
+        return metaDesc;
+    }
+
+    public void setMetaDesc(String metaDesc) {
+        this.metaDesc = metaDesc;
+    }
+
+    public String getLicenca() {
+        return licenca;
+    }
+
+    public void setLicenca(String licenca) {
+        this.licenca = licenca;
     }
 }

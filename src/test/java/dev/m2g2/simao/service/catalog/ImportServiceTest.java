@@ -32,13 +32,18 @@ class ImportServiceTest {
     private ProductRepository productRepository;
     @Mock
     private CostParametersService costParametersService;
+    @Mock
+    private StoreConfigService storeConfigService;
+    @Mock
+    private MediaService mediaService;
 
     private ImportService service;
     private Category mol;
 
     @BeforeEach
     void setUp() {
-        service = new ImportService(categoryRepository, productRepository, costParametersService);
+        service = new ImportService(categoryRepository, productRepository, costParametersService,
+                storeConfigService, mediaService);
         mol = new Category();
         mol.setId(1L);
         mol.setCode("MOL");
@@ -51,7 +56,8 @@ class ImportServiceTest {
         return new ImportProduct("MOL", num, tam, nome, "desc", null,
                 new BigDecimal("50"), new BigDecimal("2"), new BigDecimal("10"),
                 BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("39.00"),
-                true, null, null, null, null, null);
+                true, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     @Test
@@ -59,7 +65,7 @@ class ImportServiceTest {
         when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.empty(), Optional.of(mol));
         when(productRepository.findByCategoryIdAndNumAndTam(1L, 1, "")).thenReturn(Optional.empty());
 
-        ImportRequest req = new ImportRequest(null, Map.of("MOL", "Moldes e Formas"),
+        ImportRequest req = new ImportRequest(null, Map.of("MOL", "Moldes e Formas"), null, null,
                 List.of(product(1, "", "Molde novo")));
 
         ImportResult result = service.importProject(req);
@@ -80,7 +86,7 @@ class ImportServiceTest {
         when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.of(mol));
         when(productRepository.findByCategoryIdAndNumAndTam(1L, 1, "")).thenReturn(Optional.of(existing));
 
-        ImportRequest req = new ImportRequest(null, null, List.of(product(1, "", "Nome atualizado")));
+        ImportRequest req = new ImportRequest(null, null, null, null, List.of(product(1, "", "Nome atualizado")));
 
         ImportResult result = service.importProject(req);
 
@@ -93,7 +99,7 @@ class ImportServiceTest {
     @Test
     void import_missingProdutos_returns400() {
         var ex = assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> service.importProject(new ImportRequest(null, null, null)));
+                () -> service.importProject(new ImportRequest(null, null, null, null, null)));
         assertEquals(400, ex.getStatusCode().value());
     }
 
@@ -101,7 +107,7 @@ class ImportServiceTest {
     void import_unknownCategoryOnProduct_returns400() {
         when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.empty());
 
-        ImportRequest req = new ImportRequest(null, null, List.of(product(1, "", "Item")));
+        ImportRequest req = new ImportRequest(null, null, null, null, List.of(product(1, "", "Item")));
 
         var ex = assertThrows(org.springframework.web.server.ResponseStatusException.class,
                 () -> service.importProject(req));

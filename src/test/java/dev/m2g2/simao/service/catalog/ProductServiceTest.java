@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -68,10 +69,15 @@ class ProductServiceTest {
     }
 
     private ProductRequest req(String nome, String cat, String tam) {
+        return req(nome, cat, tam, null);
+    }
+
+    private ProductRequest req(String nome, String cat, String tam, List<String> fotos) {
         return new ProductRequest(nome, cat, tam, ProductStatus.ATIVO, null, "desc",
-                null, null, null, null,
+                fotos, null, null, null,
                 new BigDecimal("50"), new BigDecimal("2"), new BigDecimal("10"),
-                BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("39.00"));
+                BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("39.00"),
+                null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     @Test
@@ -159,5 +165,76 @@ class ProductServiceTest {
         var ex = assertThrows(org.springframework.web.server.ResponseStatusException.class,
                 () -> service.getById(50L));
         assertEquals(404, ex.getStatusCode().value());
+    }
+
+    // --- v4: fotos, slug e publicação -------------------------------------
+
+    @Test
+    void create_photosBecomeOrderedListAndCover() {
+        when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.of(mol));
+        when(repository.findMaxNumByCategory(1L)).thenReturn(0);
+        when(repository.findBySlugAndActiveTrue(any())).thenReturn(Optional.empty());
+
+        ProductResponse r = service.create(req("Molde", "MOL", "",
+                List.of("/api/media/aaa", "https://x/2.jpg", "/api/media/aaa")));
+
+        // duplicates dropped, order kept, first is the cover
+        assertEquals(List.of("/api/media/aaa", "https://x/2.jpg"), r.fotos());
+        assertEquals("/api/media/aaa", r.foto());
+    }
+
+    @Test
+    void create_derivesSlugFromName() {
+        when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.of(mol));
+        when(repository.findMaxNumByCategory(1L)).thenReturn(0);
+        when(repository.findBySlugAndActiveTrue(any())).thenReturn(Optional.empty());
+
+        ProductResponse r = service.create(req("Molde de Tigela — 24 cm", "MOL", ""));
+
+        assertEquals("molde-de-tigela-24-cm", r.slug());
+    }
+
+    @Test
+    void create_slugCollision_getsSuffix() {
+        Product other = new Product();
+        other.setId(42L);
+        when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.of(mol));
+        when(repository.findMaxNumByCategory(1L)).thenReturn(0);
+        when(repository.findBySlugAndActiveTrue("molde")).thenReturn(Optional.of(other));
+        when(repository.findBySlugAndActiveTrue("molde-2")).thenReturn(Optional.empty());
+
+        ProductResponse r = service.create(req("Molde", "MOL", ""));
+
+        assertEquals("molde-2", r.slug());
+    }
+
+    @Test
+    void create_publicadoDefaultsFromStatus() {
+        when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.of(mol));
+        when(repository.findMaxNumByCategory(1L)).thenReturn(0);
+        when(repository.findBySlugAndActiveTrue(any())).thenReturn(Optional.empty());
+
+        // ATIVO -> publicado
+        assertTrue(service.create(req("Ativo", "MOL", "")).publicado());
+    }
+
+    @Test
+    void duplicate_startsUnpublishedWithOwnSlug() {
+        Product original = new Product();
+        original.setId(7L);
+        original.setCategory(mol);
+        original.setNome("Original");
+        original.setPublicado(true);
+        original.setSlug("original");
+        original.setActive(true);
+        when(repository.findById(7L)).thenReturn(Optional.of(original));
+        when(repository.findMaxNumByCategory(1L)).thenReturn(3);
+        when(repository.findBySlugAndActiveTrue("original")).thenReturn(Optional.of(original));
+        when(repository.findBySlugAndActiveTrue("original-2")).thenReturn(Optional.empty());
+
+        ProductResponse r = service.duplicate(7L);
+
+        assertFalse(r.publicado());
+        assertEquals("original-2", r.slug());
     }
 }

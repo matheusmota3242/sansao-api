@@ -6,6 +6,7 @@ import dev.m2g2.simao.dto.catalog.ImportRequest;
 import dev.m2g2.simao.dto.catalog.ImportResult;
 import dev.m2g2.simao.model.catalog.Category;
 import dev.m2g2.simao.model.catalog.Product;
+import dev.m2g2.simao.model.catalog.ProductPhoto;
 import dev.m2g2.simao.model.catalog.ProductStatus;
 import dev.m2g2.simao.repository.CategoryRepository;
 import dev.m2g2.simao.repository.ProductRepository;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,14 +32,24 @@ public class ImportService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final CostParametersService costParametersService;
+    private final StoreConfigService storeConfigService;
+    private final MediaService mediaService;
 
     public ImportService(CategoryRepository categoryRepository,
                          ProductRepository productRepository,
-                         CostParametersService costParametersService) {
+                         CostParametersService costParametersService,
+                         StoreConfigService storeConfigService,
+                         MediaService mediaService) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.costParametersService = costParametersService;
+        this.storeConfigService = storeConfigService;
+        this.mediaService = mediaService;
     }
+
+    // Media keys resolved during this import: key/data URI -> /api/media/<hash>.
+    private final ThreadLocal<Map<String, String>> resolvedMedia =
+            ThreadLocal.withInitial(LinkedHashMap::new);
 
     @Transactional
     public ImportResult importProject(ImportRequest request) {
@@ -45,20 +58,85 @@ public class ImportService {
                     "Payload inválido: esperado um argilalab.json com 'produtos'.");
         }
 
-        updateParamsIfComplete(request.params());
-        int categories = upsertCategories(request.cats());
+        resolvedMedia.get().clear();
+        try {
+            updateParamsIfComplete(request.params());
+            if (request.loja() != null) {
+                storeConfigService.update(request.loja());
+            }
+            int categories = upsertCategories(request.cats());
+            storeMedia(request.midia());
 
-        int created = 0;
-        int updated = 0;
-        for (ImportProduct ip : request.produtos()) {
-            boolean isNew = upsertProduct(ip);
-            if (isNew) {
-                created++;
+            int created = 0;
+            int updated = 0;
+            for (ImportProduct ip : request.produtos()) {
+                boolean isNew = upsertProduct(ip);
+                if (isNew) {
+                    created++;
+                } else {
+                    updated++;
+                }
+            }
+            return new ImportResult(categories, created, updated, resolvedMedia.get().size());
+        } finally {
+            resolvedMedia.remove();
+        }
+    }
+
+    /**
+     * Uploads the export's inline images once, mapping each media key to its
+     * /api/media/<hash> URL so product photos can reference it.
+     */
+    private void storeMedia(Map<String, String> midia) {
+        if (midia == null) {
+            return;
+        }
+        for (Map.Entry<String, String> e : midia.entrySet()) {
+            String value = e.getValue();
+            if (value == null || value.isBlank()) {
+                continue;
+            }
+            if (value.startsWith("data:")) {
+                resolvedMedia.get().put(e.getKey(), mediaService.store(value).url());
             } else {
-                updated++;
+                // Already a URL (e.g. previously published to object storage).
+                resolvedMedia.get().put(e.getKey(), value);
             }
         }
-        return new ImportResult(categories, created, updated);
+    }
+
+    /**
+     * A photo entry can be an external URL, an inline data: URI, or a key into
+     * the export's `midia` map. Everything ends up as a URL the frontend can use.
+     */
+    private List<String> resolvePhotos(ImportProduct ip) {
+        List<String> raw = new ArrayList<>();
+        if (ip.fotos() != null) {
+            raw.addAll(ip.fotos());
+        }
+        if (raw.isEmpty() && ip.foto() != null) {
+            raw.add(ip.foto());
+        }
+        List<String> urls = new ArrayList<>();
+        for (String f : raw) {
+            if (f == null || f.isBlank()) {
+                continue;
+            }
+            String t = f.trim();
+            String resolved;
+            if (resolvedMedia.get().containsKey(t)) {
+                resolved = resolvedMedia.get().get(t);
+            } else if (t.startsWith("data:")) {
+                resolved = mediaService.store(t).url();
+                resolvedMedia.get().put(t, resolved);
+            } else {
+                resolved = t;
+            }
+            if (!urls.contains(resolved)) {
+                urls.add(resolved);
+            }
+        }
+        return urls;
     }
 
     private void updateParamsIfComplete(CostParametersDTO params) {
@@ -136,14 +214,70 @@ public class ImportService {
         product.setEmbalagem(ip.emb());
         product.setCatalogoPreco(ip.catalogo());
         product.setTempoExato(ip.tempoExato() == null ? true : ip.tempoExato());
-        product.setFoto(trimOrNull(ip.foto()));
         product.setOrigem(trimOrNull(ip.origem()));
         product.setImpressora(trimOrNull(ip.impressora()));
         product.setFilamento(trimOrNull(ip.filamento()));
+
+        // v4 storefront fields, defaulting the same way the frontend migrar() does.
+        product.setSlug(trimOrNull(ip.slug()));
+        product.setPrazo(ip.prazo() == null ? 5 : ip.prazo());
+        product.setOrdem(ip.ordem() == null ? num * 10 : ip.ordem());
+        product.setMaterial(ip.material() == null || ip.material().isBlank()
+                ? "PLA rígido" : ip.material().trim());
+        product.setDimPeca(trimOrNull(ip.dimPeca()));
+        product.setEmbPeso(ip.embPeso());
+        product.setEmbDim(trimOrNull(ip.embDim()));
+        product.setPublicado(ip.publicado() == null
+                ? product.getStatus() == ProductStatus.ATIVO : ip.publicado());
+        product.setDestaque(Boolean.TRUE.equals(ip.destaque()));
+        product.setDescLonga(trimOrNull(ip.descLonga()));
+        product.setMetaDesc(trimOrNull(ip.metaDesc()));
+        product.setLicenca(trimOrNull(ip.licenca()));
+
+        applyPhotos(product, resolvePhotos(ip), now);
         product.setActive(true);
         product.setUpdatedAt(now);
         productRepository.save(product);
         return isNew;
+    }
+
+    private void applyPhotos(Product product, List<String> urls, LocalDateTime now) {
+        product.getPhotos().clear();
+        int position = 0;
+        for (String url : urls) {
+            ProductPhoto photo = new ProductPhoto();
+            photo.setProduct(product);
+            photo.setUrl(url);
+            photo.setPosition(position++);
+            photo.setCreatedAt(now);
+            photo.setUpdatedAt(now);
+            photo.setActive(true);
+            product.getPhotos().add(photo);
+        }
+        product.setFoto(urls.isEmpty() ? null : urls.getFirst());
+        product.setSlug(uniqueSlug(product));
+    }
+
+    /**
+     * Slug has a unique index, so a collision inside the import would abort the
+     * whole batch; resolve it here the same way the product service does.
+     */
+    private String uniqueSlug(Product product) {
+        String base = product.getSlug() == null || product.getSlug().isBlank()
+                ? ProductService.slugify(product.getNome())
+                : ProductService.slugify(product.getSlug());
+        if (base.isEmpty()) {
+            base = "produto";
+        }
+        String candidate = base;
+        int suffix = 2;
+        while (true) {
+            Product owner = productRepository.findBySlugAndActiveTrue(candidate).orElse(null);
+            if (owner == null || (product.getId() != null && owner.getId().equals(product.getId()))) {
+                return candidate;
+            }
+            candidate = base + "-" + suffix++;
+        }
     }
 
     private static String trimOrNull(String value) {
