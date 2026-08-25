@@ -59,13 +59,16 @@ no Maven Central.
   português, que é o que os controllers do catálogo já fazem.
 
 ## Migrations
-- V1–V9 criaram o esquema do bot e já foram aplicadas em produção. **Nunca
-  edite uma migration aplicada** — o checksum do Flyway quebra. Adicione uma Vn
-  nova.
-- V12 derruba as tabelas do bot (task, note, automation, chat_record, tracker).
+- `V1__create_schema.sql` é o esquema inteiro: app_user, catálogo, loja e
+  gestão. As antigas V1–V12 foram consolidadas nela porque o banco ainda não
+  estava populado.
+- Daqui em diante, **nunca edite uma migration aplicada** — o checksum do Flyway
+  quebra. Adicione uma Vn nova.
+- Toda tabela tem `created_by_id`/`updated_by_id` apontando para `app_user`,
+  espelhando os campos de `BaseModel`. Ninguém os preenche ainda: falta o login.
 
 ## Convenções de nomenclatura
 - Classes de teste: `[Classe]Test`
 - Mensagens ao usuário em português, código em inglês
-- A tabela de pedidos é `print_order`, não `order` — ORDER é palavra reservada
-  em SQL
+- A tabela de pedidos é `print_order`, não `order`, e a de usuários é
+  `app_user`, não `user` — ORDER e USER são palavras reservadas
