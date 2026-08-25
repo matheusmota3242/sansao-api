@@ -21,22 +21,16 @@ essa camada foi **substituída pela API do simao-api**:
 O SKU e o custo são calculados **no servidor**; o modal mantém uma prévia de
 custo client-side só para feedback enquanto você digita.
 
-## Deploy (Coolify)
+## Deploy
 
-O Coolify builda o `app` a partir de `deploy/Dockerfile`; o HTML entra no fat
-jar. Fluxo: commit na `master` → *Redeploy*.
-
-Como o proxy do Coolify não é usado neste servidor (sem `coolify-proxy` e a
-máquina está atrás de NAT), a porta é publicada na interface da Tailscale.
-Defina nas *Environment Variables* do Coolify:
-
-```
-APP_BIND_IP=100.127.213.86      # IP do servidor na tailnet
-```
+O HTML entra no fat jar, então ele acompanha a imagem: commit na `main` → o CI
+publica no GHCR → o Watchtower atualiza o container no servidor. Veja
+`deploy/docker-compose.yml`.
 
 ## Acessar
 
-- **Deploy (tailnet):** `http://100.127.213.86:8080/argilalabapp.html`
+- **Deploy:** `http://<host>:8080/argilalabapp.html` (por ora só pela tailnet —
+  não há autenticação ainda)
 - **Local (dev):** `http://localhost:8080/argilalabapp.html`
 
 `API` fica vazio quando servido pelo app (mesma origem, sem CORS); só cai em

@@ -1,6 +1,8 @@
 # Stack de produção do ARGILA LAB (loja + admin).
-# A app NÃO é buildada aqui — é puxada pronta do GHCR, e o Watchtower atualiza
-# o container sozinho quando o CI publica uma imagem nova.
+# Serve qualquer servidor: notebook, VM Oracle, o que for. A app NÃO é buildada
+# aqui — o CI builda no GitHub e publica no GHCR, e o Watchtower atualiza o
+# container sozinho quando sai imagem nova. Buildar Java na própria máquina
+# seria lento numa VM pequena, por isso ela só puxa a imagem pronta.
 # Portas só em 127.0.0.1: exponha via Tailscale ou por um proxy com TLS.
 
 services:

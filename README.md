@@ -78,8 +78,8 @@ O Flyway roda as migrations no boot. O admin fica em
 
 `.github/workflows/deploy.yml` builda a partir de `deploy/Dockerfile` e publica
 a imagem no GHCR a cada push na `main`. No servidor, o
-`deploy/docker-compose.notebook.yml` puxa essa imagem e o Watchtower atualiza o
-container sozinho.
+`deploy/docker-compose.yml` puxa essa imagem e o Watchtower atualiza o
+container sozinho — nada é compilado na máquina de destino.
 
 ## Segurança
 
