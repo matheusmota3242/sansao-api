@@ -57,6 +57,14 @@ DATABASE_USERNAME=matheus
 DATABASE_PASSWORD=sua_senha
 ```
 
+E o primeiro admin, criado no boot quando a tabela de usuários está vazia:
+
+```env
+ADMIN_EMAIL=voce@argilalab.com.br
+ADMIN_PASSWORD=uma_senha_forte
+ADMIN_NAME=Seu Nome
+```
+
 E o `.postgres_app.env`:
 
 ```env
@@ -83,7 +91,21 @@ container sozinho — nada é compilado na máquina de destino.
 
 ## Segurança
 
-> **Ainda não há autenticação.** `spring-boot-starter-security` está comentado
-> no `pom.xml` e o CORS em `CatalogCorsConfig` aceita qualquer origem. Enquanto
-> isso não mudar, as portas ficam em `127.0.0.1` e o acesso é só pela tailnet —
-> qualquer exposição pública permitiria escrita anônima na API.
+Login por sessão, com papéis:
+
+| | público | OPERATOR | ADMIN |
+|---|---|---|---|
+| `GET /api/catalog`, `GET /api/media/{hash}` | sim | sim | sim |
+| Produtos, categorias, loja, mídia, importação | não | sim | sim |
+| `GET/PUT /api/cost-parameters` (custo e margem) | não | **não** | sim |
+| `/argilalabapp.html` | não | sim | sim |
+
+- Senhas em BCrypt; o hash nunca é serializado (`@JsonIgnore`, com teste).
+- CSRF ligado: o token vai num cookie legível e volta no header `X-XSRF-TOKEN`.
+  O `api()` do admin já faz isso — outro cliente precisa fazer também.
+- Sessão só por cookie (sem `;jsessionid=` na URL).
+- CORS fechado por padrão. Para a loja estática ler o catálogo de outro domínio,
+  defina `STOREFRONT_ORIGINS=https://argilalab.pages.dev` — só isso libera, e só
+  em `GET` nos dois endpoints públicos.
+- **Sem TLS ainda:** ponha atrás de um proxy com HTTPS antes de expor na internet.
+  Sessão por cookie em HTTP puro trafega em texto claro.

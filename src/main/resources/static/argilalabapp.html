@@ -267,6 +267,7 @@ a{color:var(--barro)}
   <button class="tbtn" onclick="salvarProjeto()">Baixar backup</button>
   <button class="tbtn" onclick="previewSite()">Ver o site</button>
   <button class="tbtn" onclick="baixarSite()">Baixar site</button>
+<button class="tbtn" onclick="sair()">Sair</button>
   <button class="tbtn" onclick="publicarSite()">Publicar JSON</button>
   <button class="tbtn" onclick="imprimir('cat')">Catálogo PDF</button>
   <button class="tbtn" onclick="imprimir('etq')">Etiquetas</button>
@@ -1826,9 +1827,40 @@ function apiStatus(msg, tipo){
   el.className = "nstat" + (tipo ? " " + tipo : "");
 }
 
+/* O Spring guarda o token de CSRF num cookie legível; toda escrita precisa
+   devolvê-lo no header, senão a requisição é recusada com 403. */
+function csrfToken(){
+  const m = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+/* Logout também é escrita, então leva o token como qualquer outra. */
+async function sair(){
+  const t = csrfToken();
+  await fetch("/logout", {method:"POST", headers: t ? {"X-XSRF-TOKEN": t} : {}});
+  location.href = "/login.html?saiu";
+}
+
 async function api(caminho, opts){
-  const res = await fetch(API + caminho, Object.assign(
-    {headers: {"Content-Type": "application/json"}}, opts || {}));
+  const o = Object.assign({}, opts || {});
+  o.headers = Object.assign({"Content-Type": "application/json"}, o.headers || {});
+  const metodo = (o.method || "GET").toUpperCase();
+  if (metodo !== "GET" && metodo !== "HEAD"){
+    const t = csrfToken();
+    if (t) o.headers["X-XSRF-TOKEN"] = t;
+  }
+  const res = await fetch(API + caminho, o);
+  /* Sessão expirada chega como 401/403 — ou, se algum filtro redirecionar,
+     como uma resposta 200 que na verdade é a página de login. */
+  if (res.redirected && res.url.indexOf("/login.html") >= 0){
+    location.href = "/login.html";
+    throw new Error("Sessão expirada. Entre de novo.");
+  }
+  if (res.status === 401 || res.status === 403){
+    /* Sessão expirada: volta para o login em vez de falhar em silêncio. */
+    location.href = "/login.html";
+    throw new Error("Sessão expirada. Entre de novo.");
+  }
   if (!res.ok){
     let msg;
     try { msg = (await res.json()).message; } catch(_){}

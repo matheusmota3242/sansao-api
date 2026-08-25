@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ARGILA LAB — Entrar</title>
+<style>
+:root{
+  --barro:#9C5B3C; --barro-esc:#5E3222; --areia:#F6F1EA; --papel:#FFFDFA;
+  --tinta:#2B2320; --suave:#7A6A60; --linha:#E4D9CC; --vermelho:#A6413A;
+  --verde:#3B7A46;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--areia);color:var(--tinta);
+  font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  font-size:14px;line-height:1.5;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.caixa{
+  background:var(--papel);border:1px solid var(--linha);border-radius:12px;
+  padding:32px;width:100%;max-width:380px;
+  box-shadow:0 1px 2px rgba(43,35,32,.05), 0 12px 32px -20px rgba(43,35,32,.4);
+}
+.marca{
+  font-size:19px;font-weight:800;letter-spacing:.16em;color:var(--barro-esc);
+  margin:0 0 4px;
+}
+.marca span{font-weight:300}
+.sub{color:var(--suave);margin:0 0 24px;font-size:13px}
+label{display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:var(--suave)}
+input{
+  width:100%;padding:10px 12px;border:1px solid var(--linha);border-radius:7px;
+  background:var(--areia);color:inherit;font:inherit;margin-bottom:16px;
+}
+input:focus{outline:2px solid var(--barro);outline-offset:1px;border-color:var(--barro)}
+button{
+  width:100%;padding:11px;border:0;border-radius:7px;background:var(--barro);
+  color:#fff;font:inherit;font-weight:600;cursor:pointer;
+}
+button:hover{background:var(--barro-esc)}
+.aviso{
+  border-radius:7px;padding:10px 12px;font-size:13px;margin-bottom:18px;
+}
+.aviso.erro{background:#F6E4E1;color:var(--vermelho)}
+.aviso.ok{background:#E7F0E5;color:var(--verde)}
+</style>
+</head>
+<body>
+  <form class="caixa" method="post" action="/login">
+    <p class="marca">ARGILA <span>LAB</span></p>
+    <p class="sub">Entre para acessar o catálogo e os pedidos.</p>
+
+    <div id="aviso"></div>
+
+    <label for="username">E-mail</label>
+    <input type="email" id="username" name="username" autocomplete="username" required autofocus>
+
+    <label for="password">Senha</label>
+    <input type="password" id="password" name="password" autocomplete="current-password" required>
+
+    <input type="hidden" id="_csrf" name="_csrf">
+
+    <button type="submit">Entrar</button>
+  </form>
+
+<script>
+/* O login é um POST, então também passa pelo CSRF. O Spring põe o token num
+   cookie legível; devolvemos no campo oculto que o form já carrega. */
+(function(){
+  var m = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+  if (m) document.getElementById("_csrf").value = decodeURIComponent(m[1]);
+})();
+
+// O Spring devolve ?erro quando as credenciais não batem e ?saiu após o logout.
+(function(){
+  var alvo = document.getElementById("aviso");
+  var busca = location.search;
+  if (busca.indexOf("erro") >= 0)
+    alvo.innerHTML = '<div class="aviso erro">E-mail ou senha incorretos.</div>';
+  else if (busca.indexOf("saiu") >= 0)
+    alvo.innerHTML = '<div class="aviso ok">Você saiu da sua conta.</div>';
+})();
+</script>
+</body>
+</html>

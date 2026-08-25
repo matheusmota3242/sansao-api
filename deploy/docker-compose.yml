@@ -25,6 +25,8 @@ services:
     restart: unless-stopped
     environment:
       TZ: America/Sao_Paulo
+    # .app_env leva DATABASE_*, ADMIN_EMAIL/ADMIN_PASSWORD (primeiro admin) e,
+    # quando a loja estática estiver noutro domínio, STOREFRONT_ORIGINS.
     env_file: [.app_env]
     depends_on:
       postgres-app:

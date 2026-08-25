@@ -1,10 +1,14 @@
 package dev.m2g2.simao.model;
 
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 public abstract class BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,9 +17,13 @@ public abstract class BaseModel {
     protected LocalDateTime createdAt;
     @Column(name = "updated_at", nullable = false)
     protected LocalDateTime updatedAt;
+    // Preenchidos pelo AuditorProvider a partir de quem está autenticado.
+    // Ficam nulos no que é gravado sem sessão — a semeadura do primeiro admin.
+    @CreatedBy
     @ManyToOne
-    @JoinColumn(name = "created_by_id")
+    @JoinColumn(name = "created_by_id", updatable = false)
     protected User createdBy;
+    @LastModifiedBy
     @ManyToOne
     @JoinColumn(name = "updated_by_id")
     protected User updatedBy;

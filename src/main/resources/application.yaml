@@ -1,3 +1,9 @@
+server:
+  servlet:
+    session:
+      # Só cookie: o ;jsessionid= na URL vaza a sessão em log, histórico e Referer.
+      tracking-modes: cookie
+
 spring:
   application:
     name: Simao
@@ -12,3 +18,13 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+application:
+  # Semeia o primeiro admin quando o banco não tem usuário nenhum.
+  first-admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+    name: ${ADMIN_NAME:Administrador}
+  # Origens da loja estática que podem ler o catálogo público. Vazio = sem CORS,
+  # que é o certo enquanto a loja for servida pelo próprio app.
+  storefront-origins: ${STOREFRONT_ORIGINS:}

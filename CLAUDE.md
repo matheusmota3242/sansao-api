@@ -43,6 +43,22 @@ Português permanece em: mensagens ao usuário, o formato externo `argilalab.jso
 (inclusive o prefixo `midia:`) e os códigos de status do produto
 (`"ativo"`/`"dev"`/`"off"`, via `@JsonValue`).
 
+## Segurança
+- Login por formulário + sessão. `AppUserDetails` carrega o `User` junto para
+  que o `AuditorProvider` preencha `created_by`/`updated_by` sem ir ao banco.
+- Público é só `GET /api/catalog` e `GET /api/media/{hash}` — o que a loja
+  estática consome. O resto exige sessão; custo e margem exigem ADMIN.
+- CSRF ligado com cookie legível. Toda escrita precisa do header
+  `X-XSRF-TOKEN`; o `api()` e o form de login do admin já mandam.
+- `/api/**` responde 401/403 em vez de redirecionar — um `fetch()` seguiria o
+  redirect e tentaria ler o HTML de login como JSON. O
+  `DelegatingAuthenticationEntryPoint` é montado à mão porque, com um único
+  mapeamento, `defaultAuthenticationEntryPointFor` passa a valer para tudo e o
+  matcher é ignorado.
+- Exceção conhecida: escrita vinda de um cliente **sem cookie nenhum** volta 302
+  (o Spring está emitindo o token de CSRF na mesma resposta). A escrita é
+  rejeitada igual; com qualquer cookie presente, vem 401.
+
 ## Arquitetura
 
 ### Catálogo
