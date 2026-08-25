@@ -25,6 +25,9 @@ application:
     email: ${ADMIN_EMAIL:}
     password: ${ADMIN_PASSWORD:}
     name: ${ADMIN_NAME:Administrador}
+  # Onde ficam os bytes das imagens. Em container, aponte para um volume —
+  # senão as fotos somem a cada deploy.
+  media-path: ${MEDIA_PATH:media}
   # Origens da loja estática que podem ler o catálogo público. Vazio = sem CORS,
   # que é o certo enquanto a loja for servida pelo próprio app.
   storefront-origins: ${STOREFRONT_ORIGINS:}

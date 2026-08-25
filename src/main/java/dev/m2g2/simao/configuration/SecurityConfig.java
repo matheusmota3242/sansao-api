@@ -81,6 +81,10 @@ public class SecurityConfig {
                     // A loja pública: só leitura, e é o que o storefront estático consome.
                     .requestMatchers(HttpMethod.GET, "/api/catalog", "/api/media/*").permitAll()
                     .requestMatchers("/login", "/login.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
+                    // Sem isto, um 404 num endpoint público despacha para /error,
+                    // que exigiria sessão: a loja estática pedindo uma imagem que
+                    // sumiu levaria 302 para o login em vez de 404.
+                    .requestMatchers("/error").permitAll()
                     // Custos e margem são do ADMIN; o OPERATOR opera sem ver quanto se ganha.
                     .requestMatchers("/api/cost-parameters/**", "/api/purchases/**").hasRole("ADMIN")
                     .anyRequest().authenticated())

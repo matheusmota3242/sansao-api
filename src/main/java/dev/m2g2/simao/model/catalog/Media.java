@@ -5,8 +5,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
 /**
- * An image stored once, content-addressed by hash — the server-side counterpart
- * of the frontend's `midia` map. Photos reference it as /api/media/{hash}.
+ * Uma imagem guardada uma vez só, endereçada pelo hash do conteúdo — a
+ * contraparte no servidor do mapa `midia` do frontend. As fotos a referenciam
+ * como /api/media/{hash}.
+ *
+ * Os bytes ficam em disco, não no banco: guardá-los em bytea inflava o Postgres
+ * (e o dump) sem ganho nenhum, e prendia a loja pública a uma consulta SQL para
+ * servir cada imagem. Aqui fica só o metadado; quem sabe o caminho é o
+ * MediaStorage.
  */
 @Entity
 public class Media extends BaseModel {
@@ -17,12 +23,8 @@ public class Media extends BaseModel {
     @Column(name = "content_type", nullable = false)
     private String contentType;
 
-    // NÃO anotar com @Lob: no PostgreSQL o Hibernate mapeia @Lob byte[] para
-    // Large Object (OID) e faz bind de um bigint, quebrando com
-    // "column bytes is of type bytea but expression is of type bigint".
-    // byte[] puro já mapeia para bytea.
-    @Column(nullable = false)
-    private byte[] bytes;
+    @Column(name = "size_bytes", nullable = false)
+    private long sizeBytes;
 
     public String getHash() {
         return hash;
@@ -40,11 +42,11 @@ public class Media extends BaseModel {
         this.contentType = contentType;
     }
 
-    public byte[] getBytes() {
-        return bytes;
+    public long getSizeBytes() {
+        return sizeBytes;
     }
 
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
+    public void setSizeBytes(long sizeBytes) {
+        this.sizeBytes = sizeBytes;
     }
 }

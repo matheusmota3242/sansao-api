@@ -264,10 +264,6 @@ a{color:var(--barro)}
 .gtab td{padding:9px 10px;border-bottom:1px solid var(--claro);vertical-align:middle}
 .gtab tr:last-child td{border-bottom:0}
 .gtab td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.gtab .pos{
-  display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;
-  border-radius:6px;background:var(--claro);font-weight:700;font-variant-numeric:tabular-nums;
-}
 .gwrap{overflow-x:auto;padding:0 18px 18px}
 .gacoes{display:flex;gap:4px;justify-content:flex-end}
 .gacoes button{
@@ -276,13 +272,6 @@ a{color:var(--barro)}
 }
 .gacoes button:hover{background:var(--claro)}
 .gacoes button.perigo{color:var(--vermelho);border-color:#E8CFCB}
-.gsel{border:1px solid var(--linha);border-radius:6px;padding:3px 6px;background:var(--papel);font-size:12px}
-.gstat{
-  display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;
-  background:var(--claro);color:var(--barro-esc);white-space:nowrap;
-}
-.gstat.rodando{background:#E7F0E5;color:var(--verde)}
-.gstat.cancelado{background:#F6E4E1;color:var(--vermelho)}
 .gnovo{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;padding:0 18px 18px}
 .gnovo .f{margin:0;min-width:130px}
 .gtot{
@@ -363,21 +352,6 @@ a{color:var(--barro)}
     </div>
   </details>
 
-
-  <details class="painel" id="pnFila">
-    <summary>Fila de impressão — ordem em que os pedidos serão impressos</summary>
-    <div class="gnovo">
-      <div class="f"><label>Descrição</label><input id="o_desc" placeholder="Ex.: 3 costelas nº2"></div>
-      <div class="f"><label>Cliente <span class="hint">nome ou id</span></label><input id="o_cli" placeholder="Ex.: Ana"></div>
-      <div class="f"><label>Tempo (min)</label><input id="o_tempo" type="number" min="0" step="5"></div>
-      <div class="f oCusto"><label>Custo (R$)</label><input id="o_custo" type="number" min="0" step="0.01"></div>
-      <div class="f"><label>Venda (R$)</label><input id="o_venda" type="number" min="0" step="0.01"></div>
-      <button class="btn pri" type="button" onclick="criarPedido()">Adicionar à fila</button>
-    </div>
-    <div class="gwrap"><table class="gtab" id="tabFila"></table></div>
-    <div class="gtot" id="totFila"></div>
-    <div class="gwrap"><table class="gtab" id="tabEncerrados"></table></div>
-  </details>
 
   <details class="painel" id="pnClientes">
     <summary>Clientes</summary>
@@ -1901,131 +1875,18 @@ function moeda(v){
   return v === null || v === undefined ? "—"
        : "R$ " + Number(v).toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2});
 }
-function minutos(m){
-  if (m === null || m === undefined) return "—";
-  const h = Math.floor(m / 60), r = m % 60;
-  return h ? (r ? h + "h" + String(r).padStart(2,"0") : h + "h") : r + "min";
-}
-function classeStatus(s){
-  return s === "RUNNING" ? "rodando" : (s === "CANCELLED" ? "cancelado" : "");
-}
 
 async function carregarEu(){
   try {
     EU = await api("/api/me");
   } catch(e){ return; }
-  /* Sem permissão de custo, some com os campos e painéis de dinheiro. */
+  /* Sem permissão de custo, some com os painéis de dinheiro. */
   if (!EU.canSeeCosts){
-    document.querySelectorAll(".oCusto").forEach(el => el.style.display = "none");
     const compras = document.getElementById("pnCompras");
     if (compras) compras.style.display = "none";
     const params = document.getElementById("pn");
     if (params) params.style.display = "none";
   }
-}
-
-/* ---------------- fila de impressão ---------------- */
-async function carregarFila(){
-  const [fila, encerrados] = await Promise.all([
-    api("/api/orders"), api("/api/orders/closed")
-  ]);
-  const custos = EU && EU.canSeeCosts;
-
-  let h = "<thead><tr><th>#</th><th>Pedido</th><th>Cliente</th><th>Tempo</th><th>Status</th>";
-  if (custos) h += "<th class='num'>Custo</th>";
-  h += "<th class='num'>Venda</th>";
-  if (custos) h += "<th class='num'>Lucro</th>";
-  h += "<th></th></tr></thead><tbody>";
-
-  if (!fila.length){
-    h += "<tr><td colspan='9' class='vazio'>Fila vazia.</td></tr>";
-  } else {
-    fila.forEach((o, i) => {
-      h += "<tr>";
-      h += "<td><span class='pos'>" + o.priority + "</span></td>";
-      h += "<td>" + esc(o.description) + (o.observations ? "<br><span class='hint'>" + esc(o.observations) + "</span>" : "") + "</td>";
-      h += "<td>" + esc(o.customer ? o.customer.name : "—") + "</td>";
-      h += "<td>" + minutos(o.printTimeMinutes) + "</td>";
-      h += "<td><select class='gsel' onchange=\"mudarStatus(" + o.id + ", this.value)\">"
-         + ["WAITING","RUNNING","COMPLETED","CANCELLED"].map(v =>
-             "<option value='" + v + "'" + (v === o.status ? " selected" : "") + ">"
-             + {WAITING:"Aguardando",RUNNING:"Imprimindo",COMPLETED:"Concluído",CANCELLED:"Cancelado"}[v]
-             + "</option>").join("")
-         + "</select></td>";
-      if (custos) h += "<td class='num'>" + moeda(o.productionCost) + "</td>";
-      h += "<td class='num'>" + moeda(o.salePrice) + "</td>";
-      if (custos) h += "<td class='num'>" + moeda(o.profit) + "</td>";
-      h += "<td><div class='gacoes'>"
-         + "<button type='button' onclick='moverPedido(" + o.id + "," + (o.priority - 1) + ")'" + (i === 0 ? " disabled" : "") + " title='Subir'>&uarr;</button>"
-         + "<button type='button' onclick='moverPedido(" + o.id + "," + (o.priority + 1) + ")'" + (i === fila.length - 1 ? " disabled" : "") + " title='Descer'>&darr;</button>"
-         + "<button type='button' class='perigo' onclick='excluirPedido(" + o.id + ")'>Excluir</button>"
-         + "</div></td></tr>";
-    });
-  }
-  h += "</tbody>";
-  document.getElementById("tabFila").innerHTML = h;
-
-  const totalMin = fila.reduce((a, o) => a + (o.printTimeMinutes || 0), 0);
-  const totalVenda = fila.reduce((a, o) => a + Number(o.salePrice || 0), 0);
-  let tot = "<span>Na fila: <b>" + fila.length + "</b></span>"
-          + "<span>Tempo estimado: <b>" + minutos(totalMin) + "</b></span>"
-          + "<span>A receber: <b>" + moeda(totalVenda) + "</b></span>";
-  if (custos){
-    const lucro = fila.reduce((a, o) => a + Number(o.profit || 0), 0);
-    tot += "<span>Lucro previsto: <b>" + moeda(lucro) + "</b></span>";
-  }
-  document.getElementById("totFila").innerHTML = tot;
-
-  let e = "";
-  if (encerrados.length){
-    e = "<thead><tr><th colspan='4'>Encerrados</th></tr></thead><tbody>";
-    encerrados.forEach(o => {
-      e += "<tr><td>" + esc(o.description) + "</td><td>" + esc(o.customer ? o.customer.name : "—") + "</td>"
-         + "<td><span class='gstat " + classeStatus(o.status) + "'>" + esc(o.statusLabel) + "</span></td>"
-         + "<td class='num'>" + moeda(o.salePrice) + "</td></tr>";
-    });
-    e += "</tbody>";
-  }
-  document.getElementById("tabEncerrados").innerHTML = e;
-}
-
-async function criarPedido(){
-  const desc = $("o_desc").value.trim(), cli = $("o_cli").value.trim();
-  if (!desc || !cli){ toast("Descrição e cliente são obrigatórios."); return; }
-  const corpo = {
-    description: desc,
-    customer: cli,
-    printTimeMinutes: $("o_tempo").value ? Number($("o_tempo").value) : null,
-    salePrice: $("o_venda").value ? Number($("o_venda").value) : null
-  };
-  const custo = $("o_custo");
-  if (custo && custo.value) corpo.productionCost = Number(custo.value);
-  try {
-    await api("/api/orders", {method:"POST", body: JSON.stringify(corpo)});
-    ["o_desc","o_cli","o_tempo","o_custo","o_venda"].forEach(id => { if ($(id)) $(id).value = ""; });
-    toast("Pedido adicionado à fila.");
-    carregarFila();
-  } catch(e){ toast(e.message); }
-}
-
-async function mudarStatus(id, status){
-  try {
-    await api("/api/orders/" + id + "/status", {method:"PUT", body: JSON.stringify({status})});
-    carregarFila();
-  } catch(e){ toast(e.message); carregarFila(); }
-}
-
-async function moverPedido(id, posicao){
-  try {
-    await api("/api/orders/" + id + "/position", {method:"PUT", body: JSON.stringify({position: posicao})});
-    carregarFila();
-  } catch(e){ toast(e.message); }
-}
-
-async function excluirPedido(id){
-  if (!confirm("Excluir este pedido? Os outros sobem uma posição.")) return;
-  try { await api("/api/orders/" + id, {method:"DELETE"}); carregarFila(); }
-  catch(e){ toast(e.message); }
 }
 
 /* ---------------- clientes ---------------- */
@@ -2119,7 +1980,6 @@ async function excluirCompra(id){
 /* Carrega as três telas junto com o resto do app. */
 async function carregarGestao(){
   await carregarEu();
-  try { await carregarFila(); } catch(e){}
   try { await carregarClientes(); } catch(e){}
   try { await carregarCompras(); } catch(e){}
 }

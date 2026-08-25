@@ -107,13 +107,14 @@ CREATE INDEX idx_product_category ON product (category_id);
 -- Slug é a URL do produto na loja; único para que os links nunca colidam.
 CREATE UNIQUE INDEX uq_product_slug ON product (slug) WHERE slug IS NOT NULL;
 
--- Bytes guardados uma vez só; hash é o endereço de conteúdo (SHA-256) usado
--- pelo frontend.
+-- Metadado da imagem; hash é o endereço de conteúdo (SHA-256) usado pelo
+-- frontend. Os bytes ficam em disco, em <MEDIA_PATH>/<2 do hash>/<hash> — no
+-- banco eles inflariam o dump sem ganho nenhum.
 CREATE TABLE media (
     id BIGSERIAL PRIMARY KEY,
     hash VARCHAR(64) NOT NULL UNIQUE,
     content_type VARCHAR(100) NOT NULL,
-    bytes BYTEA NOT NULL,
+    size_bytes BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     created_by_id BIGINT REFERENCES app_user(id),
@@ -168,32 +169,6 @@ CREATE TABLE customer (
     updated_by_id BIGINT REFERENCES app_user(id),
     active BOOLEAN NOT NULL DEFAULT TRUE
 );
-
--- print_order e não order: ORDER é palavra reservada em SQL.
-CREATE TABLE print_order (
-    id BIGSERIAL PRIMARY KEY,
-    description TEXT NOT NULL,
-    customer_id BIGINT NOT NULL REFERENCES customer(id),
-    print_time_minutes INTEGER,
-    -- Posição na fila, 1..n e contígua entre os pedidos ainda nela
-    -- (WAITING/RUNNING). NULL quando o pedido sai da fila
-    -- (COMPLETED/CANCELLED), para que trabalho encerrado não ocupe posição.
-    priority INTEGER,
-    status VARCHAR(20) NOT NULL DEFAULT 'WAITING',
-    production_cost NUMERIC(12, 2),
-    sale_price NUMERIC(12, 2),
-    -- Preenchido quando o pedido vai para RUNNING, limpo se voltar a WAITING.
-    started_at TIMESTAMP,
-    observations TEXT,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    created_by_id BIGINT REFERENCES app_user(id),
-    updated_by_id BIGINT REFERENCES app_user(id),
-    active BOOLEAN NOT NULL DEFAULT TRUE
-);
-
-CREATE INDEX idx_print_order_queue ON print_order (status, priority);
-CREATE INDEX idx_print_order_customer ON print_order (customer_id);
 
 CREATE TABLE purchase (
     id BIGSERIAL PRIMARY KEY,

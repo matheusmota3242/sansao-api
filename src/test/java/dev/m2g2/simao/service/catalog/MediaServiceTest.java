@@ -13,6 +13,8 @@ import java.util.Base64;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.mockito.InOrder;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -21,6 +23,8 @@ class MediaServiceTest {
 
     @Mock
     private MediaRepository repository;
+    @Mock
+    private MediaStorage storage;
 
     private MediaService service;
 
@@ -29,7 +33,7 @@ class MediaServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new MediaService(repository);
+        service = new MediaService(repository, storage);
         lenient().when(repository.save(any(Media.class))).thenAnswer(i -> i.getArgument(0));
     }
 
@@ -51,12 +55,41 @@ class MediaServiceTest {
         Media existing = new Media();
         existing.setHash("abc");
         existing.setContentType("image/png");
-        existing.setBytes("fake-image-bytes".getBytes());
+        existing.setSizeBytes(16);
         when(repository.findByHash(any())).thenReturn(Optional.of(existing));
+        when(storage.exists(any())).thenReturn(true);
 
         MediaResponse r = service.store(PNG);
 
         assertEquals("abc", r.hash());
+        verify(repository, never()).save(any());
+        verify(storage, never()).write(any(), any());
+    }
+
+    @Test
+    void store_writesTheFileBeforeTheRow() {
+        when(repository.findByHash(any())).thenReturn(Optional.empty());
+
+        service.store(PNG);
+
+        // A ordem importa: linha sem arquivo vira foto quebrada no catálogo.
+        InOrder ordem = inOrder(storage, repository);
+        ordem.verify(storage).write(any(), any());
+        ordem.verify(repository).save(any(Media.class));
+    }
+
+    @Test
+    void store_rewritesTheFileWhenOnlyTheRowSurvived() {
+        Media existing = new Media();
+        existing.setHash("abc");
+        existing.setContentType("image/png");
+        existing.setSizeBytes(16);
+        when(repository.findByHash(any())).thenReturn(Optional.of(existing));
+        when(storage.exists(any())).thenReturn(false);
+
+        service.store(PNG);
+
+        verify(storage).write(any(), any());
         verify(repository, never()).save(any());
     }
 

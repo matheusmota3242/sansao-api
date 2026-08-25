@@ -34,10 +34,11 @@ public class MediaController {
     @GetMapping("/{hash}")
     public ResponseEntity<byte[]> get(@PathVariable String hash) {
         Media media = service.getByHash(hash);
-        // Content-addressed: the bytes for a hash never change, so cache hard.
+        byte[] bytes = service.bytesOf(hash);
+        // Endereçada por conteúdo: os bytes de um hash nunca mudam, então cacheia forte.
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(media.getContentType()))
                 .cacheControl(CacheControl.maxAge(Duration.ofDays(365)).cachePublic().immutable())
-                .body(media.getBytes());
+                .body(bytes);
     }
 }

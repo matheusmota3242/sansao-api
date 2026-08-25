@@ -33,6 +33,12 @@ services:
         condition: service_healthy
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+    volumes:
+      # Os bytes das imagens vivem aqui. Sem este volume, toda atualização de
+      # container levaria as fotos do catálogo junto.
+      - media-data:/app/media
+    environment:
+      MEDIA_PATH: /app/media
     ports:
       # API + admin ARGILA LAB (UI em /argilalabapp.html, servida pelo jar).
       - "127.0.0.1:8080:8080"
@@ -50,3 +56,4 @@ services:
 
 volumes:
   postgres-data:
+  media-data:

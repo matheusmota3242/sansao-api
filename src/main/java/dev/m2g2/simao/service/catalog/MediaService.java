@@ -25,9 +25,11 @@ public class MediaService {
     private static final int MAX_BYTES = 8 * 1024 * 1024;
 
     private final MediaRepository repository;
+    private final MediaStorage storage;
 
-    public MediaService(MediaRepository repository) {
+    public MediaService(MediaRepository repository, MediaStorage storage) {
         this.repository = repository;
+        this.storage = storage;
     }
 
     /** Accepts "data:image/jpeg;base64,...." and returns the stored reference. */
@@ -65,18 +67,31 @@ public class MediaService {
         String hash = sha256(bytes);
         Media media = repository.findByHash(hash).orElse(null);
         if (media == null) {
+            // Grava o arquivo antes da linha: se a gravação falhar, não fica
+            // metadado no banco apontando para um arquivo que não existe.
+            storage.write(hash, bytes);
             media = new Media();
             media.setHash(hash);
             media.setContentType(contentType);
-            media.setBytes(bytes);
+            media.setSizeBytes(bytes.length);
             LocalDateTime now = LocalDateTime.now();
             media.setCreatedAt(now);
             media.setUpdatedAt(now);
             media.setActive(true);
             media = repository.save(media);
+        } else if (!storage.exists(hash)) {
+            // Metadado sobreviveu ao arquivo (volume novo, restore parcial):
+            // como o conteúdo é o mesmo hash, basta regravar.
+            storage.write(hash, bytes);
         }
         return new MediaResponse(media.getHash(), urlFor(media.getHash()),
-                media.getContentType(), media.getBytes().length);
+                media.getContentType(), (int) media.getSizeBytes());
+    }
+
+    /** Os bytes da imagem, lidos do disco. */
+    public byte[] bytesOf(String hash) {
+        getByHash(hash);   // 404 se nem o metadado existe
+        return storage.read(hash);
     }
 
     public Media getByHash(String hash) {

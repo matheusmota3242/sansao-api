@@ -21,6 +21,7 @@ services:
     working_dir: /app
     environment:
       TZ: America/Sao_Paulo
+      MEDIA_PATH: /app/.media
     volumes:
       - .:/app
       - ~/.m2:/root/.m2

@@ -33,6 +33,10 @@ build/
 ### VS Code ###
 .vscode/
 
+### Imagens do catálogo (bytes em disco) ###
+.media/
+media/
+
 ### Secrets ###
 .app_env
 .waha_env

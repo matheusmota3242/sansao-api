@@ -1,9 +1,7 @@
 package dev.m2g2.simao.service;
 
-import dev.m2g2.simao.enums.OrderStatus;
 import dev.m2g2.simao.model.Customer;
 import dev.m2g2.simao.repository.CustomerRepository;
-import dev.m2g2.simao.repository.PrintOrderRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,14 +13,10 @@ import java.util.List;
 @Service
 public class CustomerService {
 
-    private static final List<OrderStatus> QUEUE_STATUSES = List.of(OrderStatus.WAITING, OrderStatus.RUNNING);
-
     private final CustomerRepository repository;
-    private final PrintOrderRepository printOrderRepository;
 
-    public CustomerService(CustomerRepository repository, PrintOrderRepository printOrderRepository) {
+    public CustomerService(CustomerRepository repository) {
         this.repository = repository;
-        this.printOrderRepository = printOrderRepository;
     }
 
     public List<Customer> list() {
@@ -70,30 +64,18 @@ public class CustomerService {
     }
 
     /**
-     * Deactivates a customer. Deliberately a soft delete: print_order carries a
-     * foreign key to customer, so removing the row would either fail or orphan
-     * the order history. Refuses while the customer still has orders in the
-     * queue, so nothing in progress loses its owner.
+     * Desativa o cliente em vez de apagar a linha: soft delete mantém o
+     * histórico consistente e o cadastro some das listas do mesmo jeito.
      */
     @Transactional
     public void delete(Long id) {
         Customer customer = get(id);
-        long queued = printOrderRepository
-                .findAllByActiveTrueAndStatusInOrderByPriorityAsc(QUEUE_STATUSES)
-                .stream()
-                .filter(order -> order.getCustomer() != null && id.equals(order.getCustomer().getId()))
-                .count();
-        if (queued > 0)
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Cliente %s tem %d pedido(s) na fila. Encerre ou remova antes."
-                            .formatted(customer.getName(), queued));
         customer.setActive(false);
         repository.save(customer);
     }
 
     /**
-     * Resolves the customer used when registering an order, from either an id or
-     * a name:
+     * Resolve um cliente a partir de id ou nome:
      *
      * <ul>
      *   <li>All-digit input is read as an id and looked up directly. Returns null
@@ -101,8 +83,7 @@ public class CustomerService {
      *       loudly instead of silently becoming a customer named "12".</li>
      *   <li>Anything else is matched against active customers ignoring case and
      *       surrounding blanks, and a new customer is created when nothing
-     *       matches. That is what lets order intake ask for the customer in a
-     *       single question instead of requiring registration first.</li>
+     *       matches, o que permite registrar o cliente numa etapa só.</li>
      * </ul>
      *
      * <p>Name matching is exact apart from case: "joão silva" finds "João Silva",

@@ -70,6 +70,11 @@ Português permanece em: mensagens ao usuário, o formato externo `argilalab.jso
   modal do frontend só faz uma prévia para dar feedback enquanto se digita.
 - `Media` é endereçada por conteúdo (SHA-256). Subir a mesma imagem duas vezes
   devolve o mesmo hash e grava os bytes uma vez só.
+- **Os bytes ficam em disco**, em `MEDIA_PATH/<2 do hash>/<hash>`; no banco fica
+  só o metadado. `MediaStorage` grava de forma atômica e valida que o hash é
+  hexadecimal antes de montar caminho — sem isso um `../..` na URL leria
+  qualquer arquivo do servidor. O `MediaService` grava o arquivo **antes** da
+  linha: linha sem arquivo vira foto quebrada no catálogo.
 - `ProductPhoto` é ordenada por `position`; a primeira é a capa.
 
 ### Loja pública
@@ -78,25 +83,17 @@ Português permanece em: mensagens ao usuário, o formato externo `argilalab.jso
   cliente entra pela API.
 
 ### Gestão
-- Telas no admin: **Fila de impressão**, **Clientes** e **Compras de insumo**,
-  em `<details class="painel">` como o resto. O JS vive no mesmo arquivo, na
-  seção "gestão", e é carregado por `carregarGestao()` no start.
+- Telas no admin: **Clientes** e **Compras de insumo**, em
+  `<details class="painel">` como o resto. O JS vive no mesmo arquivo, na seção
+  "gestão", e é carregado por `carregarGestao()` no start.
 - `GET /api/me` diz quem está logado; o frontend usa `canSeeCosts` só para não
   desenhar campo que não pode ver. **A resposta da API já omite o dado** — nunca
   confie na tela para esconder dinheiro.
-- `PrintOrder` é uma fila: `priority` é 1..n contígua entre os pedidos em fila
-  (WAITING/RUNNING) e NULL para quem saiu dela (COMPLETED/CANCELLED).
-  Toda operação que mexe na fila chama `renumber()` para manter isso.
-- **Cuidado ao contar a fila dentro de `changeStatus`:** o método é transacional
-  e o Hibernate faz flush do status novo antes de qualquer consulta, então
-  `queue()` já enxerga o próprio pedido. Contar `queue().size()` ali deixava
-  buraco na sequência ao reabrir um pedido encerrado (1, 2, 4). Por isso ele vai
-  para o fim com prioridade alta e o `renumber()` devolve a sequência.
 - `CustomerService.resolveByNameOrId` aceita id ou nome: entrada só de dígitos é
   id e falha se não existir; qualquer outra coisa casa por nome (ignorando caixa)
   ou cria um cliente novo.
-- Exclusão de cliente é soft delete — `print_order` tem FK para `customer`, então
-  apagar a linha deixaria o histórico órfão.
+- Exclusão de cliente é soft delete: mantém o histórico consistente e o cadastro
+  some das listas do mesmo jeito.
 - Erros de negócio sobem como `ResponseStatusException` com mensagem em
   português, que é o que os controllers do catálogo já fazem.
 
@@ -112,5 +109,4 @@ Português permanece em: mensagens ao usuário, o formato externo `argilalab.jso
 ## Convenções de nomenclatura
 - Classes de teste: `[Classe]Test`
 - Mensagens ao usuário em português, código em inglês
-- A tabela de pedidos é `print_order`, não `order`, e a de usuários é
-  `app_user`, não `user` — ORDER e USER são palavras reservadas
+- A tabela de usuários é `app_user`, não `user` — USER é palavra reservada

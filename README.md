@@ -22,9 +22,12 @@ o custo de todos os produtos.
 `GET /api/catalog` devolve o catálogo vivo (produtos publicados + configuração
 da loja). O checkout é um link `wa.me` — nenhum dado de cliente passa pela API.
 
+As imagens ficam **em disco**, não no banco: `MEDIA_PATH/<2 do hash>/<hash>`.
+Em container isso precisa de um volume, senão as fotos somem a cada deploy — o
+`deploy/docker-compose.yml` já monta um.
+
 ### Gestão
-Clientes, fila de impressão (com status e prioridade contígua) e compras de
-insumos.
+Clientes e compras de insumo.
 
 ## API
 
@@ -38,8 +41,8 @@ insumos.
 | Mídia | `POST /api/media`, `GET /api/media/{hash}` |
 | Importação | `POST /api/import` |
 | Clientes | `/api/customers` |
-| Fila de impressão | `/api/orders`, `/api/orders/closed`, `PUT /api/orders/{id}/status`, `PUT /api/orders/{id}/position` |
 | Compras de insumo | `/api/purchases` (só ADMIN) |
+| Quem está logado | `GET /api/me` |
 
 Os endpoints do catálogo têm chaves JSON em português por compatibilidade com o
 frontend; os de gestão, que nasceram agora, usam inglês nos dois lados.
@@ -66,6 +69,12 @@ E o primeiro admin, criado no boot quando a tabela de usuários está vazia:
 ADMIN_EMAIL=voce@argilalab.com.br
 ADMIN_PASSWORD=uma_senha_forte
 ADMIN_NAME=Seu Nome
+```
+
+E, se quiser guardar as imagens fora do diretório de trabalho:
+
+```env
+MEDIA_PATH=/app/media
 ```
 
 E o `.postgres_app.env`:
@@ -102,8 +111,7 @@ Login por sessão, com papéis:
 | Produtos, categorias, loja, mídia, importação | não | sim | sim |
 | `GET/PUT /api/cost-parameters` (custo e margem) | não | **não** | sim |
 | `/api/purchases` (gasto com insumo) | não | **não** | sim |
-| `/api/customers`, `/api/orders` | não | sim | sim |
-| Custo e lucro dentro do pedido | não | **omitidos** | sim |
+| `/api/customers` | não | sim | sim |
 | `/argilalabapp.html` | não | sim | sim |
 
 - Senhas em BCrypt; o hash nunca é serializado (`@JsonIgnore`, com teste).
