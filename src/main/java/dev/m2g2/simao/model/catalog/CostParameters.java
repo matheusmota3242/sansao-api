@@ -13,64 +13,64 @@ import java.math.BigDecimal;
 @Entity
 public class CostParameters extends BaseModel {
 
-    @Column(name = "fil_preco")
-    private BigDecimal filPreco;      // filamento R$/kg
-    private BigDecimal potencia;      // kW
-    private BigDecimal tarifa;        // R$/kWh
-    private BigDecimal deprec;        // depreciacao R$/h
-    private BigDecimal mdo;           // mao de obra R$/h
-    private BigDecimal acresc;        // acrescimo %
+    @Column(name = "filament_price_per_kg")
+    private BigDecimal filamentPricePerKg;      // R$/kg
+    private BigDecimal powerKw;      // kW
+    private BigDecimal energyRate;        // R$/kWh
+    private BigDecimal depreciationPerHour;        // R$/h
+    private BigDecimal laborPerHour;           // R$/h
+    private BigDecimal surchargePct;        // %
     private BigDecimal markup;        // markup x
-    private BigDecimal comissao;      // comissao marketplace %
-    @Column(name = "taxa_fixa")
-    private BigDecimal taxaFixa;      // taxa fixa R$
+    private BigDecimal marketplaceCommissionPct;      // % do marketplace
+    @Column(name = "fixed_fee")
+    private BigDecimal fixedFee;      // R$
 
-    public BigDecimal getFilPreco() {
-        return filPreco;
+    public BigDecimal getFilamentPricePerKg() {
+        return filamentPricePerKg;
     }
 
-    public void setFilPreco(BigDecimal filPreco) {
-        this.filPreco = filPreco;
+    public void setFilamentPricePerKg(BigDecimal filamentPricePerKg) {
+        this.filamentPricePerKg = filamentPricePerKg;
     }
 
-    public BigDecimal getPotencia() {
-        return potencia;
+    public BigDecimal getPowerKw() {
+        return powerKw;
     }
 
-    public void setPotencia(BigDecimal potencia) {
-        this.potencia = potencia;
+    public void setPowerKw(BigDecimal powerKw) {
+        this.powerKw = powerKw;
     }
 
-    public BigDecimal getTarifa() {
-        return tarifa;
+    public BigDecimal getEnergyRate() {
+        return energyRate;
     }
 
-    public void setTarifa(BigDecimal tarifa) {
-        this.tarifa = tarifa;
+    public void setEnergyRate(BigDecimal energyRate) {
+        this.energyRate = energyRate;
     }
 
-    public BigDecimal getDeprec() {
-        return deprec;
+    public BigDecimal getDepreciationPerHour() {
+        return depreciationPerHour;
     }
 
-    public void setDeprec(BigDecimal deprec) {
-        this.deprec = deprec;
+    public void setDepreciationPerHour(BigDecimal depreciationPerHour) {
+        this.depreciationPerHour = depreciationPerHour;
     }
 
-    public BigDecimal getMdo() {
-        return mdo;
+    public BigDecimal getLaborPerHour() {
+        return laborPerHour;
     }
 
-    public void setMdo(BigDecimal mdo) {
-        this.mdo = mdo;
+    public void setLaborPerHour(BigDecimal laborPerHour) {
+        this.laborPerHour = laborPerHour;
     }
 
-    public BigDecimal getAcresc() {
-        return acresc;
+    public BigDecimal getSurchargePct() {
+        return surchargePct;
     }
 
-    public void setAcresc(BigDecimal acresc) {
-        this.acresc = acresc;
+    public void setSurchargePct(BigDecimal surchargePct) {
+        this.surchargePct = surchargePct;
     }
 
     public BigDecimal getMarkup() {
@@ -81,19 +81,19 @@ public class CostParameters extends BaseModel {
         this.markup = markup;
     }
 
-    public BigDecimal getComissao() {
-        return comissao;
+    public BigDecimal getMarketplaceCommissionPct() {
+        return marketplaceCommissionPct;
     }
 
-    public void setComissao(BigDecimal comissao) {
-        this.comissao = comissao;
+    public void setMarketplaceCommissionPct(BigDecimal marketplaceCommissionPct) {
+        this.marketplaceCommissionPct = marketplaceCommissionPct;
     }
 
-    public BigDecimal getTaxaFixa() {
-        return taxaFixa;
+    public BigDecimal getFixedFee() {
+        return fixedFee;
     }
 
-    public void setTaxaFixa(BigDecimal taxaFixa) {
-        this.taxaFixa = taxaFixa;
+    public void setFixedFee(BigDecimal fixedFee) {
+        this.fixedFee = fixedFee;
     }
 }

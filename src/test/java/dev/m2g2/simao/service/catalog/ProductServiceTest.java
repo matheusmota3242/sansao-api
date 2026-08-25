@@ -56,25 +56,25 @@ class ProductServiceTest {
 
     private CostParameters params() {
         CostParameters p = new CostParameters();
-        p.setFilPreco(new BigDecimal("89.00"));
-        p.setPotencia(new BigDecimal("0.150"));
-        p.setTarifa(new BigDecimal("0.75"));
-        p.setDeprec(new BigDecimal("0.58"));
-        p.setMdo(new BigDecimal("10.00"));
-        p.setAcresc(new BigDecimal("10"));
+        p.setFilamentPricePerKg(new BigDecimal("89.00"));
+        p.setPowerKw(new BigDecimal("0.150"));
+        p.setEnergyRate(new BigDecimal("0.75"));
+        p.setDepreciationPerHour(new BigDecimal("0.58"));
+        p.setLaborPerHour(new BigDecimal("10.00"));
+        p.setSurchargePct(new BigDecimal("10"));
         p.setMarkup(new BigDecimal("2.0"));
-        p.setComissao(new BigDecimal("25.5"));
-        p.setTaxaFixa(new BigDecimal("4.00"));
+        p.setMarketplaceCommissionPct(new BigDecimal("25.5"));
+        p.setFixedFee(new BigDecimal("4.00"));
         return p;
     }
 
-    private ProductRequest req(String nome, String cat, String tam) {
-        return req(nome, cat, tam, null);
+    private ProductRequest req(String name, String categoryCode, String size) {
+        return req(name, categoryCode, size, null);
     }
 
-    private ProductRequest req(String nome, String cat, String tam, List<String> fotos) {
-        return new ProductRequest(nome, cat, tam, ProductStatus.ATIVO, null, "desc",
-                fotos, null, null, null,
+    private ProductRequest req(String name, String categoryCode, String size, List<String> photos) {
+        return new ProductRequest(name, categoryCode, size, ProductStatus.ACTIVE, null, "desc",
+                photos, null, null, null,
                 new BigDecimal("50"), new BigDecimal("2"), new BigDecimal("10"),
                 BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("39.00"),
                 null, null, null, null, null, null, null, null, null, null, null, null);
@@ -89,9 +89,9 @@ class ProductServiceTest {
 
         assertEquals(5, r.num());
         assertEquals("AL-MOL-005", r.sku());
-        assertEquals("MOL", r.cat());
-        assertEquals("Moldes e Formas", r.catNome());
-        assertNotNull(r.custo());
+        assertEquals("MOL", r.categoryCode());
+        assertEquals("Moldes e Formas", r.categoryName());
+        assertNotNull(r.cost());
         verify(repository).save(any(Product.class));
     }
 
@@ -103,7 +103,7 @@ class ProductServiceTest {
         ProductResponse r = service.create(req("Caneca", "MOL", "p"));
 
         assertEquals("AL-MOL-001-P", r.sku());
-        assertEquals("P", r.tam());
+        assertEquals("P", r.size());
     }
 
     @Test
@@ -130,18 +130,18 @@ class ProductServiceTest {
         Product original = new Product();
         original.setId(7L);
         original.setCategory(mol);
-        original.setNome("Original");
-        original.setTam("G");
+        original.setName("Original");
+        original.setSize("G");
         original.setActive(true);
         when(repository.findById(7L)).thenReturn(Optional.of(original));
         when(repository.findMaxNumByCategory(1L)).thenReturn(3);
 
         ProductResponse r = service.duplicate(7L);
 
-        assertEquals("", r.tam());
+        assertEquals("", r.size());
         assertEquals(4, r.num());
         assertEquals("AL-MOL-004", r.sku());
-        assertEquals("Original", r.nome());
+        assertEquals("Original", r.name());
     }
 
     @Test
@@ -179,8 +179,8 @@ class ProductServiceTest {
                 List.of("/api/media/aaa", "https://x/2.jpg", "/api/media/aaa")));
 
         // duplicates dropped, order kept, first is the cover
-        assertEquals(List.of("/api/media/aaa", "https://x/2.jpg"), r.fotos());
-        assertEquals("/api/media/aaa", r.foto());
+        assertEquals(List.of("/api/media/aaa", "https://x/2.jpg"), r.photos());
+        assertEquals("/api/media/aaa", r.photo());
     }
 
     @Test
@@ -215,7 +215,7 @@ class ProductServiceTest {
         when(repository.findBySlugAndActiveTrue(any())).thenReturn(Optional.empty());
 
         // ATIVO -> publicado
-        assertTrue(service.create(req("Ativo", "MOL", "")).publicado());
+        assertTrue(service.create(req("Ativo", "MOL", "")).published());
     }
 
     @Test
@@ -223,8 +223,8 @@ class ProductServiceTest {
         Product original = new Product();
         original.setId(7L);
         original.setCategory(mol);
-        original.setNome("Original");
-        original.setPublicado(true);
+        original.setName("Original");
+        original.setPublished(true);
         original.setSlug("original");
         original.setActive(true);
         when(repository.findById(7L)).thenReturn(Optional.of(original));
@@ -234,7 +234,7 @@ class ProductServiceTest {
 
         ProductResponse r = service.duplicate(7L);
 
-        assertFalse(r.publicado());
+        assertFalse(r.published());
         assertEquals("original-2", r.slug());
     }
 }

@@ -62,7 +62,7 @@ public class ProductService {
     }
 
     public ProductResponse create(ProductRequest request) {
-        Category category = resolveCategory(request.cat());
+        Category category = resolveCategory(request.categoryCode());
         Product product = new Product();
         applyRequest(product, request, category);
         product.setNum(nextNum(category));
@@ -75,7 +75,7 @@ public class ProductService {
 
     public ProductResponse update(Long id, ProductRequest request) {
         Product product = findActive(id);
-        Category category = resolveCategory(request.cat());
+        Category category = resolveCategory(request.categoryCode());
         boolean categoryChanged = !product.getCategory().getId().equals(category.getId());
         applyRequest(product, request, category);
         if (categoryChanged) {
@@ -97,37 +97,37 @@ public class ProductService {
         Product original = findActive(id);
         Product copy = new Product();
         copy.setCategory(original.getCategory());
-        copy.setNome(original.getNome());
-        copy.setDescricao(original.getDescricao());
+        copy.setName(original.getName());
+        copy.setDescription(original.getDescription());
         copy.setStatus(original.getStatus());
-        copy.setObs(original.getObs());
-        copy.setGram(original.getGram());
-        copy.setTempoHoras(original.getTempoHoras());
-        copy.setTrabMin(original.getTrabMin());
-        copy.setInsumos(original.getInsumos());
-        copy.setEmbalagem(original.getEmbalagem());
-        copy.setCatalogoPreco(original.getCatalogoPreco());
-        copy.setTempoExato(original.isTempoExato());
-        copy.setOrigem(original.getOrigem());
-        copy.setImpressora(original.getImpressora());
-        copy.setFilamento(original.getFilamento());
-        copy.setPrazo(original.getPrazo());
-        copy.setOrdem(original.getOrdem());
+        copy.setObservations(original.getObservations());
+        copy.setGrams(original.getGrams());
+        copy.setPrintTimeHours(original.getPrintTimeHours());
+        copy.setLaborMinutes(original.getLaborMinutes());
+        copy.setSupplies(original.getSupplies());
+        copy.setPackaging(original.getPackaging());
+        copy.setCatalogPrice(original.getCatalogPrice());
+        copy.setExactTime(original.isExactTime());
+        copy.setOrigin(original.getOrigin());
+        copy.setPrinter(original.getPrinter());
+        copy.setFilament(original.getFilament());
+        copy.setLeadTimeDays(original.getLeadTimeDays());
+        copy.setSortOrder(original.getSortOrder());
         copy.setMaterial(original.getMaterial());
-        copy.setDimPeca(original.getDimPeca());
-        copy.setEmbPeso(original.getEmbPeso());
-        copy.setEmbDim(original.getEmbDim());
+        copy.setPartDimensions(original.getPartDimensions());
+        copy.setPackageWeight(original.getPackageWeight());
+        copy.setPackageDimensions(original.getPackageDimensions());
         // A copy starts unpublished: it still needs a name/price review.
-        copy.setPublicado(false);
-        copy.setDestaque(false);
-        copy.setDescLonga(original.getDescLonga());
-        copy.setMetaDesc(original.getMetaDesc());
-        copy.setLicenca(original.getLicenca());
-        copy.setTam("");
+        copy.setPublished(false);
+        copy.setFeatured(false);
+        copy.setLongDescription(original.getLongDescription());
+        copy.setMetaDescription(original.getMetaDescription());
+        copy.setLicense(original.getLicense());
+        copy.setSize("");
         copy.setNum(nextNum(original.getCategory()));
         // Same images, new rows; slug must differ from the original's.
         applyPhotos(copy, original.getPhotos().stream().map(ProductPhoto::getUrl).toList());
-        copy.setSlug(resolveSlug(null, original.getNome(), copy));
+        copy.setSlug(resolveSlug(null, original.getName(), copy));
         LocalDateTime now = LocalDateTime.now();
         copy.setCreatedAt(now);
         copy.setUpdatedAt(now);
@@ -138,55 +138,55 @@ public class ProductService {
     // ---- helpers ------------------------------------------------------------
 
     private void applyRequest(Product product, ProductRequest request, Category category) {
-        String nome = request.nome() == null ? "" : request.nome().trim();
-        if (nome.isEmpty()) {
+        String name = request.name() == null ? "" : request.name().trim();
+        if (name.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dê um nome ao produto.");
         }
         product.setCategory(category);
-        product.setNome(nome);
-        product.setTam(request.tam() == null ? "" : request.tam().trim().toUpperCase());
-        product.setStatus(request.status() == null ? ProductStatus.ATIVO : request.status());
-        product.setObs(trimOrNull(request.obs()));
-        product.setDescricao(trimOrNull(request.desc()));
-        product.setOrigem(trimOrNull(request.origem()));
-        product.setImpressora(trimOrNull(request.impressora()));
-        product.setFilamento(trimOrNull(request.filamento()));
-        product.setGram(request.gram());
-        product.setTempoHoras(request.tempo());
-        product.setTrabMin(request.trab());
-        product.setInsumos(request.ins());
-        product.setEmbalagem(request.emb());
-        product.setCatalogoPreco(request.catalogo());
-        product.setTempoExato(true);
+        product.setName(name);
+        product.setSize(request.size() == null ? "" : request.size().trim().toUpperCase());
+        product.setStatus(request.status() == null ? ProductStatus.ACTIVE : request.status());
+        product.setObservations(trimOrNull(request.observations()));
+        product.setDescription(trimOrNull(request.description()));
+        product.setOrigin(trimOrNull(request.origin()));
+        product.setPrinter(trimOrNull(request.printer()));
+        product.setFilament(trimOrNull(request.filament()));
+        product.setGrams(request.grams());
+        product.setPrintTimeHours(request.printTimeHours());
+        product.setLaborMinutes(request.laborMinutes());
+        product.setSupplies(request.supplies());
+        product.setPackaging(request.packaging());
+        product.setCatalogPrice(request.catalogPrice());
+        product.setExactTime(true);
 
         // --- storefront / SEO ---
-        product.setSlug(resolveSlug(request.slug(), nome, product));
-        product.setPrazo(request.prazo() == null ? 5 : request.prazo());
-        product.setOrdem(request.ordem());
+        product.setSlug(resolveSlug(request.slug(), name, product));
+        product.setLeadTimeDays(request.leadTimeDays() == null ? 5 : request.leadTimeDays());
+        product.setSortOrder(request.sortOrder());
         product.setMaterial(request.material() == null || request.material().isBlank()
                 ? "PLA rígido" : request.material().trim());
-        product.setDimPeca(trimOrNull(request.dimPeca()));
-        product.setEmbPeso(request.embPeso());
-        product.setEmbDim(trimOrNull(request.embDim()));
+        product.setPartDimensions(trimOrNull(request.partDimensions()));
+        product.setPackageWeight(request.packageWeight());
+        product.setPackageDimensions(trimOrNull(request.packageDimensions()));
         // Default: publish what is active, mirroring the frontend migrar().
-        product.setPublicado(request.publicado() == null
-                ? product.getStatus() == ProductStatus.ATIVO : request.publicado());
-        product.setDestaque(Boolean.TRUE.equals(request.destaque()));
-        product.setDescLonga(trimOrNull(request.descLonga()));
-        product.setMetaDesc(trimOrNull(request.metaDesc()));
-        product.setLicenca(trimOrNull(request.licenca()));
+        product.setPublished(request.published() == null
+                ? product.getStatus() == ProductStatus.ACTIVE : request.published());
+        product.setFeatured(Boolean.TRUE.equals(request.featured()));
+        product.setLongDescription(trimOrNull(request.longDescription()));
+        product.setMetaDescription(trimOrNull(request.metaDescription()));
+        product.setLicense(trimOrNull(request.license()));
 
-        applyPhotos(product, request.fotos());
+        applyPhotos(product, request.photos());
     }
 
     /**
      * Replaces the photo list in order. photos[0] is mirrored onto `foto` so the
      * cover stays available to anything reading the flat field.
      */
-    private void applyPhotos(Product product, List<String> fotos) {
+    private void applyPhotos(Product product, List<String> photos) {
         List<String> urls = new ArrayList<>();
-        if (fotos != null) {
-            for (String f : fotos) {
+        if (photos != null) {
+            for (String f : photos) {
                 String t = f == null ? "" : f.trim();
                 if (!t.isEmpty() && !urls.contains(t)) {
                     urls.add(t);
@@ -206,12 +206,12 @@ public class ProductService {
             photo.setActive(true);
             product.getPhotos().add(photo);
         }
-        product.setFoto(urls.isEmpty() ? null : urls.getFirst());
+        product.setPhoto(urls.isEmpty() ? null : urls.getFirst());
     }
 
     /** Slug is the storefront URL and must be unique across products. */
-    private String resolveSlug(String requested, String nome, Product product) {
-        String base = (requested == null || requested.isBlank()) ? slugify(nome) : slugify(requested);
+    private String resolveSlug(String requested, String name, Product product) {
+        String base = (requested == null || requested.isBlank()) ? slugify(name) : slugify(requested);
         if (base.isEmpty()) {
             base = "produto";
         }
@@ -262,68 +262,68 @@ public class ProductService {
             return repository.save(product);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "SKU já existe: " + SkuUtil.build(product.getCategory().getCode(), product.getNum(), product.getTam()));
+                    "SKU já existe: " + SkuUtil.build(product.getCategory().getCode(), product.getNum(), product.getSize()));
         }
     }
 
     private boolean matchesQuery(ProductResponse r, String query) {
-        String haystack = (r.nome() + " " + r.sku() + " " + (r.desc() == null ? "" : r.desc())).toLowerCase();
+        String haystack = (r.name() + " " + r.sku() + " " + (r.description() == null ? "" : r.description())).toLowerCase();
         return haystack.contains(query);
     }
 
     private Comparator<ProductResponse> comparator(String sort) {
         String s = sort == null ? "sku" : sort;
         return switch (s) {
-            case "nome" -> Comparator.comparing(ProductResponse::nome, String.CASE_INSENSITIVE_ORDER);
+            case "nome" -> Comparator.comparing(ProductResponse::name, String.CASE_INSENSITIVE_ORDER);
             case "preco" -> Comparator.comparing(
-                    (ProductResponse r) -> r.catalogo() == null ? BigDecimal.valueOf(-1) : r.catalogo()).reversed();
+                    (ProductResponse r) -> r.catalogPrice() == null ? BigDecimal.valueOf(-1) : r.catalogPrice()).reversed();
             case "margem" -> Comparator.comparing(
-                    (ProductResponse r) -> r.custo().margemPct() == null
-                            ? BigDecimal.valueOf(-900) : r.custo().margemPct()).reversed();
+                    (ProductResponse r) -> r.cost().marginPct() == null
+                            ? BigDecimal.valueOf(-900) : r.cost().marginPct()).reversed();
             default -> Comparator.comparing(ProductResponse::sku);
         };
     }
 
     private ProductResponse toResponse(Product p, CostParameters params) {
-        CostBreakdown custo = costCalculatorService.compute(p, params);
+        CostBreakdown cost = costCalculatorService.compute(p, params);
         Category c = p.getCategory();
-        List<String> fotos = p.getPhotos().stream().map(ProductPhoto::getUrl).toList();
+        List<String> photos = p.getPhotos().stream().map(ProductPhoto::getUrl).toList();
         return new ProductResponse(
                 p.getId(),
-                SkuUtil.build(c.getCode(), p.getNum(), p.getTam()),
+                SkuUtil.build(c.getCode(), p.getNum(), p.getSize()),
                 c.getCode(),
                 c.getName(),
                 p.getNum(),
-                p.getTam(),
-                p.getNome(),
-                p.getDescricao(),
+                p.getSize(),
+                p.getName(),
+                p.getDescription(),
                 p.getStatus(),
-                p.getObs(),
-                p.getGram(),
-                p.getTempoHoras(),
-                p.getTrabMin(),
-                p.getInsumos(),
-                p.getEmbalagem(),
-                p.getCatalogoPreco(),
-                p.isTempoExato(),
-                p.getFoto(),
-                fotos,
-                p.getOrigem(),
-                p.getImpressora(),
-                p.getFilamento(),
+                p.getObservations(),
+                p.getGrams(),
+                p.getPrintTimeHours(),
+                p.getLaborMinutes(),
+                p.getSupplies(),
+                p.getPackaging(),
+                p.getCatalogPrice(),
+                p.isExactTime(),
+                p.getPhoto(),
+                photos,
+                p.getOrigin(),
+                p.getPrinter(),
+                p.getFilament(),
                 p.getSlug(),
-                p.getPrazo(),
-                p.getOrdem(),
+                p.getLeadTimeDays(),
+                p.getSortOrder(),
                 p.getMaterial(),
-                p.getDimPeca(),
-                p.getEmbPeso(),
-                p.getEmbDim(),
-                p.isPublicado(),
-                p.isDestaque(),
-                p.getDescLonga(),
-                p.getMetaDesc(),
-                p.getLicenca(),
-                custo);
+                p.getPartDimensions(),
+                p.getPackageWeight(),
+                p.getPackageDimensions(),
+                p.isPublished(),
+                p.isFeatured(),
+                p.getLongDescription(),
+                p.getMetaDescription(),
+                p.getLicense(),
+                cost);
     }
 
     private static String trimOrNull(String value) {

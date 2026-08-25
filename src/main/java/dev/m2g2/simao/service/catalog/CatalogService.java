@@ -33,17 +33,17 @@ public class CatalogService {
 
     public CatalogResponse get() {
         List<ProductResponse> published = productService.list(null, null, null, "sku").stream()
-                .filter(ProductResponse::publicado)
+                .filter(ProductResponse::published)
                 .sorted(Comparator
-                        .comparing((ProductResponse p) -> p.ordem() == null ? Integer.MAX_VALUE : p.ordem())
+                        .comparing((ProductResponse p) -> p.sortOrder() == null ? Integer.MAX_VALUE : p.sortOrder())
                         .thenComparing(ProductResponse::sku))
                 .toList();
 
-        Map<String, String> cats = new LinkedHashMap<>();
+        Map<String, String> categories = new LinkedHashMap<>();
         for (Category c : categoryRepository.findAllByActiveTrueOrderByCodeAsc()) {
-            cats.put(c.getCode(), c.getName());
+            categories.put(c.getCode(), c.getName());
         }
 
-        return new CatalogResponse(storeConfigService.get(), cats, published, LocalDateTime.now());
+        return new CatalogResponse(storeConfigService.get(), categories, published, LocalDateTime.now());
     }
 }

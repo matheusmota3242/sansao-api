@@ -19,7 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findBySlugAndActiveTrue(String slug);
 
     // Upsert key for import: a product is identified by its SKU (category+num+tam).
-    Optional<Product> findByCategoryIdAndNumAndTam(Long categoryId, Integer num, String tam);
+    Optional<Product> findByCategoryIdAndNumAndSize(Long categoryId, Integer num, String size);
 
     // Max num over ALL rows in the category (inactive included), so a soft-deleted
     // SKU stays reserved and never gets reused.

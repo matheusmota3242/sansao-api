@@ -25,41 +25,41 @@ public class Product extends BaseModel {
     // Sequential number within the category; part of the derived SKU.
     private Integer num;
     // Size/variation suffix (may be empty, never null).
-    private String tam = "";
+    private String size = "";
 
-    private String nome;
+    private String name;
 
-    @Column(name = "descricao")
-    private String descricao;
+    @Column(name = "description")
+    private String description;
 
     @Enumerated(EnumType.STRING)
-    private ProductStatus status = ProductStatus.ATIVO;
+    private ProductStatus status = ProductStatus.ACTIVE;
 
-    private String obs;
+    private String observations;
 
-    private BigDecimal gram;
+    private BigDecimal grams;
 
-    @Column(name = "tempo_horas")
-    private BigDecimal tempoHoras;
+    @Column(name = "print_time_hours")
+    private BigDecimal printTimeHours;
 
-    @Column(name = "trab_min")
-    private BigDecimal trabMin;
+    @Column(name = "labor_minutes")
+    private BigDecimal laborMinutes;
 
-    private BigDecimal insumos;
+    private BigDecimal supplies;
 
-    private BigDecimal embalagem;
+    private BigDecimal packaging;
 
-    @Column(name = "catalogo_preco")
-    private BigDecimal catalogoPreco;
+    @Column(name = "catalog_price")
+    private BigDecimal catalogPrice;
 
-    @Column(name = "tempo_exato")
-    private boolean tempoExato = true;
+    @Column(name = "exact_time")
+    private boolean exactTime = true;
 
     // Cover photo, kept in sync with photos[0] for compatibility.
-    private String foto;
-    private String origem;
-    private String impressora;
-    private String filamento;
+    private String photo;
+    private String origin;
+    private String printer;
+    private String filament;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
@@ -67,22 +67,22 @@ public class Product extends BaseModel {
 
     // --- storefront / SEO ---
     private String slug;
-    private Integer prazo;          // dias
-    private Integer ordem;          // ordenação na loja
+    private Integer leadTimeDays;   // prazo de produção, em dias
+    private Integer sortOrder;      // ordenação na vitrine
     private String material;
-    @Column(name = "dim_peca")
-    private String dimPeca;
-    @Column(name = "emb_peso")
-    private BigDecimal embPeso;
-    @Column(name = "emb_dim")
-    private String embDim;
-    private boolean publicado = true;
-    private boolean destaque = false;
-    @Column(name = "desc_longa")
-    private String descLonga;
-    @Column(name = "meta_desc")
-    private String metaDesc;
-    private String licenca;
+    @Column(name = "part_dimensions")
+    private String partDimensions;
+    @Column(name = "package_weight")
+    private BigDecimal packageWeight;
+    @Column(name = "package_dimensions")
+    private String packageDimensions;
+    private boolean published = true;
+    private boolean featured = false;
+    @Column(name = "long_description")
+    private String longDescription;
+    @Column(name = "meta_description")
+    private String metaDescription;
+    private String license;
 
     public Category getCategory() {
         return category;
@@ -100,28 +100,28 @@ public class Product extends BaseModel {
         this.num = num;
     }
 
-    public String getTam() {
-        return tam;
+    public String getSize() {
+        return size;
     }
 
-    public void setTam(String tam) {
-        this.tam = tam == null ? "" : tam;
+    public void setSize(String size) {
+        this.size = size == null ? "" : size;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getDescricao() {
-        return descricao;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public ProductStatus getStatus() {
@@ -132,100 +132,100 @@ public class Product extends BaseModel {
         this.status = status;
     }
 
-    public String getObs() {
-        return obs;
+    public String getObservations() {
+        return observations;
     }
 
-    public void setObs(String obs) {
-        this.obs = obs;
+    public void setObservations(String observations) {
+        this.observations = observations;
     }
 
-    public BigDecimal getGram() {
-        return gram;
+    public BigDecimal getGrams() {
+        return grams;
     }
 
-    public void setGram(BigDecimal gram) {
-        this.gram = gram;
+    public void setGrams(BigDecimal grams) {
+        this.grams = grams;
     }
 
-    public BigDecimal getTempoHoras() {
-        return tempoHoras;
+    public BigDecimal getPrintTimeHours() {
+        return printTimeHours;
     }
 
-    public void setTempoHoras(BigDecimal tempoHoras) {
-        this.tempoHoras = tempoHoras;
+    public void setPrintTimeHours(BigDecimal printTimeHours) {
+        this.printTimeHours = printTimeHours;
     }
 
-    public BigDecimal getTrabMin() {
-        return trabMin;
+    public BigDecimal getLaborMinutes() {
+        return laborMinutes;
     }
 
-    public void setTrabMin(BigDecimal trabMin) {
-        this.trabMin = trabMin;
+    public void setLaborMinutes(BigDecimal laborMinutes) {
+        this.laborMinutes = laborMinutes;
     }
 
-    public BigDecimal getInsumos() {
-        return insumos;
+    public BigDecimal getSupplies() {
+        return supplies;
     }
 
-    public void setInsumos(BigDecimal insumos) {
-        this.insumos = insumos;
+    public void setSupplies(BigDecimal supplies) {
+        this.supplies = supplies;
     }
 
-    public BigDecimal getEmbalagem() {
-        return embalagem;
+    public BigDecimal getPackaging() {
+        return packaging;
     }
 
-    public void setEmbalagem(BigDecimal embalagem) {
-        this.embalagem = embalagem;
+    public void setPackaging(BigDecimal packaging) {
+        this.packaging = packaging;
     }
 
-    public BigDecimal getCatalogoPreco() {
-        return catalogoPreco;
+    public BigDecimal getCatalogPrice() {
+        return catalogPrice;
     }
 
-    public void setCatalogoPreco(BigDecimal catalogoPreco) {
-        this.catalogoPreco = catalogoPreco;
+    public void setCatalogPrice(BigDecimal catalogPrice) {
+        this.catalogPrice = catalogPrice;
     }
 
-    public boolean isTempoExato() {
-        return tempoExato;
+    public boolean isExactTime() {
+        return exactTime;
     }
 
-    public void setTempoExato(boolean tempoExato) {
-        this.tempoExato = tempoExato;
+    public void setExactTime(boolean exactTime) {
+        this.exactTime = exactTime;
     }
 
-    public String getFoto() {
-        return foto;
+    public String getPhoto() {
+        return photo;
     }
 
-    public void setFoto(String foto) {
-        this.foto = foto;
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
-    public String getOrigem() {
-        return origem;
+    public String getOrigin() {
+        return origin;
     }
 
-    public void setOrigem(String origem) {
-        this.origem = origem;
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 
-    public String getImpressora() {
-        return impressora;
+    public String getPrinter() {
+        return printer;
     }
 
-    public void setImpressora(String impressora) {
-        this.impressora = impressora;
+    public void setPrinter(String printer) {
+        this.printer = printer;
     }
 
-    public String getFilamento() {
-        return filamento;
+    public String getFilament() {
+        return filament;
     }
 
-    public void setFilamento(String filamento) {
-        this.filamento = filamento;
+    public void setFilament(String filament) {
+        this.filament = filament;
     }
 
     public List<ProductPhoto> getPhotos() {
@@ -244,20 +244,20 @@ public class Product extends BaseModel {
         this.slug = slug;
     }
 
-    public Integer getPrazo() {
-        return prazo;
+    public Integer getLeadTimeDays() {
+        return leadTimeDays;
     }
 
-    public void setPrazo(Integer prazo) {
-        this.prazo = prazo;
+    public void setLeadTimeDays(Integer leadTimeDays) {
+        this.leadTimeDays = leadTimeDays;
     }
 
-    public Integer getOrdem() {
-        return ordem;
+    public Integer getSortOrder() {
+        return sortOrder;
     }
 
-    public void setOrdem(Integer ordem) {
-        this.ordem = ordem;
+    public void setSortOrder(Integer sortOrder) {
+        this.sortOrder = sortOrder;
     }
 
     public String getMaterial() {
@@ -268,67 +268,67 @@ public class Product extends BaseModel {
         this.material = material;
     }
 
-    public String getDimPeca() {
-        return dimPeca;
+    public String getPartDimensions() {
+        return partDimensions;
     }
 
-    public void setDimPeca(String dimPeca) {
-        this.dimPeca = dimPeca;
+    public void setPartDimensions(String partDimensions) {
+        this.partDimensions = partDimensions;
     }
 
-    public BigDecimal getEmbPeso() {
-        return embPeso;
+    public BigDecimal getPackageWeight() {
+        return packageWeight;
     }
 
-    public void setEmbPeso(BigDecimal embPeso) {
-        this.embPeso = embPeso;
+    public void setPackageWeight(BigDecimal packageWeight) {
+        this.packageWeight = packageWeight;
     }
 
-    public String getEmbDim() {
-        return embDim;
+    public String getPackageDimensions() {
+        return packageDimensions;
     }
 
-    public void setEmbDim(String embDim) {
-        this.embDim = embDim;
+    public void setPackageDimensions(String packageDimensions) {
+        this.packageDimensions = packageDimensions;
     }
 
-    public boolean isPublicado() {
-        return publicado;
+    public boolean isPublished() {
+        return published;
     }
 
-    public void setPublicado(boolean publicado) {
-        this.publicado = publicado;
+    public void setPublished(boolean published) {
+        this.published = published;
     }
 
-    public boolean isDestaque() {
-        return destaque;
+    public boolean isFeatured() {
+        return featured;
     }
 
-    public void setDestaque(boolean destaque) {
-        this.destaque = destaque;
+    public void setFeatured(boolean featured) {
+        this.featured = featured;
     }
 
-    public String getDescLonga() {
-        return descLonga;
+    public String getLongDescription() {
+        return longDescription;
     }
 
-    public void setDescLonga(String descLonga) {
-        this.descLonga = descLonga;
+    public void setLongDescription(String longDescription) {
+        this.longDescription = longDescription;
     }
 
-    public String getMetaDesc() {
-        return metaDesc;
+    public String getMetaDescription() {
+        return metaDescription;
     }
 
-    public void setMetaDesc(String metaDesc) {
-        this.metaDesc = metaDesc;
+    public void setMetaDescription(String metaDescription) {
+        this.metaDescription = metaDescription;
     }
 
-    public String getLicenca() {
-        return licenca;
+    public String getLicense() {
+        return license;
     }
 
-    public void setLicenca(String licenca) {
-        this.licenca = licenca;
+    public void setLicense(String license) {
+        this.license = license;
     }
 }

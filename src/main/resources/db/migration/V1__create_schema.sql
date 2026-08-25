@@ -40,15 +40,15 @@ CREATE TABLE category (
 -- Linha única e global: mexer aqui recalcula o custo de todos os produtos.
 CREATE TABLE cost_parameters (
     id BIGSERIAL PRIMARY KEY,
-    fil_preco NUMERIC(12,4) NOT NULL,   -- filamento R$/kg
-    potencia NUMERIC(12,4) NOT NULL,    -- kW
-    tarifa NUMERIC(12,4) NOT NULL,      -- R$/kWh
-    deprec NUMERIC(12,4) NOT NULL,      -- depreciacao R$/h
-    mdo NUMERIC(12,4) NOT NULL,         -- mao de obra R$/h
-    acresc NUMERIC(12,4) NOT NULL,      -- acrescimo %
-    markup NUMERIC(12,4) NOT NULL,      -- markup x
-    comissao NUMERIC(12,4) NOT NULL,    -- comissao marketplace %
-    taxa_fixa NUMERIC(12,4) NOT NULL,   -- taxa fixa R$
+    filament_price_per_kg NUMERIC(12,4) NOT NULL,   -- R$/kg
+    power_kw NUMERIC(12,4) NOT NULL,
+    energy_rate NUMERIC(12,4) NOT NULL,             -- R$/kWh
+    depreciation_per_hour NUMERIC(12,4) NOT NULL,   -- R$/h
+    labor_per_hour NUMERIC(12,4) NOT NULL,          -- R$/h
+    surcharge_pct NUMERIC(12,4) NOT NULL,           -- %
+    markup NUMERIC(12,4) NOT NULL,
+    marketplace_commission_pct NUMERIC(12,4) NOT NULL,
+    fixed_fee NUMERIC(12,4) NOT NULL,               -- R$
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     created_by_id BIGINT REFERENCES app_user(id),
@@ -61,37 +61,37 @@ CREATE TABLE product (
     id BIGSERIAL PRIMARY KEY,
     category_id BIGINT NOT NULL REFERENCES category(id),
     num INTEGER NOT NULL,
-    tam VARCHAR(20) NOT NULL DEFAULT '',
-    nome VARCHAR(255) NOT NULL,
-    descricao TEXT,
-    status VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
-    obs VARCHAR(255),
-    gram NUMERIC(12,2),
-    tempo_horas NUMERIC(12,4),
-    trab_min NUMERIC(12,2),
-    insumos NUMERIC(12,2),
-    embalagem NUMERIC(12,2),
-    catalogo_preco NUMERIC(12,2),
-    tempo_exato BOOLEAN NOT NULL DEFAULT TRUE,
+    size VARCHAR(20) NOT NULL DEFAULT '',
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    observations VARCHAR(255),
+    grams NUMERIC(12,2),
+    print_time_hours NUMERIC(12,4),
+    labor_minutes NUMERIC(12,2),
+    supplies NUMERIC(12,2),
+    packaging NUMERIC(12,2),
+    catalog_price NUMERIC(12,2),
+    exact_time BOOLEAN NOT NULL DEFAULT TRUE,
     -- Foto legada de quando o produto tinha uma imagem só; as atuais vivem em
     -- product_photo. Mantida porque a importação de projetos antigos ainda a lê.
-    foto TEXT,
-    origem TEXT,
-    impressora VARCHAR(255),
-    filamento VARCHAR(255),
+    photo TEXT,
+    origin TEXT,
+    printer VARCHAR(255),
+    filament VARCHAR(255),
     -- Campos de loja/SEO
     slug VARCHAR(255),
-    prazo INTEGER,                       -- dias
-    ordem INTEGER,                       -- ordenação na loja
+    lead_time_days INTEGER,
+    sort_order INTEGER,
     material VARCHAR(255),
-    dim_peca VARCHAR(255),
-    emb_peso NUMERIC(12,2),
-    emb_dim VARCHAR(255),
-    publicado BOOLEAN NOT NULL DEFAULT TRUE,
-    destaque BOOLEAN NOT NULL DEFAULT FALSE,
-    desc_longa TEXT,
-    meta_desc TEXT,
-    licenca VARCHAR(255),
+    part_dimensions VARCHAR(255),
+    package_weight NUMERIC(12,2),
+    package_dimensions VARCHAR(255),
+    published BOOLEAN NOT NULL DEFAULT TRUE,
+    featured BOOLEAN NOT NULL DEFAULT FALSE,
+    long_description TEXT,
+    meta_description TEXT,
+    license VARCHAR(255),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     created_by_id BIGINT REFERENCES app_user(id),
@@ -99,7 +99,7 @@ CREATE TABLE product (
     active BOOLEAN NOT NULL DEFAULT TRUE,
     -- num+tam é o sufixo do SKU; único por categoria incluindo linhas inativas,
     -- para que um SKU excluído continue reservado.
-    CONSTRAINT uq_product_sku UNIQUE (category_id, num, tam)
+    CONSTRAINT uq_product_sku UNIQUE (category_id, num, size)
 );
 
 CREATE INDEX idx_product_category ON product (category_id);
@@ -143,14 +143,14 @@ CREATE TABLE store_config (
     id BIGSERIAL PRIMARY KEY,
     instagram VARCHAR(255),
     whatsapp VARCHAR(50),
-    frete_gratis NUMERIC(12,2),
-    hero_titulo TEXT,
-    hero_texto TEXT,
-    confianca JSONB,
-    processo JSONB,
+    free_shipping_from NUMERIC(12,2),
+    hero_title TEXT,
+    hero_text TEXT,
+    trust_badges JSONB,
+    process JSONB,
     faq JSONB,
-    rodape TEXT,
-    obs_pedido TEXT,
+    footer TEXT,
+    order_notes TEXT,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     created_by_id BIGINT REFERENCES app_user(id),
@@ -213,7 +213,8 @@ CREATE TABLE purchase (
 -- ------------------------------------------------------------------ seeds ---
 -- Os 9 parâmetros de custo (linha única) com os padrões do app.
 INSERT INTO cost_parameters
-    (fil_preco, potencia, tarifa, deprec, mdo, acresc, markup, comissao, taxa_fixa, created_at, updated_at)
+    (filament_price_per_kg, power_kw, energy_rate, depreciation_per_hour, labor_per_hour,
+     surcharge_pct, markup, marketplace_commission_pct, fixed_fee, created_at, updated_at)
 VALUES
     (89.00, 0.150, 0.75, 0.58, 10.00, 10, 2.0, 25.5, 4.00, now(), now());
 
@@ -226,8 +227,8 @@ INSERT INTO category (code, name, created_at, updated_at) VALUES
     ('EQP', 'Equipamentos e Suportes', now(), now());
 
 -- Configuração inicial da loja (linha única).
-INSERT INTO store_config (instagram, whatsapp, frete_gratis, hero_titulo, hero_texto,
-                          confianca, processo, faq, rodape, obs_pedido, created_at, updated_at)
+INSERT INTO store_config (instagram, whatsapp, free_shipping_from, hero_title, hero_text,
+                          trust_badges, process, faq, footer, order_notes, created_at, updated_at)
 VALUES (
     'argila_lab', '', 250,
     'A ferramenta que você desenhou na cabeça e nunca achou pra comprar.',

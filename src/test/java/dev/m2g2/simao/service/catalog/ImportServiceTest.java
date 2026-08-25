@@ -53,15 +53,15 @@ class ImportServiceTest {
         lenient().when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
     }
 
-    private ImportProduct comFotos(java.util.List<String> fotos) {
+    private ImportProduct comFotos(java.util.List<String> photos) {
         return new ImportProduct("MOL", 1, "", "Com fotos", "desc", null,
                 null, null, null, null, null, null,
-                true, null, fotos, null, null, null, null,
+                true, null, photos, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
-    private ImportProduct product(int num, String tam, String nome) {
-        return new ImportProduct("MOL", num, tam, nome, "desc", null,
+    private ImportProduct product(int num, String size, String name) {
+        return new ImportProduct("MOL", num, size, name, "desc", null,
                 new BigDecimal("50"), new BigDecimal("2"), new BigDecimal("10"),
                 BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("39.00"),
                 true, null, null, null, null, null, null,
@@ -71,7 +71,7 @@ class ImportServiceTest {
     @Test
     void import_createsMissingProductAndUpsertsCategory() {
         when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.empty(), Optional.of(mol));
-        when(productRepository.findByCategoryIdAndNumAndTam(1L, 1, "")).thenReturn(Optional.empty());
+        when(productRepository.findByCategoryIdAndNumAndSize(1L, 1, "")).thenReturn(Optional.empty());
 
         ImportRequest req = new ImportRequest(null, Map.of("MOL", "Moldes e Formas"), null, null,
                 List.of(product(1, "", "Molde novo")));
@@ -90,9 +90,9 @@ class ImportServiceTest {
         existing.setId(5L);
         existing.setCategory(mol);
         existing.setNum(1);
-        existing.setTam("");
+        existing.setSize("");
         when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.of(mol));
-        when(productRepository.findByCategoryIdAndNumAndTam(1L, 1, "")).thenReturn(Optional.of(existing));
+        when(productRepository.findByCategoryIdAndNumAndSize(1L, 1, "")).thenReturn(Optional.of(existing));
 
         ImportRequest req = new ImportRequest(null, null, null, null, List.of(product(1, "", "Nome atualizado")));
 
@@ -100,7 +100,7 @@ class ImportServiceTest {
 
         assertEquals(0, result.productsCreated());
         assertEquals(1, result.productsUpdated());
-        assertEquals("Nome atualizado", existing.getNome());
+        assertEquals("Nome atualizado", existing.getName());
         verify(productRepository).save(existing);
     }
 
@@ -127,7 +127,7 @@ class ImportServiceTest {
     @Test
     void import_resolvesMidiaPrefixedRefsAgainstTheMidiaMap() {
         when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.of(mol));
-        when(productRepository.findByCategoryIdAndNumAndTam(1L, 1, "")).thenReturn(Optional.empty());
+        when(productRepository.findByCategoryIdAndNumAndSize(1L, 1, "")).thenReturn(Optional.empty());
         when(mediaService.store("data:image/png;base64,AAA"))
                 .thenReturn(new dev.m2g2.simao.dto.catalog.MediaResponse("h1", "/api/media/h1", "image/png", 3));
 
@@ -143,13 +143,13 @@ class ImportServiceTest {
         Product saved = captor.getValue();
         assertEquals(1, saved.getPhotos().size());
         assertEquals("/api/media/h1", saved.getPhotos().getFirst().getUrl());
-        assertEquals("/api/media/h1", saved.getFoto());
+        assertEquals("/api/media/h1", saved.getPhoto());
     }
 
     @Test
     void import_danglingMidiaRefIsSkippedNotStoredAsUrl() {
         when(categoryRepository.findByCodeAndActiveTrue("MOL")).thenReturn(Optional.of(mol));
-        when(productRepository.findByCategoryIdAndNumAndTam(1L, 1, "")).thenReturn(Optional.empty());
+        when(productRepository.findByCategoryIdAndNumAndSize(1L, 1, "")).thenReturn(Optional.empty());
 
         // ref with no matching entry in `midia`
         ImportRequest req = new ImportRequest(null, null, null, null,

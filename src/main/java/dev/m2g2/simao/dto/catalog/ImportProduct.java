@@ -1,5 +1,6 @@
 package dev.m2g2.simao.dto.catalog;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.m2g2.simao.model.catalog.ProductStatus;
 
@@ -13,36 +14,36 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ImportProduct(
-        String cat,
+        @JsonProperty("cat") String categoryCode,
         Integer num,
-        String tam,
-        String nome,
-        String desc,
+        @JsonProperty("tam") String size,
+        @JsonProperty("nome") String name,
+        @JsonProperty("desc") String description,
         ProductStatus status,
-        BigDecimal gram,
-        BigDecimal tempo,
-        BigDecimal trab,
-        BigDecimal ins,
-        BigDecimal emb,
-        BigDecimal catalogo,
-        Boolean tempoExato,
-        String foto,
-        List<String> fotos,
-        String origem,
-        String obs,
-        String impressora,
-        String filamento,
+        @JsonProperty("gram") BigDecimal grams,
+        @JsonProperty("tempo") BigDecimal printTimeHours,
+        @JsonProperty("trab") BigDecimal laborMinutes,
+        @JsonProperty("ins") BigDecimal supplies,
+        @JsonProperty("emb") BigDecimal packaging,
+        @JsonProperty("catalogo") BigDecimal catalogPrice,
+        @JsonProperty("tempoExato") Boolean exactTime,
+        @JsonProperty("foto") String photo,
+        @JsonProperty("fotos") List<String> photos,
+        @JsonProperty("origem") String origin,
+        @JsonProperty("obs") String observations,
+        @JsonProperty("impressora") String printer,
+        @JsonProperty("filamento") String filament,
         // v4 storefront / SEO
         String slug,
-        Integer prazo,
-        Integer ordem,
+        @JsonProperty("prazo") Integer leadTimeDays,
+        @JsonProperty("ordem") Integer sortOrder,
         String material,
-        String dimPeca,
-        BigDecimal embPeso,
-        String embDim,
-        Boolean publicado,
-        Boolean destaque,
-        String descLonga,
-        String metaDesc,
-        String licenca) {
+        @JsonProperty("dimPeca") String partDimensions,
+        @JsonProperty("embPeso") BigDecimal packageWeight,
+        @JsonProperty("embDim") String packageDimensions,
+        @JsonProperty("publicado") Boolean published,
+        @JsonProperty("destaque") Boolean featured,
+        @JsonProperty("descLonga") String longDescription,
+        @JsonProperty("metaDesc") String metaDescription,
+        @JsonProperty("licenca") String license) {
 }

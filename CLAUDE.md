@@ -28,6 +28,21 @@ Artefatos como spring-boot-starter-data-jpa-test não existem. Nunca adicione um
 dependência de teste que já não esteja no pom.xml sem confirmar que ela existe
 no Maven Central.
 
+## Idioma: código em inglês, contrato em português
+
+Campos, métodos e colunas são em inglês. O **JSON da API continua em
+português**, preso por `@JsonProperty` nos DTOs — o `argilalabapp.html` e os
+sites de loja já gerados dependem dessas chaves. Ou seja: `catalogPrice` no
+Java e no banco, `"catalogo"` no JSON.
+
+Não remova essas anotações achando que são sobra: apagá-las quebra o frontend
+em silêncio, porque nenhum teste cobre aquele HTML. Virar o contrato para
+inglês é uma decisão separada, e o frontend tem de ir no mesmo commit.
+
+Português permanece em: mensagens ao usuário, o formato externo `argilalab.json`
+(inclusive o prefixo `midia:`) e os códigos de status do produto
+(`"ativo"`/`"dev"`/`"off"`, via `@JsonValue`).
+
 ## Arquitetura
 
 ### Catálogo

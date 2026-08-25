@@ -31,11 +31,11 @@ public class ProductController {
     @GetMapping
     public List<ProductResponse> list(
             @RequestParam(required = false) String q,
-            @RequestParam(required = false) String cat,
+            @RequestParam(required = false) String categoryCode,
             @RequestParam(required = false) String status,
             @RequestParam(required = false, defaultValue = "sku") String sort) {
         ProductStatus st = (status == null || status.isBlank()) ? null : ProductStatus.from(status);
-        return service.list(q, cat, st, sort);
+        return service.list(q, categoryCode, st, sort);
     }
 
     @GetMapping("/{id}")

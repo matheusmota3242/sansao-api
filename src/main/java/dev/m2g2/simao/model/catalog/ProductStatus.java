@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * LAB frontend uses ("ativo"/"dev"/"off"); persisted as the enum name.
  */
 public enum ProductStatus {
-    ATIVO("ativo"),
+    ACTIVE("ativo"),
     DEV("dev"),
     OFF("off");
 
@@ -26,7 +26,7 @@ public enum ProductStatus {
     @JsonCreator
     public static ProductStatus from(String value) {
         if (value == null)
-            return ATIVO;
+            return ACTIVE;
         for (ProductStatus s : values()) {
             if (s.code.equalsIgnoreCase(value) || s.name().equalsIgnoreCase(value))
                 return s;

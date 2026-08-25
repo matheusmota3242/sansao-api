@@ -35,24 +35,24 @@ public class StoreConfigService {
         StoreConfig s = getEntity();
         s.setInstagram(dto.instagram());
         s.setWhatsapp(dto.whatsapp());
-        s.setFreteGratis(dto.freteGratis());
-        s.setHeroTitulo(dto.heroTitulo());
-        s.setHeroTexto(dto.heroTexto());
-        s.setConfianca(orEmpty(dto.confianca()));
-        s.setProcesso(orEmpty(dto.processo()));
+        s.setFreeShippingFrom(dto.freeShippingFrom());
+        s.setHeroTitle(dto.heroTitle());
+        s.setHeroText(dto.heroText());
+        s.setTrustBadges(orEmpty(dto.trustBadges()));
+        s.setProcess(orEmpty(dto.process()));
         s.setFaq(orEmpty(dto.faq()));
-        s.setRodape(dto.rodape());
-        s.setObsPedido(dto.obsPedido());
+        s.setFooter(dto.footer());
+        s.setOrderNotes(dto.orderNotes());
         s.setUpdatedAt(LocalDateTime.now());
         return toDto(repository.save(s));
     }
 
     StoreConfigDTO toDto(StoreConfig s) {
         return new StoreConfigDTO(
-                s.getInstagram(), s.getWhatsapp(), s.getFreteGratis(),
-                s.getHeroTitulo(), s.getHeroTexto(),
-                orEmpty(s.getConfianca()), orEmpty(s.getProcesso()), orEmpty(s.getFaq()),
-                s.getRodape(), s.getObsPedido());
+                s.getInstagram(), s.getWhatsapp(), s.getFreeShippingFrom(),
+                s.getHeroTitle(), s.getHeroText(),
+                orEmpty(s.getTrustBadges()), orEmpty(s.getProcess()), orEmpty(s.getFaq()),
+                s.getFooter(), s.getOrderNotes());
     }
 
     private static List<Map<String, String>> orEmpty(List<Map<String, String>> v) {

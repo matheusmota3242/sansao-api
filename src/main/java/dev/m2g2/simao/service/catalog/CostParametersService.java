@@ -30,22 +30,22 @@ public class CostParametersService {
 
     public CostParametersDTO update(CostParametersDTO dto) {
         CostParameters p = getEntity();
-        p.setFilPreco(dto.filPreco());
-        p.setPotencia(dto.potencia());
-        p.setTarifa(dto.tarifa());
-        p.setDeprec(dto.deprec());
-        p.setMdo(dto.mdo());
-        p.setAcresc(dto.acresc());
+        p.setFilamentPricePerKg(dto.filamentPricePerKg());
+        p.setPowerKw(dto.powerKw());
+        p.setEnergyRate(dto.energyRate());
+        p.setDepreciationPerHour(dto.depreciationPerHour());
+        p.setLaborPerHour(dto.laborPerHour());
+        p.setSurchargePct(dto.surchargePct());
         p.setMarkup(dto.markup());
-        p.setComissao(dto.comissao());
-        p.setTaxaFixa(dto.taxaFixa());
+        p.setMarketplaceCommissionPct(dto.marketplaceCommissionPct());
+        p.setFixedFee(dto.fixedFee());
         p.setUpdatedAt(LocalDateTime.now());
         return toDto(repository.save(p));
     }
 
     private CostParametersDTO toDto(CostParameters p) {
         return new CostParametersDTO(
-                p.getFilPreco(), p.getPotencia(), p.getTarifa(), p.getDeprec(),
-                p.getMdo(), p.getAcresc(), p.getMarkup(), p.getComissao(), p.getTaxaFixa());
+                p.getFilamentPricePerKg(), p.getPowerKw(), p.getEnergyRate(), p.getDepreciationPerHour(),
+                p.getLaborPerHour(), p.getSurchargePct(), p.getMarkup(), p.getMarketplaceCommissionPct(), p.getFixedFee());
     }
 }

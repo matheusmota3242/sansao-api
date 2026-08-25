@@ -17,50 +17,50 @@ import java.math.RoundingMode;
 public class CostCalculatorService {
 
     public CostBreakdown compute(Product p, CostParameters params) {
-        double filPreco = d(params.getFilPreco());
-        double potencia = d(params.getPotencia());
-        double tarifa = d(params.getTarifa());
-        double deprec = d(params.getDeprec());
-        double mdo = d(params.getMdo());
-        double acresc = d(params.getAcresc());
+        double filamentPricePerKg = d(params.getFilamentPricePerKg());
+        double powerKw = d(params.getPowerKw());
+        double energyRate = d(params.getEnergyRate());
+        double depreciationPerHour = d(params.getDepreciationPerHour());
+        double laborPerHour = d(params.getLaborPerHour());
+        double surchargePct = d(params.getSurchargePct());
         double markup = d(params.getMarkup());
-        double comissao = d(params.getComissao());
-        double taxaFixa = d(params.getTaxaFixa());
+        double marketplaceCommissionPct = d(params.getMarketplaceCommissionPct());
+        double fixedFee = d(params.getFixedFee());
 
-        double gram = d(p.getGram());
-        double tempo = d(p.getTempoHoras());
-        double trab = d(p.getTrabMin());
-        double ins = d(p.getInsumos());
-        double emb = d(p.getEmbalagem());
+        double grams = d(p.getGrams());
+        double printTimeHours = d(p.getPrintTimeHours());
+        double laborMinutes = d(p.getLaborMinutes());
+        double supplies = d(p.getSupplies());
+        double packaging = d(p.getPackaging());
 
-        double filam = gram * filPreco / 1000.0;
-        double energ = tempo * potencia * tarifa;
-        double depr = tempo * deprec;
-        double mao = trab / 60.0 * mdo;
-        double sub = ins + emb + filam + energ + depr + mao;
-        double fin = sub * (1 + acresc / 100.0);
+        double filam = grams * filamentPricePerKg / 1000.0;
+        double energ = printTimeHours * powerKw * energyRate;
+        double depr = printTimeHours * depreciationPerHour;
+        double mao = laborMinutes / 60.0 * laborPerHour;
+        double sub = supplies + packaging + filam + energ + depr + mao;
+        double fin = sub * (1 + surchargePct / 100.0);
         double sug = fin * markup;
-        double denom = 1 - comissao / 100.0;
-        Double mkt = denom == 0 ? null : sug / denom + taxaFixa;
+        double denom = 1 - marketplaceCommissionPct / 100.0;
+        Double mkt = denom == 0 ? null : sug / denom + fixedFee;
 
-        BigDecimal catalogo = p.getCatalogoPreco();
-        BigDecimal margem = null;
-        BigDecimal margemPct = null;
-        if (catalogo != null) {
-            double cat = catalogo.doubleValue();
-            double mg = cat - fin;
-            margem = money(mg);
-            if (cat != 0.0) {
-                margemPct = pct(mg / cat * 100.0);
+        BigDecimal catalogPrice = p.getCatalogPrice();
+        BigDecimal margin = null;
+        BigDecimal marginPct = null;
+        if (catalogPrice != null) {
+            double categoryCode = catalogPrice.doubleValue();
+            double mg = categoryCode - fin;
+            margin = money(mg);
+            if (categoryCode != 0.0) {
+                marginPct = pct(mg / categoryCode * 100.0);
             }
         }
 
         return new CostBreakdown(
                 money(filam), money(energ), money(depr), money(mao),
-                money(ins), money(emb), money(sub), money(fin),
+                money(supplies), money(packaging), money(sub), money(fin),
                 money(sug), mkt == null ? null : money(mkt),
-                catalogo == null ? null : catalogo.setScale(2, RoundingMode.HALF_UP),
-                margem, margemPct);
+                catalogPrice == null ? null : catalogPrice.setScale(2, RoundingMode.HALF_UP),
+                margin, marginPct);
     }
 
     private static double d(BigDecimal v) {

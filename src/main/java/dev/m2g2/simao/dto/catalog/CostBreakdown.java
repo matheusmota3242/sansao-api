@@ -1,5 +1,6 @@
 package dev.m2g2.simao.dto.catalog;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 /**
@@ -8,17 +9,17 @@ import java.math.BigDecimal;
  * ("sob consulta").
  */
 public record CostBreakdown(
-        BigDecimal filamento,
-        BigDecimal energia,
-        BigDecimal depreciacao,
-        BigDecimal maoDeObra,
-        BigDecimal insumos,
-        BigDecimal embalagem,
+        @JsonProperty("filamento") BigDecimal filament,
+        @JsonProperty("energia") BigDecimal energy,
+        @JsonProperty("depreciacao") BigDecimal depreciation,
+        @JsonProperty("maoDeObra") BigDecimal labor,
+        @JsonProperty("insumos") BigDecimal supplies,
+        @JsonProperty("embalagem") BigDecimal packaging,
         BigDecimal subtotal,
-        BigDecimal custoFinal,
-        BigDecimal precoSugerido,
-        BigDecimal precoMarketplace,
-        BigDecimal catalogo,
-        BigDecimal margem,
-        BigDecimal margemPct) {
+        @JsonProperty("custoFinal") BigDecimal finalCost,
+        @JsonProperty("precoSugerido") BigDecimal suggestedPrice,
+        @JsonProperty("precoMarketplace") BigDecimal marketplacePrice,
+        @JsonProperty("catalogo") BigDecimal catalogPrice,
+        @JsonProperty("margem") BigDecimal margin,
+        @JsonProperty("margemPct") BigDecimal marginPct) {
 }

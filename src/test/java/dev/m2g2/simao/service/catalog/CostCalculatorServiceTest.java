@@ -16,26 +16,26 @@ class CostCalculatorServiceTest {
     // App default parameters.
     private CostParameters defaultParams() {
         CostParameters p = new CostParameters();
-        p.setFilPreco(new BigDecimal("89.00"));
-        p.setPotencia(new BigDecimal("0.150"));
-        p.setTarifa(new BigDecimal("0.75"));
-        p.setDeprec(new BigDecimal("0.58"));
-        p.setMdo(new BigDecimal("10.00"));
-        p.setAcresc(new BigDecimal("10"));
+        p.setFilamentPricePerKg(new BigDecimal("89.00"));
+        p.setPowerKw(new BigDecimal("0.150"));
+        p.setEnergyRate(new BigDecimal("0.75"));
+        p.setDepreciationPerHour(new BigDecimal("0.58"));
+        p.setLaborPerHour(new BigDecimal("10.00"));
+        p.setSurchargePct(new BigDecimal("10"));
         p.setMarkup(new BigDecimal("2.0"));
-        p.setComissao(new BigDecimal("25.5"));
-        p.setTaxaFixa(new BigDecimal("4.00"));
+        p.setMarketplaceCommissionPct(new BigDecimal("25.5"));
+        p.setFixedFee(new BigDecimal("4.00"));
         return p;
     }
 
-    private Product product(String gram, String tempo, String trab, String ins, String emb, String catalogo) {
+    private Product product(String grams, String printTimeHours, String laborMinutes, String supplies, String packaging, String catalogPrice) {
         Product p = new Product();
-        p.setGram(gram == null ? null : new BigDecimal(gram));
-        p.setTempoHoras(tempo == null ? null : new BigDecimal(tempo));
-        p.setTrabMin(trab == null ? null : new BigDecimal(trab));
-        p.setInsumos(ins == null ? null : new BigDecimal(ins));
-        p.setEmbalagem(emb == null ? null : new BigDecimal(emb));
-        p.setCatalogoPreco(catalogo == null ? null : new BigDecimal(catalogo));
+        p.setGrams(grams == null ? null : new BigDecimal(grams));
+        p.setPrintTimeHours(printTimeHours == null ? null : new BigDecimal(printTimeHours));
+        p.setLaborMinutes(laborMinutes == null ? null : new BigDecimal(laborMinutes));
+        p.setSupplies(supplies == null ? null : new BigDecimal(supplies));
+        p.setPackaging(packaging == null ? null : new BigDecimal(packaging));
+        p.setCatalogPrice(catalogPrice == null ? null : new BigDecimal(catalogPrice));
         return p;
     }
 
@@ -46,17 +46,17 @@ class CostCalculatorServiceTest {
 
         CostBreakdown c = service.compute(p, defaultParams());
 
-        assertEquals(new BigDecimal("4.72"), c.filamento());
-        assertEquals(new BigDecimal("0.19"), c.energia());
-        assertEquals(new BigDecimal("0.97"), c.depreciacao());
-        assertEquals(new BigDecimal("1.67"), c.maoDeObra());
+        assertEquals(new BigDecimal("4.72"), c.filament());
+        assertEquals(new BigDecimal("0.19"), c.energy());
+        assertEquals(new BigDecimal("0.97"), c.depreciation());
+        assertEquals(new BigDecimal("1.67"), c.labor());
         assertEquals(new BigDecimal("8.54"), c.subtotal());
-        assertEquals(new BigDecimal("9.39"), c.custoFinal());
-        assertEquals(new BigDecimal("18.78"), c.precoSugerido());
-        assertEquals(new BigDecimal("29.21"), c.precoMarketplace());
-        assertEquals(new BigDecimal("39.00"), c.catalogo());
-        assertEquals(new BigDecimal("29.61"), c.margem());
-        assertEquals(new BigDecimal("75.9"), c.margemPct());
+        assertEquals(new BigDecimal("9.39"), c.finalCost());
+        assertEquals(new BigDecimal("18.78"), c.suggestedPrice());
+        assertEquals(new BigDecimal("29.21"), c.marketplacePrice());
+        assertEquals(new BigDecimal("39.00"), c.catalogPrice());
+        assertEquals(new BigDecimal("29.61"), c.margin());
+        assertEquals(new BigDecimal("75.9"), c.marginPct());
     }
 
     @Test
@@ -65,11 +65,11 @@ class CostCalculatorServiceTest {
 
         CostBreakdown c = service.compute(p, defaultParams());
 
-        assertNull(c.catalogo());
-        assertNull(c.margem());
-        assertNull(c.margemPct());
-        assertNotNull(c.custoFinal());
-        assertNotNull(c.precoSugerido());
+        assertNull(c.catalogPrice());
+        assertNull(c.margin());
+        assertNull(c.marginPct());
+        assertNotNull(c.finalCost());
+        assertNotNull(c.suggestedPrice());
     }
 
     @Test
@@ -79,6 +79,6 @@ class CostCalculatorServiceTest {
         CostBreakdown c = service.compute(p, defaultParams());
 
         assertEquals(new BigDecimal("0.00"), c.subtotal());
-        assertEquals(new BigDecimal("0.00"), c.custoFinal());
+        assertEquals(new BigDecimal("0.00"), c.finalCost());
     }
 }

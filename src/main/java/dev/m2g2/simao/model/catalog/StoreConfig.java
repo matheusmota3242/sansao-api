@@ -21,28 +21,28 @@ public class StoreConfig extends BaseModel {
     private String instagram;
     private String whatsapp;
 
-    @Column(name = "frete_gratis")
-    private BigDecimal freteGratis;
+    @Column(name = "free_shipping_from")
+    private BigDecimal freeShippingFrom;
 
-    @Column(name = "hero_titulo")
-    private String heroTitulo;
+    @Column(name = "hero_title")
+    private String heroTitle;
 
-    @Column(name = "hero_texto")
-    private String heroTexto;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    private List<Map<String, String>> confianca = new ArrayList<>();
+    @Column(name = "hero_text")
+    private String heroText;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<Map<String, String>> processo = new ArrayList<>();
+    private List<Map<String, String>> trustBadges = new ArrayList<>();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<Map<String, String>> process = new ArrayList<>();
 
     @JdbcTypeCode(SqlTypes.JSON)
     private List<Map<String, String>> faq = new ArrayList<>();
 
-    private String rodape;
+    private String footer;
 
-    @Column(name = "obs_pedido")
-    private String obsPedido;
+    @Column(name = "order_notes")
+    private String orderNotes;
 
     public String getInstagram() {
         return instagram;
@@ -60,44 +60,44 @@ public class StoreConfig extends BaseModel {
         this.whatsapp = whatsapp;
     }
 
-    public BigDecimal getFreteGratis() {
-        return freteGratis;
+    public BigDecimal getFreeShippingFrom() {
+        return freeShippingFrom;
     }
 
-    public void setFreteGratis(BigDecimal freteGratis) {
-        this.freteGratis = freteGratis;
+    public void setFreeShippingFrom(BigDecimal freeShippingFrom) {
+        this.freeShippingFrom = freeShippingFrom;
     }
 
-    public String getHeroTitulo() {
-        return heroTitulo;
+    public String getHeroTitle() {
+        return heroTitle;
     }
 
-    public void setHeroTitulo(String heroTitulo) {
-        this.heroTitulo = heroTitulo;
+    public void setHeroTitle(String heroTitle) {
+        this.heroTitle = heroTitle;
     }
 
-    public String getHeroTexto() {
-        return heroTexto;
+    public String getHeroText() {
+        return heroText;
     }
 
-    public void setHeroTexto(String heroTexto) {
-        this.heroTexto = heroTexto;
+    public void setHeroText(String heroText) {
+        this.heroText = heroText;
     }
 
-    public List<Map<String, String>> getConfianca() {
-        return confianca;
+    public List<Map<String, String>> getTrustBadges() {
+        return trustBadges;
     }
 
-    public void setConfianca(List<Map<String, String>> confianca) {
-        this.confianca = confianca;
+    public void setTrustBadges(List<Map<String, String>> trustBadges) {
+        this.trustBadges = trustBadges;
     }
 
-    public List<Map<String, String>> getProcesso() {
-        return processo;
+    public List<Map<String, String>> getProcess() {
+        return process;
     }
 
-    public void setProcesso(List<Map<String, String>> processo) {
-        this.processo = processo;
+    public void setProcess(List<Map<String, String>> process) {
+        this.process = process;
     }
 
     public List<Map<String, String>> getFaq() {
@@ -108,19 +108,19 @@ public class StoreConfig extends BaseModel {
         this.faq = faq;
     }
 
-    public String getRodape() {
-        return rodape;
+    public String getFooter() {
+        return footer;
     }
 
-    public void setRodape(String rodape) {
-        this.rodape = rodape;
+    public void setFooter(String footer) {
+        this.footer = footer;
     }
 
-    public String getObsPedido() {
-        return obsPedido;
+    public String getOrderNotes() {
+        return orderNotes;
     }
 
-    public void setObsPedido(String obsPedido) {
-        this.obsPedido = obsPedido;
+    public void setOrderNotes(String orderNotes) {
+        this.orderNotes = orderNotes;
     }
 }

@@ -1,15 +1,16 @@
 package dev.m2g2.simao.dto.catalog;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 public record CostParametersDTO(
-        BigDecimal filPreco,
-        BigDecimal potencia,
-        BigDecimal tarifa,
-        BigDecimal deprec,
-        BigDecimal mdo,
-        BigDecimal acresc,
+        @JsonProperty("filPreco") BigDecimal filamentPricePerKg,
+        @JsonProperty("potencia") BigDecimal powerKw,
+        @JsonProperty("tarifa") BigDecimal energyRate,
+        @JsonProperty("deprec") BigDecimal depreciationPerHour,
+        @JsonProperty("mdo") BigDecimal laborPerHour,
+        @JsonProperty("acresc") BigDecimal surchargePct,
         BigDecimal markup,
-        BigDecimal comissao,
-        BigDecimal taxaFixa) {
+        @JsonProperty("comissao") BigDecimal marketplaceCommissionPct,
+        @JsonProperty("taxaFixa") BigDecimal fixedFee) {
 }

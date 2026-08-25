@@ -8,8 +8,8 @@ public final class SkuUtil {
     private SkuUtil() {
     }
 
-    public static String build(String categoryCode, Integer num, String tam) {
+    public static String build(String categoryCode, Integer num, String size) {
         String base = "AL-" + categoryCode + "-" + String.format("%03d", num == null ? 0 : num);
-        return (tam == null || tam.isBlank()) ? base : base + "-" + tam;
+        return (size == null || size.isBlank()) ? base : base + "-" + size;
     }
 }

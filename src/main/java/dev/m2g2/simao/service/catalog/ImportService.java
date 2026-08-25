@@ -53,7 +53,7 @@ public class ImportService {
 
     @Transactional
     public ImportResult importProject(ImportRequest request) {
-        if (request == null || request.produtos() == null) {
+        if (request == null || request.products() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Payload inválido: esperado um argilalab.json com 'produtos'.");
         }
@@ -61,15 +61,15 @@ public class ImportService {
         resolvedMedia.get().clear();
         try {
             updateParamsIfComplete(request.params());
-            if (request.loja() != null) {
-                storeConfigService.update(request.loja());
+            if (request.store() != null) {
+                storeConfigService.update(request.store());
             }
-            int categories = upsertCategories(request.cats());
-            storeMedia(request.midia());
+            int categories = upsertCategories(request.categories());
+            storeMedia(request.media());
 
             int created = 0;
             int updated = 0;
-            for (ImportProduct ip : request.produtos()) {
+            for (ImportProduct ip : request.products()) {
                 boolean isNew = upsertProduct(ip);
                 if (isNew) {
                     created++;
@@ -87,11 +87,11 @@ public class ImportService {
      * Uploads the export's inline images once, mapping each media key to its
      * /api/media/<hash> URL so product photos can reference it.
      */
-    private void storeMedia(Map<String, String> midia) {
-        if (midia == null) {
+    private void storeMedia(Map<String, String> media) {
+        if (media == null) {
             return;
         }
-        for (Map.Entry<String, String> e : midia.entrySet()) {
+        for (Map.Entry<String, String> e : media.entrySet()) {
             String value = e.getValue();
             if (value == null || value.isBlank()) {
                 continue;
@@ -107,15 +107,15 @@ public class ImportService {
 
     /**
      * A photo entry can be an external URL, an inline data: URI, or a key into
-     * the export's `midia` map. Everything ends up as a URL the frontend can use.
+     * the export's `media` map. Everything ends up as a URL the frontend can use.
      */
     private List<String> resolvePhotos(ImportProduct ip) {
         List<String> raw = new ArrayList<>();
-        if (ip.fotos() != null) {
-            raw.addAll(ip.fotos());
+        if (ip.photos() != null) {
+            raw.addAll(ip.photos());
         }
-        if (raw.isEmpty() && ip.foto() != null) {
-            raw.add(ip.foto());
+        if (raw.isEmpty() && ip.photo() != null) {
+            raw.add(ip.photo());
         }
         List<String> urls = new ArrayList<>();
         for (String f : raw) {
@@ -123,19 +123,20 @@ public class ImportService {
                 continue;
             }
             String t = f.trim();
-            // The app writes refs as "midia:<chave>"; the `midia` map is keyed by
-            // the bare <chave>, so strip the prefix before looking it up.
+            // The app writes refs as "midia:<key>" while the export's `midia` map
+            // is keyed by the bare key, so strip the prefix before looking it up.
+            // The prefix stays Portuguese: it belongs to the external file format.
             boolean isRef = t.startsWith("midia:");
-            String chave = isRef ? t.substring(6) : t;
+            String key = isRef ? t.substring(6) : t;
             String resolved;
-            if (resolvedMedia.get().containsKey(chave)) {
-                resolved = resolvedMedia.get().get(chave);
-            } else if (chave.startsWith("data:")) {
-                resolved = mediaService.store(chave).url();
-                resolvedMedia.get().put(chave, resolved);
+            if (resolvedMedia.get().containsKey(key)) {
+                resolved = resolvedMedia.get().get(key);
+            } else if (key.startsWith("data:")) {
+                resolved = mediaService.store(key).url();
+                resolvedMedia.get().put(key, resolved);
             } else if (isRef) {
-                // Dangling ref: no entry in `midia`. Skip it instead of storing
-                // "midia:<chave>" as if it were a URL (renders as a broken image).
+                // Dangling ref: no entry in `media`. Skip it instead of storing
+                // "midia:<key>" as if it were a URL (renders as a broken image).
                 continue;
             } else {
                 resolved = t;
@@ -151,21 +152,21 @@ public class ImportService {
         if (params == null) {
             return;
         }
-        boolean complete = params.filPreco() != null && params.potencia() != null
-                && params.tarifa() != null && params.deprec() != null && params.mdo() != null
-                && params.acresc() != null && params.markup() != null && params.comissao() != null
-                && params.taxaFixa() != null;
+        boolean complete = params.filamentPricePerKg() != null && params.powerKw() != null
+                && params.energyRate() != null && params.depreciationPerHour() != null && params.laborPerHour() != null
+                && params.surchargePct() != null && params.markup() != null && params.marketplaceCommissionPct() != null
+                && params.fixedFee() != null;
         if (complete) {
             costParametersService.update(params);
         }
     }
 
-    private int upsertCategories(Map<String, String> cats) {
-        if (cats == null) {
+    private int upsertCategories(Map<String, String> categories) {
+        if (categories == null) {
             return 0;
         }
         int count = 0;
-        for (Map.Entry<String, String> e : cats.entrySet()) {
+        for (Map.Entry<String, String> e : categories.entrySet()) {
             String code = e.getKey() == null ? "" : e.getKey().trim().toUpperCase();
             String name = e.getValue();
             if (code.isEmpty() || name == null || name.isBlank()) {
@@ -188,19 +189,19 @@ public class ImportService {
     }
 
     private boolean upsertProduct(ImportProduct ip) {
-        String code = ip.cat() == null ? "" : ip.cat().trim().toUpperCase();
+        String code = ip.categoryCode() == null ? "" : ip.categoryCode().trim().toUpperCase();
         Category category = categoryRepository.findByCodeAndActiveTrue(code)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Produto com categoria desconhecida: " + ip.cat()));
-        String nome = ip.nome() == null ? "" : ip.nome().trim();
-        if (nome.isEmpty()) {
+                        "Produto com categoria desconhecida: " + ip.categoryCode()));
+        String name = ip.name() == null ? "" : ip.name().trim();
+        if (name.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Produto sem nome no import.");
         }
-        String tam = ip.tam() == null ? "" : ip.tam().trim().toUpperCase();
+        String size = ip.size() == null ? "" : ip.size().trim().toUpperCase();
         int num = ip.num() != null ? ip.num() : productRepository.findMaxNumByCategory(category.getId()) + 1;
 
         Product product = productRepository
-                .findByCategoryIdAndNumAndTam(category.getId(), num, tam)
+                .findByCategoryIdAndNumAndSize(category.getId(), num, size)
                 .orElse(null);
         boolean isNew = product == null;
         LocalDateTime now = LocalDateTime.now();
@@ -210,37 +211,37 @@ public class ImportService {
         }
         product.setCategory(category);
         product.setNum(num);
-        product.setTam(tam);
-        product.setNome(nome);
-        product.setDescricao(trimOrNull(ip.desc()));
-        product.setStatus(ip.status() == null ? ProductStatus.ATIVO : ip.status());
-        product.setObs(trimOrNull(ip.obs()));
-        product.setGram(ip.gram());
-        product.setTempoHoras(ip.tempo());
-        product.setTrabMin(ip.trab());
-        product.setInsumos(ip.ins());
-        product.setEmbalagem(ip.emb());
-        product.setCatalogoPreco(ip.catalogo());
-        product.setTempoExato(ip.tempoExato() == null ? true : ip.tempoExato());
-        product.setOrigem(trimOrNull(ip.origem()));
-        product.setImpressora(trimOrNull(ip.impressora()));
-        product.setFilamento(trimOrNull(ip.filamento()));
+        product.setSize(size);
+        product.setName(name);
+        product.setDescription(trimOrNull(ip.description()));
+        product.setStatus(ip.status() == null ? ProductStatus.ACTIVE : ip.status());
+        product.setObservations(trimOrNull(ip.observations()));
+        product.setGrams(ip.grams());
+        product.setPrintTimeHours(ip.printTimeHours());
+        product.setLaborMinutes(ip.laborMinutes());
+        product.setSupplies(ip.supplies());
+        product.setPackaging(ip.packaging());
+        product.setCatalogPrice(ip.catalogPrice());
+        product.setExactTime(ip.exactTime() == null ? true : ip.exactTime());
+        product.setOrigin(trimOrNull(ip.origin()));
+        product.setPrinter(trimOrNull(ip.printer()));
+        product.setFilament(trimOrNull(ip.filament()));
 
         // v4 storefront fields, defaulting the same way the frontend migrar() does.
         product.setSlug(trimOrNull(ip.slug()));
-        product.setPrazo(ip.prazo() == null ? 5 : ip.prazo());
-        product.setOrdem(ip.ordem() == null ? num * 10 : ip.ordem());
+        product.setLeadTimeDays(ip.leadTimeDays() == null ? 5 : ip.leadTimeDays());
+        product.setSortOrder(ip.sortOrder() == null ? num * 10 : ip.sortOrder());
         product.setMaterial(ip.material() == null || ip.material().isBlank()
                 ? "PLA rígido" : ip.material().trim());
-        product.setDimPeca(trimOrNull(ip.dimPeca()));
-        product.setEmbPeso(ip.embPeso());
-        product.setEmbDim(trimOrNull(ip.embDim()));
-        product.setPublicado(ip.publicado() == null
-                ? product.getStatus() == ProductStatus.ATIVO : ip.publicado());
-        product.setDestaque(Boolean.TRUE.equals(ip.destaque()));
-        product.setDescLonga(trimOrNull(ip.descLonga()));
-        product.setMetaDesc(trimOrNull(ip.metaDesc()));
-        product.setLicenca(trimOrNull(ip.licenca()));
+        product.setPartDimensions(trimOrNull(ip.partDimensions()));
+        product.setPackageWeight(ip.packageWeight());
+        product.setPackageDimensions(trimOrNull(ip.packageDimensions()));
+        product.setPublished(ip.published() == null
+                ? product.getStatus() == ProductStatus.ACTIVE : ip.published());
+        product.setFeatured(Boolean.TRUE.equals(ip.featured()));
+        product.setLongDescription(trimOrNull(ip.longDescription()));
+        product.setMetaDescription(trimOrNull(ip.metaDescription()));
+        product.setLicense(trimOrNull(ip.license()));
 
         applyPhotos(product, resolvePhotos(ip), now);
         product.setActive(true);
@@ -262,7 +263,7 @@ public class ImportService {
             photo.setActive(true);
             product.getPhotos().add(photo);
         }
-        product.setFoto(urls.isEmpty() ? null : urls.getFirst());
+        product.setPhoto(urls.isEmpty() ? null : urls.getFirst());
         product.setSlug(uniqueSlug(product));
     }
 
@@ -272,7 +273,7 @@ public class ImportService {
      */
     private String uniqueSlug(Product product) {
         String base = product.getSlug() == null || product.getSlug().isBlank()
-                ? ProductService.slugify(product.getNome())
+                ? ProductService.slugify(product.getName())
                 : ProductService.slugify(product.getSlug());
         if (base.isEmpty()) {
             base = "produto";
