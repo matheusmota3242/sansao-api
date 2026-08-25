@@ -1,8 +1,27 @@
 server:
+  # Atrás de um proxy com TLS, é isto que faz o X-Forwarded-Proto ser levado a
+  # sério. Com ele, os dois cookies ganham a flag Secure sozinhos — nenhum
+  # booleano manual: o Tomcat e o CookieCsrfTokenRepository já derivam a flag do
+  # protocolo da requisição.
+  #
+  # Use `native`, não `framework`. O `framework` instala um filtro servlet, que
+  # roda ACIMA de onde o Tomcat cria o cookie de sessão: o XSRF-TOKEN ganharia
+  # Secure e o JSESSIONID não — verificado na mão. O `native` usa o RemoteIpValve,
+  # que corrige a requisição antes da sessão existir, e ainda só aceita os
+  # X-Forwarded-* de origens que casem com server.tomcat.remoteip.internal-proxies
+  # (por padrão, loopback e faixas privadas). De fora, o header é ignorado.
+  #
+  # Padrão `none` porque em desenvolvimento não há proxy nenhum na frente.
+  forward-headers-strategy: ${FORWARD_HEADERS:none}
   servlet:
     session:
       # Só cookie: o ;jsessionid= na URL vaza a sessão em log, histórico e Referer.
       tracking-modes: cookie
+      cookie:
+        http-only: true
+        # O cookie de sessão não tem por que viajar em navegação vinda de fora;
+        # a loja pública é outra origem e não usa sessão.
+        same-site: lax
 
 spring:
   application:
