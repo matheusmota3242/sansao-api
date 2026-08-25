@@ -78,9 +78,20 @@ Português permanece em: mensagens ao usuário, o formato externo `argilalab.jso
   cliente entra pela API.
 
 ### Gestão
+- Telas no admin: **Fila de impressão**, **Clientes** e **Compras de insumo**,
+  em `<details class="painel">` como o resto. O JS vive no mesmo arquivo, na
+  seção "gestão", e é carregado por `carregarGestao()` no start.
+- `GET /api/me` diz quem está logado; o frontend usa `canSeeCosts` só para não
+  desenhar campo que não pode ver. **A resposta da API já omite o dado** — nunca
+  confie na tela para esconder dinheiro.
 - `PrintOrder` é uma fila: `priority` é 1..n contígua entre os pedidos em fila
   (WAITING/RUNNING) e NULL para quem saiu dela (COMPLETED/CANCELLED).
   Toda operação que mexe na fila chama `renumber()` para manter isso.
+- **Cuidado ao contar a fila dentro de `changeStatus`:** o método é transacional
+  e o Hibernate faz flush do status novo antes de qualquer consulta, então
+  `queue()` já enxerga o próprio pedido. Contar `queue().size()` ali deixava
+  buraco na sequência ao reabrir um pedido encerrado (1, 2, 4). Por isso ele vai
+  para o fim com prioridade alta e o `renumber()` devolve a sequência.
 - `CustomerService.resolveByNameOrId` aceita id ou nome: entrada só de dígitos é
   id e falha se não existir; qualquer outra coisa casa por nome (ignorando caixa)
   ou cria um cliente novo.
