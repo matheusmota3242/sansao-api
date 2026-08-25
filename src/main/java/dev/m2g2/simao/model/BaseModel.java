@@ -13,6 +13,12 @@ public abstract class BaseModel {
     protected LocalDateTime createdAt;
     @Column(name = "updated_at", nullable = false, updatable = false)
     protected LocalDateTime updatedAt;
+    @ManyToOne
+    @JoinColumn(name = "created_by_id")
+    protected User createdBy;
+    @ManyToOne
+    @JoinColumn(name = "updated_by_id")
+    protected User updatedBy;
     protected boolean active = true;
 
     public Long getId() {
@@ -37,6 +43,22 @@ public abstract class BaseModel {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public User getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(User updatedBy) {
+        this.updatedBy = updatedBy;
     }
 
     public boolean isActive() {
