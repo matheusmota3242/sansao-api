@@ -1,7 +1,7 @@
-# Stack de produção para o notebook Ubuntu.
-# Diferença vs. dev: a app NÃO é buildada aqui — é puxada pronta do GHCR, e o
-# Watchtower atualiza o container sozinho quando o CI publica uma imagem nova.
-# 1 Postgres (2 bancos), WAHA NOWEB. Portas só em 127.0.0.1 (acesso via Tailscale).
+# Stack de produção do ARGILA LAB (loja + admin).
+# A app NÃO é buildada aqui — é puxada pronta do GHCR, e o Watchtower atualiza
+# o container sozinho quando o CI publica uma imagem nova.
+# Portas só em 127.0.0.1: exponha via Tailscale ou por um proxy com TLS.
 
 services:
   postgres-app:
@@ -11,25 +11,11 @@ services:
     env_file: [.postgres_app.env]
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./init-db:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U matheus -d simao_db"]
       interval: 5s
       timeout: 5s
       retries: 10
-
-  waha:
-    image: devlikeapro/waha:latest-2026.7.1
-    container_name: simao-waha
-    restart: unless-stopped
-    depends_on:
-      postgres-app:
-        condition: service_healthy
-    env_file: [.waha_env]
-    volumes:
-      - waha_sessions:/app/.sessions
-    ports:
-      - "127.0.0.1:3000:3000"   # painel do WAHA (exposto via `tailscale serve`)
 
   app:
     image: ghcr.io/matheusmota3242/simao-app:latest
@@ -44,8 +30,7 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     ports:
-      # API + catálogo ARGILA LAB (UI em /argilalabapp.html, servida pelo jar).
-      # Exponha via `tailscale serve 8080` para acessar pela tailnet.
+      # API + admin ARGILA LAB (UI em /argilalabapp.html, servida pelo jar).
       - "127.0.0.1:8080:8080"
 
   # Vigia o GHCR e reinicia a app quando sai imagem nova. É o "deploy" do pipeline.
@@ -61,4 +46,3 @@ services:
 
 volumes:
   postgres-data:
-  waha_sessions:

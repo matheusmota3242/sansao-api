@@ -1,44 +1,41 @@
 package dev.m2g2.simao.service;
 
 import dev.m2g2.simao.dto.PurchaseDTO;
-import dev.m2g2.simao.enums.ChatType;
 import dev.m2g2.simao.model.Purchase;
-import dev.m2g2.simao.model.chat.ChatRecord;
-import dev.m2g2.simao.model.chat.purchase.CreatePurchaseInteraction;
-import dev.m2g2.simao.model.chat.purchase.UpdatePurchaseInteraction;
 import dev.m2g2.simao.repository.PurchaseRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import dev.m2g2.simao.util.PurchaseInputUtil;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class PurchaseService implements InteractionBaseService {
-
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+public class PurchaseService {
 
     private final PurchaseRepository repository;
-    private final ChatRecordService chatRecordService;
 
-    public PurchaseService(PurchaseRepository repository, ChatRecordService chatRecordService) {
+    public PurchaseService(PurchaseRepository repository) {
         this.repository = repository;
-        this.chatRecordService = chatRecordService;
     }
 
+    /** Supply purchases, newest first. */
+    public List<Purchase> list() {
+        return repository.findAllByActiveTrueOrderByCreatedAtDesc();
+    }
+
+    public Purchase get(Long id) {
+        return repository.findById(id)
+                .filter(Purchase::isActive)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Compra com id %d não encontrada.".formatted(id)));
+    }
+
+    @Transactional
     public Purchase create(PurchaseDTO dto) {
         Purchase purchase = new Purchase();
-        purchase.setDescription(dto.getDescription());
-        purchase.setAmount(dto.getAmount());
-        purchase.setUnitPrice(dto.getUnitPrice());
-        purchase.setSource(dto.getSource());
-        purchase.setPurchasedAt(dto.getPurchasedAt());
-        purchase.setObservations(dto.getObservations());
+        apply(purchase, dto);
         LocalDateTime now = LocalDateTime.now();
         purchase.setCreatedAt(now);
         purchase.setUpdatedAt(now);
@@ -46,203 +43,27 @@ public class PurchaseService implements InteractionBaseService {
         return repository.save(purchase);
     }
 
+    @Transactional
     public Purchase update(Long id, PurchaseDTO dto) {
-        Purchase purchase = repository.findById(id).orElse(null);
-        if (purchase == null)
-            return null;
+        Purchase purchase = get(id);
+        apply(purchase, dto);
+        return repository.save(purchase);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!repository.existsById(id))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Compra com id %d não encontrada.".formatted(id));
+        repository.deleteById(id);
+    }
+
+    private void apply(Purchase purchase, PurchaseDTO dto) {
         purchase.setDescription(dto.getDescription());
         purchase.setAmount(dto.getAmount());
         purchase.setUnitPrice(dto.getUnitPrice());
         purchase.setSource(dto.getSource());
         purchase.setPurchasedAt(dto.getPurchasedAt());
         purchase.setObservations(dto.getObservations());
-        return repository.save(purchase);
-    }
-
-    @Override
-    public String createInteractionIf(String incomingMessage, String chatId, String participantId) {
-        if (incomingMessage.equalsIgnoreCase(ChatType.CREATE_PURCHASE.getValue())) {
-            CreatePurchaseInteraction interaction = new CreatePurchaseInteraction();
-            ChatRecord record = new ChatRecord();
-            record.setInteraction(interaction);
-            record.setChatId(chatId);
-            record.setParticipantId(participantId);
-            chatRecordService.create(record);
-            return interaction.processInput(incomingMessage).text();
-        }
-        return null;
-    }
-
-    public String updateInteractionIf(String incomingMessage, String chatId, String participantId) {
-        if (!incomingMessage.toLowerCase().startsWith(ChatType.UPDATE_PURCHASE.getValue()))
-            return null;
-
-        String[] parts = incomingMessage.trim().split("\\s+");
-        if (parts.length < 2)
-            return "Uso: @ubuy <id>";
-
-        Long id;
-        try {
-            id = Long.parseLong(parts[1]);
-        } catch (NumberFormatException e) {
-            return "Id inválido. Tente novamente.";
-        }
-
-        Purchase purchase = repository.findById(id).filter(Purchase::isActive).orElse(null);
-        if (purchase == null)
-            return "Compra com id %d não encontrada.".formatted(id);
-
-        UpdatePurchaseInteraction interaction = new UpdatePurchaseInteraction();
-        interaction.setTargetId(id);
-        interaction.setData(toDto(purchase));
-        ChatRecord record = new ChatRecord();
-        record.setInteraction(interaction);
-        record.setChatId(chatId);
-        record.setParticipantId(participantId);
-        chatRecordService.create(record);
-        return interaction.processInput(ChatType.UPDATE_PURCHASE.getValue()).text();
-    }
-
-    /**
-     * Registers several purchases from a single inline message, one per line, in the
-     * structure: descrição | quantidade | preço | fonte | data | observações (última
-     * opcional). Returns null when the message is not in the inline structure, so the
-     * caller can fall back to the usual flow. Validates every line first: if any line is
-     * invalid, nothing is persisted and the offending lines are reported.
-     */
-    public String createInlineIf(String incomingMessage) {
-        if (incomingMessage == null || !incomingMessage.contains("|"))
-            return null;
-
-        List<PurchaseDTO> parsed = new ArrayList<>();
-        List<String> errors = new ArrayList<>();
-        int lineNumber = 0;
-        for (String rawLine : incomingMessage.split("\\r?\\n")) {
-            String line = rawLine.trim();
-            if (line.isBlank())
-                continue;
-            lineNumber++;
-            try {
-                parsed.add(parseInlineLine(line));
-            } catch (IllegalArgumentException e) {
-                errors.add("Linha %d: %s".formatted(lineNumber, e.getMessage()));
-            }
-        }
-
-        if (parsed.isEmpty() && errors.isEmpty())
-            return null;
-
-        if (!errors.isEmpty())
-            return "Nenhuma compra foi cadastrada. Corrija:\n" + String.join("\n", errors);
-
-        parsed.forEach(this::create);
-        return "%d compra(s) cadastrada(s) com sucesso!".formatted(parsed.size());
-    }
-
-    private PurchaseDTO parseInlineLine(String line) {
-        String[] parts = line.split("\\|", -1);
-        if (parts.length < 5 || parts.length > 6)
-            throw new IllegalArgumentException("use descrição | quantidade | preço | fonte | data | observações");
-
-        PurchaseDTO dto = new PurchaseDTO();
-
-        String description = parts[0].trim();
-        if (description.isBlank())
-            throw new IllegalArgumentException("descrição vazia");
-        dto.setDescription(description);
-
-        try {
-            dto.setAmount(PurchaseInputUtil.parseAmount(parts[1]));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("quantidade inválida");
-        }
-
-        try {
-            dto.setUnitPrice(PurchaseInputUtil.parsePrice(parts[2]));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("preço inválido");
-        }
-
-        String source = parts[3].trim();
-        if (source.isBlank())
-            throw new IllegalArgumentException("fonte vazia");
-        dto.setSource(source);
-
-        try {
-            dto.setPurchasedAt(PurchaseInputUtil.parsePurchasedAt(parts[4]));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("data inválida (dd/mm/aaaa)");
-        }
-
-        if (parts.length == 6) {
-            String observations = parts[5].trim();
-            if (!observations.isBlank() && !observations.equals("-"))
-                dto.setObservations(observations);
-        }
-
-        return dto;
-    }
-
-    @Override
-    public String listIf(String incomingMessage) {
-        if (!incomingMessage.equalsIgnoreCase(ChatType.LIST_PURCHASES.getValue()))
-            return null;
-
-        List<Purchase> purchases = repository.findAllByActiveTrueOrderByCreatedAtDesc();
-        if (purchases.isEmpty())
-            return "Nenhuma compra registrada!";
-
-        StringBuilder builder = new StringBuilder("Compras de insumos 3D:\n\n");
-        BigDecimal grandTotal = BigDecimal.ZERO;
-        for (Purchase purchase : purchases) {
-            BigDecimal total = purchase.getUnitPrice().multiply(BigDecimal.valueOf(purchase.getAmount()));
-            grandTotal = grandTotal.add(total);
-            builder.append("*%d - %s* (%s)\n".formatted(
-                    purchase.getId(),
-                    purchase.getDescription(),
-                    purchase.getCreatedAt().format(FORMATTER)));
-            builder.append("Qtd: %d | Unit.: R$ %s | Total: R$ %s\n".formatted(
-                    purchase.getAmount(),
-                    purchase.getUnitPrice().toPlainString(),
-                    total.toPlainString()));
-            builder.append("Fonte: %s\n".formatted(purchase.getSource()));
-            builder.append("Data da compra: %s\n".formatted(purchase.getPurchasedAt().format(DATE_FORMATTER)));
-            if (purchase.getObservations() != null && !purchase.getObservations().isBlank())
-                builder.append("Obs: %s\n".formatted(purchase.getObservations()));
-            builder.append("\n");
-        }
-        builder.append("*Total geral: R$ %s*".formatted(grandTotal.toPlainString()));
-        return builder.toString().trim();
-    }
-
-    @Override
-    public String deleteIf(String incomingMessage) {
-        if (!incomingMessage.toLowerCase().startsWith(ChatType.DELETE_PURCHASE.getValue()))
-            return null;
-
-        String[] parts = incomingMessage.trim().split("\\s+");
-        if (parts.length < 2)
-            return "Uso: @dbuy <id>";
-
-        try {
-            Long id = Long.parseLong(parts[1]);
-            if (!repository.existsById(id))
-                return "Compra com id %d não encontrada.".formatted(id);
-            repository.deleteById(id);
-            return "Compra com id %d removida!".formatted(id);
-        } catch (NumberFormatException e) {
-            return "Id inválido. Tente novamente.";
-        }
-    }
-
-    private PurchaseDTO toDto(Purchase purchase) {
-        PurchaseDTO dto = new PurchaseDTO();
-        dto.setDescription(purchase.getDescription());
-        dto.setAmount(purchase.getAmount());
-        dto.setUnitPrice(purchase.getUnitPrice());
-        dto.setSource(purchase.getSource());
-        dto.setPurchasedAt(purchase.getPurchasedAt());
-        dto.setObservations(purchase.getObservations());
-        return dto;
     }
 }

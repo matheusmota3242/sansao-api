@@ -1,140 +1,89 @@
-# Simão API
+# ARGILA LAB — loja e admin
 
-A personal WhatsApp bot that manages tasks and automations via chat commands, built with Spring Boot and [WAHA](https://waha.devlike.pro/).
+Catálogo, cálculo de custo, loja pública e gestão de pedidos e compras da
+ARGILA LAB, em Spring Boot + PostgreSQL.
+
+O frontend (admin) é servido pelo próprio jar em `/argilalabapp.html`.
 
 ## Stack
 
-- Java 25 + Spring Boot 3.x
+- Java 25 + Spring Boot 4
 - PostgreSQL + Flyway
-- WAHA (WhatsApp HTTP API)
 - Docker Compose
 
-## Features
+## O que tem aqui
 
-### Tasks
-Create, list, complete, and delete tasks with optional scheduling and periodicity.
+### Catálogo e custos
+Produtos com SKU derivado (`AL-<cat>-<num>[-<tam>]`), categorias editáveis,
+fotos deduplicadas por SHA-256 e um conjunto único de parâmetros que recalcula
+o custo de todos os produtos.
 
-### Automations
-Schedule automated WhatsApp messages on a recurring or one-time basis.
+### Loja pública
+`GET /api/catalog` devolve o catálogo vivo (produtos publicados + configuração
+da loja). O checkout é um link `wa.me` — nenhum dado de cliente passa pela API.
 
-**Action types:**
-- Send a custom text message
-- Send a task reminder
+### Gestão
+Clientes, fila de impressão (com status e prioridade contígua) e compras de
+insumos.
 
-**Schedule types:**
-- Daily — `12:00`
-- Specific date — `01/01/2030 12:00`
-- Weekly custom — `SEG 09:00, QUA 14:00`
+## API
 
-## Chat Commands
-
-| Command | Description |
+| Recurso | Endpoint |
 |---|---|
-| `@menu` | Show all available commands |
-| `@ctask` | Create a new task (interactive) |
-| `@ltask` | List all active tasks |
-| `@dtask <id>` | Delete a task |
-| `@etask <id>` | Mark a task as completed |
-| `@cauto` | Create a new automation (interactive) |
-| `@lauto` | List all active automations |
-| `@dauto <id>` | Delete an automation |
-| `@cnote` | Create a new note (interactive) |
-| `@lnote` | List all notes |
-| `@dnote <id>` | Delete a note |
-| `@cancel` | Cancel the current in-progress interaction |
+| Catálogo público | `GET /api/catalog` |
+| Produtos | `/api/products` |
+| Categorias | `/api/categories` |
+| Parâmetros de custo | `/api/cost-parameters` |
+| Configuração da loja | `/api/store` |
+| Mídia | `POST /api/media`, `GET /api/media/{hash}` |
+| Importação | `POST /api/import` |
 
-All commands must be prefixed with `#` when sent via WhatsApp (e.g. `#@ctask`).
+Clientes, pedidos e compras ainda não têm controller: os services existem
+(`CustomerService`, `OrderService`, `PurchaseService`), falta expô-los.
 
-## Getting Started
+## Rodando
 
-### Prerequisites
+### Pré-requisitos
 
 - Docker + Docker Compose
-- A running WAHA instance (configured in `.waha_env`)
 
-### Environment files
+### Variáveis de ambiente
 
-Create the following files (never commit them):
+Crie o `.app_env` (nunca commitado):
 
-**`.app_env`**
 ```env
 DATABASE_URL=jdbc:postgresql://postgres-app:5432/simao_db
 DATABASE_USERNAME=matheus
-DATABASE_PASSWORD=your_password
-WAHA_USERNAME=your_waha_username
-WAHA_PASSWORD=your_waha_password
-WAHA_API_KEY=your_waha_api_key
-WAHA_WEBHOOK_SECRET=your_webhook_secret
-APPLICATION_HOST=http://simao-app:8080
-OWNER_PHONE=your_phone_number
+DATABASE_PASSWORD=sua_senha
 ```
 
-**`.waha_env`**
-```env
-WAHA_USERNAME=your_waha_username
-WAHA_PASSWORD=your_waha_password
-WHATSAPP_API_KEY=your_waha_api_key
-WAHA_WEBHOOK_SECRET=your_webhook_secret
-WHATSAPP_SESSIONS_POSTGRESQL_URL=postgres://simao:your_password@postgres-waha:5432/waha_db?sslmode=disable
-```
+E o `.postgres_app.env`:
 
-**`.postgres_app.env`**
 ```env
 POSTGRES_DB=simao_db
 POSTGRES_USER=matheus
-POSTGRES_PASSWORD=your_password
+POSTGRES_PASSWORD=sua_senha
 ```
 
-**`.postgres_waha.env`**
-```env
-POSTGRES_DB=waha_db
-POSTGRES_USER=simao
-POSTGRES_PASSWORD=your_password
-```
-
-### Run
+### Subir
 
 ```bash
 docker compose up -d
 ```
 
-On startup the app will:
-1. Run Flyway migrations
-2. Configure the WAHA webhook automatically
-3. Send a "Simão Bot is now online!" message to the owner
+O Flyway roda as migrations no boot. O admin fica em
+`http://localhost:8080/argilalabapp.html`.
 
-## Architecture
+## Deploy
 
-```
-WhatsApp message
-      │
-      ▼
- WAHA webhook ──► POST /whatsapp/message (validated by X-Webhook-Secret)
-      │
-      ▼
- WhatsappBotService
-      │
-      ├── Active chat record? ──► continue interaction state machine
-      │
-      └── New command? ──► route to TaskService / AutomationService
-```
+`.github/workflows/deploy.yml` builda a partir de `deploy/Dockerfile` e publica
+a imagem no GHCR a cada push na `main`. No servidor, o
+`deploy/docker-compose.notebook.yml` puxa essa imagem e o Watchtower atualiza o
+container sozinho.
 
-**Interaction state machine:** multi-step chat flows (e.g. `@ctask`, `@cauto`) are persisted as `ChatRecord` in the database so they survive restarts.
+## Segurança
 
-**Automation scheduler:** runs every 5 minutes, executes due automations, then either schedules the next run (recurrent) or inactivates them (one-shot).
-
-## Security
-
-- Webhook endpoint protected by a shared secret (`X-Webhook-Secret` header)
-- All ports bound to `127.0.0.1` — nothing is exposed to the public network
-- Credentials managed via env files (gitignored)
-
-## Planned integrations
-
-Designs we want to implement later (not built yet):
-
-- [LLM integration (Claude API)](docs/llm-integration.md) — an `@ask` command that
-  answers free-form questions and generates insight over your tasks, notes, and
-  automations, by calling the Claude API with read-only tools over the database.
-- [Alexa integration](docs/alexa-integration.md) — control Simão by voice (pt-BR)
-  through an Alexa Skill that reuses the existing services.
+> **Ainda não há autenticação.** `spring-boot-starter-security` está comentado
+> no `pom.xml` e o CORS em `CatalogCorsConfig` aceita qualquer origem. Enquanto
+> isso não mudar, as portas ficam em `127.0.0.1` e o acesso é só pela tailnet —
+> qualquer exposição pública permitiria escrita anônima na API.

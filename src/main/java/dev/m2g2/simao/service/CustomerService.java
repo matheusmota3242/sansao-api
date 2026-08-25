@@ -1,17 +1,21 @@
 package dev.m2g2.simao.service;
 
-import dev.m2g2.simao.enums.ChatType;
 import dev.m2g2.simao.enums.OrderStatus;
 import dev.m2g2.simao.model.Customer;
 import dev.m2g2.simao.repository.CustomerRepository;
 import dev.m2g2.simao.repository.PrintOrderRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class CustomerService {
+
+    private static final List<OrderStatus> QUEUE_STATUSES = List.of(OrderStatus.WAITING, OrderStatus.RUNNING);
 
     private final CustomerRepository repository;
     private final PrintOrderRepository printOrderRepository;
@@ -21,6 +25,30 @@ public class CustomerService {
         this.printOrderRepository = printOrderRepository;
     }
 
+    public List<Customer> list() {
+        return repository.findAllByActiveTrueOrderByNameAsc();
+    }
+
+    public Customer get(Long id) {
+        return repository.findById(id)
+                .filter(Customer::isActive)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Cliente com id %d não encontrado.".formatted(id)));
+    }
+
+    /** Registers a customer, rejecting a name that is already taken. */
+    @Transactional
+    public Customer register(String name) {
+        String trimmed = name == null ? "" : name.trim();
+        if (trimmed.isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o nome do cliente.");
+        if (repository.findFirstByNameIgnoreCaseAndActiveTrue(trimmed).isPresent())
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Já existe um cliente chamado %s.".formatted(trimmed));
+        return create(trimmed);
+    }
+
+    @Transactional
     public Customer create(String name) {
         Customer customer = new Customer();
         customer.setName(name.trim());
@@ -29,6 +57,38 @@ public class CustomerService {
         customer.setUpdatedAt(now);
         customer.setActive(true);
         return repository.save(customer);
+    }
+
+    @Transactional
+    public Customer update(Long id, String name) {
+        String trimmed = name == null ? "" : name.trim();
+        if (trimmed.isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o nome do cliente.");
+        Customer customer = get(id);
+        customer.setName(trimmed);
+        return repository.save(customer);
+    }
+
+    /**
+     * Deactivates a customer. Deliberately a soft delete: print_order carries a
+     * foreign key to customer, so removing the row would either fail or orphan
+     * the order history. Refuses while the customer still has orders in the
+     * queue, so nothing in progress loses its owner.
+     */
+    @Transactional
+    public void delete(Long id) {
+        Customer customer = get(id);
+        long queued = printOrderRepository
+                .findAllByActiveTrueAndStatusInOrderByPriorityAsc(QUEUE_STATUSES)
+                .stream()
+                .filter(order -> order.getCustomer() != null && id.equals(order.getCustomer().getId()))
+                .count();
+        if (queued > 0)
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Cliente %s tem %d pedido(s) na fila. Encerre ou remova antes."
+                            .formatted(customer.getName(), queued));
+        customer.setActive(false);
+        repository.save(customer);
     }
 
     /**
@@ -69,104 +129,5 @@ public class CustomerService {
         String trimmed = name.trim();
         return repository.findFirstByNameIgnoreCaseAndActiveTrue(trimmed)
                 .orElseGet(() -> create(trimmed));
-    }
-
-    /**
-     * Registers a customer up front. Usage: {@code @ccli <nome>}. A single field
-     * does not justify an Interaction, so the name comes inline.
-     */
-    public String createIf(String incomingMessage) {
-        if (!incomingMessage.toLowerCase().startsWith(ChatType.CREATE_CUSTOMER.getValue()))
-            return null;
-
-        String name = incomingMessage.trim().substring(ChatType.CREATE_CUSTOMER.getValue().length()).trim();
-        if (name.isBlank())
-            return "Uso: @ccli <nome>";
-
-        if (repository.findFirstByNameIgnoreCaseAndActiveTrue(name).isPresent())
-            return "Já existe um cliente chamado *%s*.".formatted(name);
-
-        Customer customer = create(name);
-        return "Cliente *%s* cadastrado com id %d!".formatted(customer.getName(), customer.getId());
-    }
-
-    public String listIf(String incomingMessage) {
-        if (!incomingMessage.equalsIgnoreCase(ChatType.LIST_CUSTOMERS.getValue()))
-            return null;
-
-        List<Customer> customers = repository.findAllByActiveTrueOrderByNameAsc();
-        if (customers.isEmpty())
-            return "Nenhum cliente cadastrado!";
-
-        StringBuilder builder = new StringBuilder("Clientes:\n\n");
-        for (Customer customer : customers)
-            builder.append("*%d* - %s\n".formatted(customer.getId(), customer.getName()));
-        return builder.toString().trim();
-    }
-
-    /**
-     * Renames a customer. Usage: {@code @ucli <id> <novo nome>}.
-     */
-    public String updateIf(String incomingMessage) {
-        if (!incomingMessage.toLowerCase().startsWith(ChatType.UPDATE_CUSTOMER.getValue()))
-            return null;
-
-        String[] parts = incomingMessage.trim().split("\\s+", 3);
-        if (parts.length < 3 || parts[2].isBlank())
-            return "Uso: @ucli <id> <novo nome>";
-
-        Long id;
-        try {
-            id = Long.parseLong(parts[1]);
-        } catch (NumberFormatException e) {
-            return "Id inválido. Tente novamente.";
-        }
-
-        Customer customer = repository.findById(id).filter(Customer::isActive).orElse(null);
-        if (customer == null)
-            return "Cliente com id %d não encontrado.".formatted(id);
-
-        String newName = parts[2].trim();
-        customer.setName(newName);
-        repository.save(customer);
-        return "Cliente %d renomeado para *%s*.".formatted(id, newName);
-    }
-
-    /**
-     * Deactivates a customer. Deliberately a soft delete: print_order carries a
-     * foreign key to customer, so removing the row would either fail or orphan
-     * the order history.
-     */
-    public String deleteIf(String incomingMessage) {
-        if (!incomingMessage.toLowerCase().startsWith(ChatType.DELETE_CUSTOMER.getValue()))
-            return null;
-
-        String[] parts = incomingMessage.trim().split("\\s+");
-        if (parts.length < 2)
-            return "Uso: @dcli <id>";
-
-        Long id;
-        try {
-            id = Long.parseLong(parts[1]);
-        } catch (NumberFormatException e) {
-            return "Id inválido. Tente novamente.";
-        }
-
-        Customer customer = repository.findById(id).filter(Customer::isActive).orElse(null);
-        if (customer == null)
-            return "Cliente com id %d não encontrado.".formatted(id);
-
-        long queued = printOrderRepository
-                .findAllByActiveTrueAndStatusInOrderByPriorityAsc(List.of(OrderStatus.WAITING, OrderStatus.RUNNING))
-                .stream()
-                .filter(order -> order.getCustomer() != null && id.equals(order.getCustomer().getId()))
-                .count();
-        if (queued > 0)
-            return "Cliente *%s* tem %d pedido(s) na fila. Encerre ou remova antes."
-                    .formatted(customer.getName(), queued);
-
-        customer.setActive(false);
-        repository.save(customer);
-        return "Cliente *%s* removido!".formatted(customer.getName());
     }
 }

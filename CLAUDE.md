@@ -1,47 +1,71 @@
-# Simao API — Claude Code Guide
+# ARGILA LAB — Claude Code Guide
+
+Catálogo, custos, loja pública e gestão (clientes, pedidos, compras).
+O bot de WhatsApp foi removido nesta branch — se você encontrar referência a
+WAHA, interações de chat, tarefas, notas, automações ou trackers, é resíduo e
+deve sair.
 
 ## Stack
-- Java 25, Spring Boot 3.x
-- Maven (NOT Gradle)
-- PostgreSQL + Flyway migrations
-- MapStruct for mapping
-- Jackson for serialization
+- Java 25, Spring Boot 4
+- Maven (NÃO Gradle)
+- PostgreSQL + migrations Flyway
+- MapStruct para mapeamento
+- Jackson para serialização
 
-## Test conventions
-- Test framework: JUnit 5 via `spring-boot-starter-test` (scope: test)
-- No @SpringBootTest unless Testcontainers is set up — unit tests only
-- Test files go in src/test/java mirroring the main package
-- Interaction tests are plain Java, no Spring context needed
+## Convenções de teste
+- JUnit 5 via `spring-boot-starter-test` (scope: test)
+- Sem @SpringBootTest enquanto não houver Testcontainers — só testes unitários
+- Testes em src/test/java espelhando o pacote de main
+- Services são testados com Mockito sobre os repositories
 
-## Maven — do not invent artifact IDs
-The only test dependency needed for unit tests:
+## Maven — não invente artifact IDs
+A única dependência de teste necessária:
 - groupId: org.springframework.boot
 - artifactId: spring-boot-starter-test
 - scope: test
 
-Artifacts like spring-boot-starter-data-jpa-test do not exist. Never add a test dependency that isn't already in pom.xml without confirming it exists on Maven Central.
+Artefatos como spring-boot-starter-data-jpa-test não existem. Nunca adicione uma
+dependência de teste que já não esteja no pom.xml sem confirmar que ela existe
+no Maven Central.
 
-## Architecture — Interaction state machine
-- Interaction subclasses extend Interaction<T> and implement processInput(String)
-- The steps list is mutable — some steps are inserted dynamically at runtime
-  (e.g. action type step inserts "Mensagem:" or "Id da tarefa:" at index 2)
-- getCurrentStep() returns the first non-completed step
-- Error responses do NOT mark the step completed — state stays on same step
-- Every subclass must implement cancelMessage()
-- Step has no equals() override — do NOT use reference or object equality to identify steps
-  after deserialization; use data state instead (e.g. check if data.getScheduleConfig() != null)
+## Arquitetura
 
-## Automation recurrence
-- Automation.recurrent controls post-execution behaviour
-- recurrent=true → updateNextExecutionAtOrInactivate() recalculates nextExecutionAt
-- recurrent=false → sets active=false (one-shot execution)
+### Catálogo
+- `Product` tem SKU derivado: `AL-<category.code>-<num:3>[-<tam>]`, montado por
+  `SkuUtil`. A unicidade é garantida por `uq_product_sku (category_id, num, tam)`,
+  incluindo linhas inativas — um SKU excluído continua reservado.
+- `CostParameters` é uma linha única e global: mexer nela recalcula o custo de
+  todos os produtos. O cálculo vive no servidor (`CostCalculatorService`); o
+  modal do frontend só faz uma prévia para dar feedback enquanto se digita.
+- `Media` é endereçada por conteúdo (SHA-256). Subir a mesma imagem duas vezes
+  devolve o mesmo hash e grava os bytes uma vez só.
+- `ProductPhoto` é ordenada por `position`; a primeira é a capa.
 
-## DateTimeUtil
-- getDayOfWeekIndex(String) maps Portuguese abbreviations to day numbers (1–7)
-- Valid abbreviations: SEG, TER, QUA, QUI, SEX, SAB, DOM
-- English abbreviations (MON, TUE, etc.) are not supported and will throw
+### Loja pública
+- `GET /api/catalog` é o feed lido pelo storefront: produtos publicados +
+  `StoreConfig`. É só leitura, e o checkout é link `wa.me` — nenhum dado de
+  cliente entra pela API.
 
-## Naming conventions
-- Interaction classes: Create[Entity]Interaction
-- Test classes: Create[Entity]InteractionTest
-- User-facing messages in Portuguese, code in English
+### Gestão
+- `PrintOrder` é uma fila: `priority` é 1..n contígua entre os pedidos em fila
+  (WAITING/RUNNING) e NULL para quem saiu dela (COMPLETED/CANCELLED).
+  Toda operação que mexe na fila chama `renumber()` para manter isso.
+- `CustomerService.resolveByNameOrId` aceita id ou nome: entrada só de dígitos é
+  id e falha se não existir; qualquer outra coisa casa por nome (ignorando caixa)
+  ou cria um cliente novo.
+- Exclusão de cliente é soft delete — `print_order` tem FK para `customer`, então
+  apagar a linha deixaria o histórico órfão.
+- Erros de negócio sobem como `ResponseStatusException` com mensagem em
+  português, que é o que os controllers do catálogo já fazem.
+
+## Migrations
+- V1–V9 criaram o esquema do bot e já foram aplicadas em produção. **Nunca
+  edite uma migration aplicada** — o checksum do Flyway quebra. Adicione uma Vn
+  nova.
+- V12 derruba as tabelas do bot (task, note, automation, chat_record, tracker).
+
+## Convenções de nomenclatura
+- Classes de teste: `[Classe]Test`
+- Mensagens ao usuário em português, código em inglês
+- A tabela de pedidos é `print_order`, não `order` — ORDER é palavra reservada
+  em SQL

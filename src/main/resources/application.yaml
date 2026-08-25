@@ -12,14 +12,3 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
-waha:
-  username: ${WAHA_USERNAME}
-  password: ${WAHA_PASSWORD}
-  api-key: ${WAHA_API_KEY}
-  webhook-secret: ${WAHA_WEBHOOK_SECRET}
-
-application:
-  host: ${APPLICATION_HOST}
-  owner-phone: ${OWNER_PHONE}
-  purchase-group-id: ${PURCHASE_GROUP_ID}

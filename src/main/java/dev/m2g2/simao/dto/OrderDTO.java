@@ -6,8 +6,8 @@ public class OrderDTO {
 
     private String description;
     /**
-     * Customer is captured by name over WhatsApp; the service resolves it to an
-     * existing Customer or creates one.
+     * Accepts either a customer id or a name; the service resolves it to an
+     * existing Customer or creates one. See CustomerService#resolveByNameOrId.
      */
     private String customerName;
     private Integer printTimeMinutes;
