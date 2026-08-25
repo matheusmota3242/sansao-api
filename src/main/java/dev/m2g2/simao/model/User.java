@@ -1,5 +1,6 @@
 package dev.m2g2.simao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.m2g2.simao.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +23,8 @@ public class User extends BaseModel {
     @Column(nullable = false, unique = true)
     private String email;
 
-    /** Hash BCrypt — nunca a senha em texto puro. */
+    /** Hash BCrypt — nunca a senha em texto puro, e nunca serializado. */
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 

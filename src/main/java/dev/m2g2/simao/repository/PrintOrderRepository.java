@@ -16,8 +16,9 @@ public interface PrintOrderRepository extends JpaRepository<PrintOrder, Long> {
 
     /**
      * Orders that already left the queue, newest first. Ordered by id because
-     * BaseModel maps updated_at as non-updatable, so it cannot stand in for
-     * "when it finished".
+     * By id, which is creation order and stable. updated_at now does track the
+     * last change, so it would order by "quando encerrou" instead — troque se
+     * for isso que a tela precisar.
      */
     List<PrintOrder> findAllByActiveTrueAndStatusInOrderByIdDesc(Collection<OrderStatus> statuses);
 }

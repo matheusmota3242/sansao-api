@@ -11,7 +11,7 @@ public abstract class BaseModel {
     protected Long id;
     @Column(name = "created_at", nullable = false, updatable = false)
     protected LocalDateTime createdAt;
-    @Column(name = "updated_at", nullable = false, updatable = false)
+    @Column(name = "updated_at", nullable = false)
     protected LocalDateTime updatedAt;
     @ManyToOne
     @JoinColumn(name = "created_by_id")
@@ -20,6 +20,25 @@ public abstract class BaseModel {
     @JoinColumn(name = "updated_by_id")
     protected User updatedBy;
     protected boolean active = true;
+
+    /**
+     * Carimba as datas na própria persistência, em vez de depender de cada
+     * service lembrar. createdAt só é preenchido quando ainda está vazio, para
+     * que a importação de projetos antigos consiga preservar a data original.
+     */
+    @PrePersist
+    protected void onPersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (createdAt == null)
+            createdAt = now;
+        if (updatedAt == null)
+            updatedAt = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     public Long getId() {
         return id;
