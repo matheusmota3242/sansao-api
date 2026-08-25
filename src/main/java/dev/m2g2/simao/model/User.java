@@ -1,7 +1,10 @@
 package dev.m2g2.simao.model;
 
+import dev.m2g2.simao.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 
 /**
@@ -22,6 +25,14 @@ public class User extends BaseModel {
     /** Hash BCrypt — nunca a senha em texto puro. */
     @Column(nullable = false)
     private String password;
+
+    /**
+     * Começa em OPERATOR de propósito: quem for criado sem papel explícito cai
+     * no menor privilégio, nunca em ADMIN por acidente.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role = Role.OPERATOR;
 
     public String getEmail() {
         return email;
@@ -45,6 +56,14 @@ public class User extends BaseModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
 }

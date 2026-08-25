@@ -15,6 +15,9 @@ CREATE TABLE app_user (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,      -- hash BCrypt
+    -- ADMIN vê e edita custos; OPERATOR mexe em produtos, pedidos e clientes
+    -- sem enxergar margem. Sem DEFAULT: todo insert declara o papel.
+    role VARCHAR(20) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     created_by_id BIGINT REFERENCES app_user(id),
