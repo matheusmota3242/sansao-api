@@ -81,6 +81,17 @@ Português permanece em: mensagens ao usuário, o formato externo `argilalab.jso
 - `GET /api/catalog` é o feed lido pelo storefront: produtos publicados +
   `StoreConfig`. É só leitura, e o checkout é link `wa.me` — nenhum dado de
   cliente entra pela API.
+- O feed projeta para `PublicProduct`, que é **estreito de propósito**: o
+  endpoint não exige login, então custo, margem, gramatura, tempo, impressora,
+  filamento e `obs` não podem sair por ali. `CatalogServiceTest` trava isso por
+  nome de campo. Ao adicionar campo em `Product`, decida conscientemente se ele
+  entra na projeção pública.
+- O formato é o que o template `tplLoja` já lê (`preco`, `descricao`,
+  `prazoDias`...), para que a loja estática e a loja apontada para o catálogo
+  vivo consumam a mesma coisa.
+- `tools/publish-site.mjs` gera `site/` com o catálogo embutido e as fotos como
+  arquivos locais; publica com `npx wrangler pages deploy site`. Precisa rodar
+  de uma máquina que enxergue a API.
 
 ### Gestão
 - Telas no admin: **Clientes** e **Compras de insumo**, em

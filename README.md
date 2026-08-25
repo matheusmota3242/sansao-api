@@ -22,6 +22,10 @@ o custo de todos os produtos.
 `GET /api/catalog` devolve o catálogo vivo (produtos publicados + configuração
 da loja). O checkout é um link `wa.me` — nenhum dado de cliente passa pela API.
 
+O feed é **estreito de propósito**: leva só o que a vitrine mostra. Custo,
+margem, gramatura, tempo de impressão, impressora, filamento e observações
+internas não saem por ali — o endpoint é público.
+
 As imagens ficam **em disco**, não no banco: `MEDIA_PATH/<2 do hash>/<hash>`.
 Em container isso precisa de um volume, senão as fotos somem a cada deploy — o
 `deploy/docker-compose.yml` já monta um.
@@ -93,6 +97,28 @@ docker compose up -d
 
 O Flyway roda as migrations no boot. O admin fica em
 `http://localhost:8080/argilalabapp.html`.
+
+## Publicar a loja
+
+A loja pública é um site **estático**, gerado a partir do catálogo e hospedado
+no Cloudflare Pages. O catálogo vai embutido no `index.html` e as fotos viram
+arquivos locais: a loja não faz nenhuma chamada à API, então continua no ar
+mesmo com o servidor desligado, em manutenção ou quebrado.
+
+```bash
+# 1. gera site/ a partir da API (precisa enxergar o servidor: tailnet, localhost)
+node tools/publish-site.mjs --api http://localhost:8080
+
+# 2. publica (a primeira vez pergunta o nome do projeto e cria)
+npx wrangler pages deploy site --project-name=argilalab
+```
+
+O primeiro `wrangler` abre o navegador para você entrar na sua conta Cloudflare.
+Depois disso, publicar é repetir os dois comandos.
+
+Não dá para publicar pelo GitHub Actions enquanto o servidor estiver atrás de
+NAT: o CI não enxerga a API para ler o catálogo. Quando a API tiver endereço
+público, isso passa a ser possível.
 
 ## Deploy
 
