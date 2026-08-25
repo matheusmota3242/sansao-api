@@ -23,8 +23,16 @@ services:
     image: ghcr.io/matheusmota3242/simao-app:latest
     container_name: simao-app
     restart: unless-stopped
+    # Um bloco só: dois `environment:` no mesmo serviço são chave duplicada, e o
+    # compose recusa o arquivo inteiro em vez de mesclar.
     environment:
       TZ: America/Sao_Paulo
+      MEDIA_PATH: /app/media
+      # O app fica atrás de um proxy com TLS, então precisa levar a sério o
+      # X-Forwarded-Proto para saber que a requisição chegou por HTTPS — é disso
+      # que os dois cookies tiram a flag Secure. `native` e não `framework`: só
+      # ele pega o JSESSIONID também (ver o comentário no application.yaml).
+      FORWARD_HEADERS: native
     # .app_env leva DATABASE_*, ADMIN_EMAIL/ADMIN_PASSWORD (primeiro admin) e,
     # quando a loja estática estiver noutro domínio, STOREFRONT_ORIGINS.
     env_file: [.app_env]
@@ -37,8 +45,6 @@ services:
       # Os bytes das imagens vivem aqui. Sem este volume, toda atualização de
       # container levaria as fotos do catálogo junto.
       - media-data:/app/media
-    environment:
-      MEDIA_PATH: /app/media
     ports:
       # API + admin ARGILA LAB (UI em /argilalabapp.html, servida pelo jar).
       - "127.0.0.1:8080:8080"
