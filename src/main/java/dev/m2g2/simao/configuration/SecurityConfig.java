@@ -3,6 +3,7 @@ package dev.m2g2.simao.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +24,7 @@ import java.util.LinkedHashMap;
 
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
+@EnableMethodSecurity  // liga o @PreAuthorize do PurchaseController
 public class SecurityConfig {
 
     @Bean
@@ -80,7 +82,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/catalog", "/api/media/*").permitAll()
                     .requestMatchers("/login", "/login.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
                     // Custos e margem são do ADMIN; o OPERATOR opera sem ver quanto se ganha.
-                    .requestMatchers("/api/cost-parameters/**").hasRole("ADMIN")
+                    .requestMatchers("/api/cost-parameters/**", "/api/purchases/**").hasRole("ADMIN")
                     .anyRequest().authenticated())
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint(entryPoint())

@@ -146,9 +146,14 @@ public class OrderService {
             repository.save(order);
             renumber(queue());
         } else if (!wasInQueue) {
-            // Coming back into the queue: rejoin at the back.
-            order.setPriority(queue().size() + 1);
+            // Volta para o fim da fila. Não dá para contar queue().size() aqui:
+            // estamos numa transação e o Hibernate faz flush do status novo
+            // antes de consultar, então o próprio pedido entraria na contagem e
+            // a fila ficaria com buraco (1, 2, 4). Manda para o fim com um valor
+            // alto e deixa o renumber devolver a sequência para 1..n.
+            order.setPriority(Integer.MAX_VALUE);
             repository.save(order);
+            renumber(queue());
         } else {
             repository.save(order);
         }
