@@ -42,6 +42,10 @@ jobs:
         with:
           context: .
           file: deploy/Dockerfile
+          # A VM Always Free da Oracle é ARM (Ampere A1); o notebook e o runner
+          # são amd64. O Dockerfile compila o jar uma vez só, na arquitetura do
+          # runner, então o alvo extra custa quase nada de tempo.
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
